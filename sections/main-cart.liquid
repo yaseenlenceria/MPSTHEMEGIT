@@ -13,8 +13,19 @@
   <form class="cart form{% if cart != empty %} cart--with-items gap-theme heading--{{ section.settings.heading_align }}{% endif %}" id="cart" action="{{ routes.cart_url }}" method="post">
     <div class="cart__items">
       {%- if section.settings.show_page_title -%}
-        <h1 class="h2 mb-10{% if cart != empty %} {{ section.settings.heading_align }}{% else %} text-center{% endif %} js-cart-title">{{ 'cart.general.title' | t }}</h1>
+        <h1 class="h2 mb-10{% if cart != empty %} {{ section.settings.heading_align }}{% else %} text-center{% endif %} js-cart-title" style="font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #f0f0f0; padding-bottom: 12px; margin-bottom: 20px;">
+          {{ 'cart.general.title' | t }}
+        </h1>
       {%- endif -%}
+
+      {%- comment -%} Premium Customer Notice for Outside UK {%- endcomment -%}
+      <div class="outside-uk-notice" style="margin: 0 0 20px 0; box-sizing: border-box; width: 100%; border-left: 4px solid #d32f2f; background-color: #fff9f9; padding: 12px 16px; border-radius: 6px; box-shadow: 0 4px 12px rgba(211, 47, 47, 0.04); display: flex; gap: 12px; align-items: flex-start; text-align: left;">
+        <span style="color: #d32f2f; font-size: 1.25rem; line-height: 1; margin-top: 2px;">⚠️</span>
+        <div style="flex: 1;">
+          <h4 style="color: #d32f2f; font-weight: 800; margin: 0 0 4px 0; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.03em;">CUSTOMERS OUTSIDE OF THE UK</h4>
+          <p style="color: #4a4a4a; margin: 0; font-size: 0.88rem; line-height: 1.45;">VAT will not be charged on your order. Local taxes will be payable in your country upon delivery.</p>
+        </div>
+      </div>
 
       {%- if settings.show_free_shipping_notice and cart != empty -%}
         {% render 'free-shipping-notice' %}
@@ -316,6 +327,7 @@
           
           /* Order direct children of cart form */
           .cart.form > h1,
+          .cart.form > .outside-uk-notice,
           .cart.form > .free-shipping-container,
           .cart.form > #cart-errors {
             order: 1 !important;
