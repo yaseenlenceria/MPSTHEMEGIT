@@ -3768,6 +3768,13 @@ body:not(.tab-used) .search__input {
   transform: translate3d(0, 0, 0);
   transition: visibility 0s 0s, transform 0.7s cubic-bezier(0.19, 1, 0.22, 1);
 }
+html:has(.drawer[open]) {
+  overflow: hidden !important;
+}
+html:has(.drawer[open]) > body {
+  width: calc(100% - var(--scrollbar-width)) !important;
+  overflow: hidden !important;
+}
 .drawer:not(.facets) {
   border-radius: var(--drawer-border-radius) 0 0 var(--drawer-border-radius);
   box-shadow: -2px 1px 10px 2px rgba(0, 0, 0, 0.2);
