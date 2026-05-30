@@ -18,14 +18,15 @@
   border-radius: 8px;
 }
 
-.cart__summary--payment .payment-icons--cart {
-  gap: 8px;
-  justify-content: center;
+.cart__summary--payment .payment-icons {
+  gap: 6px !important;
+  justify-content: center !important;
 }
 
-.cart__summary--payment .payment-icons--cart svg {
-  width: 38px;
-  height: 24px;
+.cart__summary--payment .payment-icon,
+.cart__summary--payment .payment-icons svg {
+  width: 38px !important;
+  height: auto !important;
 }
 
 .dynamic-checkout__content ul {
