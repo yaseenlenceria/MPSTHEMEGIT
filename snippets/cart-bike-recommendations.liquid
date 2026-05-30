@@ -478,8 +478,11 @@
             });
           }
         }
+        console.log("Cart YMM recommendations running. Source:", source);
+        console.log("Generated search terms:", this.searchTerms(source.fitment, source.part));
         for (const query of this.searchTerms(source.fitment, source.part)) {
           const results = await this.suggest(query);
+          console.log(`Query "${query}" returned suggestions:`, results);
           for (const result of results) {
             const handleKey = this.compact(result.url || result.handle || result.title);
             if (!handleKey || seen.has(handleKey)) continue;
@@ -488,6 +491,7 @@
             if (!product || cartProductIds.has(Number(product.id))) continue;
             const fitment = this.parseBike(product);
             const score = this.scoreCandidate(product, fitment, source.fitment, source.part, source.fitment.category);
+            console.log(`Scored candidate "${product ? product.title : ''}":`, score, "Fitment:", fitment);
             if (!score) continue;
             recommendations.push({ product, ...score, category: this.partCategory(product) });
           }
