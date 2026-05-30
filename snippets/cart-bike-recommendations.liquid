@@ -309,21 +309,14 @@
           levers: 'lever protectors'
         };
         const spacedModel = (val) => String(val || '').replace(/([a-zA-Z]+)(\d+)/g, '$1 $2').replace(/(\d+)([a-zA-Z]+)/g, '$1 $2').replace(/\s+/g, ' ').trim();
-        const assoc = this.associationOrder(sourcePart, fitment.category).map((role) => roleTerms[role] || role);
         const base1 = `${fitment.brand} ${fitment.model}`.trim();
         const spaced = spacedModel(fitment.model);
         const base2 = spaced !== fitment.model ? `${fitment.brand} ${spaced}`.trim() : null;
         
         const terms = [];
-        assoc.forEach(term => {
-          terms.push(`${base1} ${term}`);
-          if (base2) terms.push(`${base2} ${term}`);
-        });
-        assoc.forEach(term => {
-          terms.push(`${fitment.brand} ${term}`);
-        });
-        terms.push(base1);
         if (base2) terms.push(base2);
+        terms.push(base1);
+        terms.push(spaced || fitment.model);
         terms.push(fitment.brand);
 
         return [...new Set(terms)];
