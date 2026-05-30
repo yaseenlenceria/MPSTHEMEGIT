@@ -232,15 +232,18 @@
         const tagAfterBrand = tags.split(brandPattern).pop() || '';
         const stopWords = new Set('abs air black carbon cat decat db exhaust filter filters for from full heat link pipe pipes relevance remap service shield silencer slip steel system systems termignoni titanium to with without'.split(' '));
         const modelTokens = [];
-        `${titleAfterBrand} ${tagAfterBrand}`.split(/\s+/).some((token) => {
+        const tokens = `${titleAfterBrand} ${tagAfterBrand}`.split(/\s+/);
+        for (const token of tokens) {
           const clean = token.replace(/[^a-z0-9-]/g, '');
-          if (!clean || /^(19|20)\d{2}/.test(clean)) return true;
-          if (stopWords.has(clean)) return false;
+          if (!clean) continue;
+          if (/^(19|20)\d{2}/.test(clean)) break;
+          if (stopWords.has(clean)) continue;
+          
           if (clean.length >= 2 && (/\d/.test(clean) || modelTokens.length > 0 || /^[a-z]{1,3}$/.test(clean))) {
             modelTokens.push(clean);
           }
-          return modelTokens.length >= 3;
-        });
+          if (modelTokens.length >= 3) break;
+        }
         const model = modelTokens.join(' ').trim();
         const modelCompact = this.compact(model);
         return {
