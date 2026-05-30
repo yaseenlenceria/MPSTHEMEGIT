@@ -563,9 +563,49 @@
       }
 
       async run() {
-        const source = this.cartItems.map((item) => ({ item, fitment: this.getFitment(item), part: this.partCategory(item) }))
-          .find((entry) => entry.fitment?.brand && entry.fitment?.model);
         const cartProductIds = new Set(this.cartItems.map((item) => Number(item.id)));
+        let source = null;
+
+        // Try to get fitment from localStorage saved vehicle (from 'Find Your Parts' header selector)
+        const savedVehicle = localStorage.getItem('sj_selected_vehicle');
+        if (savedVehicle) {
+          try {
+            const vehicle = JSON.parse(savedVehicle);
+            if (vehicle.make && vehicle.model && vehicle.year) {
+              const make = vehicle.make.trim().toLowerCase();
+              const model = vehicle.model.trim().toLowerCase();
+              const year = Number(vehicle.year);
+              if (make && model && !isNaN(year)) {
+                const cartItem = this.cartItems[0] || null;
+                const part = cartItem ? this.partCategory(cartItem) : 'other';
+                source = {
+                  item: cartItem,
+                  fitment: {
+                    brand: make,
+                    brandCompact: make.replace(/[^a-z0-9]/g, ''),
+                    model: model,
+                    modelCompact: model.replace(/[^a-z0-9]/g, ''),
+                    modelTokens: model.split(/[^\w]+/).filter(Boolean),
+                    years: { start: year, end: year },
+                    allYears: [year],
+                    category: this.bikeCategory(model)
+                  },
+                  part: part
+                };
+                console.log("Found YMM vehicle from 'Find Your Parts' header selector:", source);
+              }
+            }
+          } catch (e) {
+            console.warn("Failed to parse saved vehicle:", e);
+          }
+        }
+
+        // Fall back to parsing cart items
+        if (!source) {
+          source = this.cartItems.map((item) => ({ item, fitment: this.getFitment(item), part: this.partCategory(item) }))
+            .find((entry) => entry.fitment?.brand && entry.fitment?.model);
+        }
+
         if (!source) {
           const chosen = [];
           const categories = new Set();
@@ -574,8 +614,10 @@
           if (chosen.length) this.render(chosen);
           return;
         }
+
         const seen = new Set();
         const recommendations = [];
+
         if (source.part === 'filter') {
           const serviceKit = await this.productByHandle('dna_performance_air_filter_service_kit-product-7361');
           if (serviceKit && !cartProductIds.has(Number(serviceKit.id))) {
@@ -588,25 +630,51 @@
             });
           }
         }
+
         console.log("Cart YMM recommendations running. Source:", source);
-        console.log("Generated search terms:", this.searchTerms(source.fitment, source.part));
-        for (const query of this.searchTerms(source.fitment, source.part)) {
-          const results = await this.suggest(query);
-          console.log(`Query "${query}" returned suggestions:`, results);
+        const searchQueries = this.searchTerms(source.fitment, source.part);
+        console.log("Generated search terms (running concurrently):", searchQueries);
+
+        // Fetch suggestions concurrently
+        const suggestPromises = searchQueries.map(query => 
+          this.suggest(query).catch(err => {
+            console.warn(`Failed suggest query "${query}":`, err);
+            return [];
+          })
+        );
+        const suggestionResults = await Promise.all(suggestPromises);
+
+        const uniqueCandidates = [];
+        for (const results of suggestionResults) {
+          if (!results) continue;
           for (const result of results) {
             const handleKey = this.compact(result.url || result.handle || result.title);
             if (!handleKey || seen.has(handleKey)) continue;
             seen.add(handleKey);
-            const product = await this.productJson(result);
-            if (!product || cartProductIds.has(Number(product.id))) continue;
-            const fitment = this.getFitment(product);
-            const score = this.scoreCandidate(product, fitment, source.fitment, source.part, source.fitment.category, source.item);
-            console.log(`Scored candidate "${product ? product.title : ''}":`, score, "Fitment:", fitment);
-            if (!score) continue;
-            recommendations.push({ product, ...score, category: this.partCategory(product) });
+            uniqueCandidates.push(result);
           }
         }
+
+        console.log(`Fetching details for ${uniqueCandidates.length} candidates concurrently...`);
+        const productPromises = uniqueCandidates.map(result => 
+          this.productJson(result).catch(err => {
+            console.warn(`Failed to fetch product details for ${result.title}:`, err);
+            return null;
+          })
+        );
+        const productsList = await Promise.all(productPromises);
+
+        for (const product of productsList) {
+          if (!product || cartProductIds.has(Number(product.id))) continue;
+          const fitment = this.getFitment(product);
+          const score = this.scoreCandidate(product, fitment, source.fitment, source.part, source.fitment.category, source.item);
+          console.log(`Scored candidate "${product.title}":`, score, "Fitment:", fitment);
+          if (!score) continue;
+          recommendations.push({ product, ...score, category: this.partCategory(product) });
+        }
+
         recommendations.sort((a, b) => b.score - a.score);
+
         const chosen = [];
         const categories = new Set();
         for (const rec of recommendations) {
