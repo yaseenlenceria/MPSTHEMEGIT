@@ -423,7 +423,12 @@
     const dividers = document.querySelectorAll('#{{ form_id }} .quick-nav__step-divider');
 
     function normalizeHandle(value) {
-      return value.toLowerCase().replace(/\s+/g, '-').replace(/\//g, '-');
+      if (!value) return '';
+      return value.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
     }
 
     function buildHandle(make, model, year) {
@@ -627,7 +632,12 @@
       updateSteps(evt.target.value ? 4 : 3);
     });
 
-    button.addEventListener('click', function() {
+    button.addEventListener('click', function(evt) {
+      if (evt) {
+        evt.preventDefault();
+        evt.stopPropagation();
+      }
+
       var make = makeSelect.value;
       var model = modelSelect.value;
       var year = yearSelect.value;
@@ -637,9 +647,9 @@
         return;
       }
 
-      var site_url = "{{ shop.url }}/collections/all/";
-      var make_handle = make.toLowerCase().replace(/\s/g, "-").replace(/\//g, "-");
-      var model_handle = model ? model.toLowerCase().replace(/\s/g, "-").replace(/\//g, "-") : "";
+      var site_url = "/collections/all/";
+      var make_handle = normalizeHandle(make);
+      var model_handle = model ? normalizeHandle(model) : "";
       var year_handle = year || "";
 
       if (model_handle && model_handle !== "") {
