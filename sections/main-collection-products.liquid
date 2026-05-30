@@ -119,7 +119,7 @@
           <p class="text-sm mt-2" data-collection-search-empty hidden>No matches found on this page.</p>
         </div>
         {%- if collection.products.size == 0 -%}
-          <p>{{ 'sections.collection.empty' | t }}</p>
+          <p class="ymm-empty-msg">{{ 'sections.collection.empty' | t }}</p>
         {%- else -%}
           {%- liquid
             assign active_filters_count = 0
@@ -277,47 +277,94 @@
               {%- endif -%}
             {%- endfor -%}
 
-            {%- comment -%}Additional collection products{%- endcomment -%}
-            {%- comment -%}Only show if user selected from Year/Make/Model bike selector{%- endcomment -%}
-            {%- comment -%}When bike is selected, tags will be present (e.g., honda-cbr-2020){%- endcomment -%}
-            {%- assign show_universal_products = false -%}
-            {%- if current_tags.size > 0 -%}
-              {%- comment -%}Tags are present, meaning bike was selected from YMM{%- endcomment -%}
-              {%- assign show_universal_products = true -%}
-            {%- endif -%}
-            {%- if section.settings.additional_collection != blank and show_universal_products -%}
-              {%- assign additional_collection = collections[section.settings.additional_collection] -%}
-              {%- if additional_collection.all_products.size > 0 -%}
-                {%- liquid
-                  if settings.prod_card_image_ratio == 'shortest'
-                    assign additional_image_ratio = 0
-                    for product in additional_collection.all_products
-                      if product.featured_media.preview_image.aspect_ratio > additional_image_ratio
-                        assign additional_image_ratio = product.featured_media.preview_image.aspect_ratio
-                      endif
-                    endfor
-                  elsif settings.prod_card_image_ratio == 'tallest'
-                    assign additional_image_ratio = 99
-                    for product in additional_collection.all_products
-                      if product.featured_media.preview_image.aspect_ratio < additional_image_ratio
-                        assign additional_image_ratio = product.featured_media.preview_image.aspect_ratio
-                      endif
-                    endfor
-                  else
-                    assign additional_image_ratio = settings.prod_card_image_ratio
-                  endif
-                -%}
-                {%- for product in additional_collection.all_products limit: section.settings.additional_collection_limit -%}
-                  {%- capture search_text -%}{{ product.title }} {{ product.vendor }} {{ product.type }} {{ product.tags | join: ' ' }}{%- endcapture -%}
-                  <li data-vendor="{{ product.vendor }}" data-search-item data-search-text="{{ search_text | strip | downcase | escape }}">{% render 'product-card', product: product, collection: additional_collection, image_ratio: additional_image_ratio, show_compare: settings.enable_compare %}</li>
-                {%- endfor -%}
-              {%- endif -%}
-            {%- endif -%}
           </ul>
 
           {%- if paginate.pages > 1 -%}
             {% render 'pagination', paginate: paginate, class: "mb-10", style: settings.pagination_style %}
           {%- endif -%}
+        {%- endif -%}
+
+        {%- comment -%}Universal Products container outside the main product list to bypass Shopify tag filtering limits{%- endcomment -%}
+        {%- assign show_universal_products = false -%}
+        {%- if current_tags.size > 0 -%}
+          {%- assign show_universal_products = true -%}
+        {%- endif -%}
+        {%- if section.settings.additional_collection != blank and show_universal_products -%}
+          <div class="ymm-universal-products-wrapper" data-url="/collections/{{ section.settings.additional_collection }}?section_id={{ section.id }}" data-limit="{{ section.settings.additional_collection_limit | default: 50 }}">
+            <div class="ymm-universal-loading" style="text-align: center; padding: 2.5rem 0; font-weight: 500; color: #666;">
+              <span class="spinner" style="display: inline-block; width: 22px; height: 22px; border: 2px solid #ccc; border-top-color: #ff9f1c; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 8px; vertical-align: middle;"></span>
+              Loading universal parts...
+            </div>
+            <div class="ymm-universal-content" style="display: none;">
+              <h2 class="ymm-universal-heading text-xl font-bold uppercase tracking-wider mb-6 mt-12 text-center" style="border-bottom: 2px solid #e9ecef; padding-bottom: 0.5rem;">Universal Fitment Parts</h2>
+              <ul class="grid {% if section.settings.filters_open_lg %}{{ grid_classes_filters_open }}{% else %}{{ grid_classes_filters_closed }}{% endif %} gap-x-theme {% if settings.card_contain %}gap-y-5 md:gap-y-8{% else %}gap-y-16{% endif %}">
+                <!-- Loaded products will be injected here -->
+              </ul>
+            </div>
+          </div>
+          
+          <style>
+            @keyframes spin {
+              to { transform: rotate(360deg); }
+            }
+          </style>
+
+          <script>
+            (function() {
+              const loadUniversal = () => {
+                const wrapper = document.querySelector('.ymm-universal-products-wrapper');
+                if (!wrapper || wrapper.dataset.loaded === 'true') return;
+                wrapper.dataset.loaded = 'true';
+                
+                const url = wrapper.dataset.url;
+                const limit = parseInt(wrapper.dataset.limit) || 50;
+                
+                fetch(url)
+                  .then(response => response.text())
+                  .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    // Select any <li> that are product cards and not ignored
+                    const productCards = doc.querySelectorAll('#filter-results ul li:not([data-search-ignore])');
+                    
+                    const targetList = wrapper.querySelector('.ymm-universal-content ul');
+                    const loadingEl = wrapper.querySelector('.ymm-universal-loading');
+                    const contentEl = wrapper.querySelector('.ymm-universal-content');
+                    const emptyMsg = document.querySelector('.ymm-empty-msg');
+                    
+                    let addedCount = 0;
+                    productCards.forEach((card, index) => {
+                      if (index < limit) {
+                        targetList.appendChild(card);
+                        addedCount++;
+                      }
+                    });
+                    
+                    if (addedCount > 0) {
+                      loadingEl.style.display = 'none';
+                      contentEl.style.display = 'block';
+                      if (emptyMsg) {
+                        emptyMsg.style.display = 'none';
+                      }
+                    } else {
+                      loadingEl.style.display = 'none';
+                    }
+                  })
+                  .catch(err => {
+                    console.error('Error loading universal products:', err);
+                    const loadingEl = wrapper.querySelector('.ymm-universal-loading');
+                    if (loadingEl) loadingEl.style.display = 'none';
+                  });
+              };
+
+              if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', loadUniversal);
+              } else {
+                loadUniversal();
+              }
+            })();
+          </script>
         {%- endif -%}
       </div>
     </custom-pagination>

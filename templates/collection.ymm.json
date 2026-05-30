@@ -28,7 +28,9 @@
         "sort_show_alpha": true,
         "sort_show_price": true,
         "sort_show_date": true,
-        "sort_first": true
+        "sort_first": true,
+        "additional_collection": "universal",
+        "additional_collection_limit": 50
       }
     },
     "collection-banner": {
