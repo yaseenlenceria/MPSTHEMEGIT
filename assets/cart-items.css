@@ -47,7 +47,7 @@ cart-items {
 }
 
 .cart-item {
-  grid-template-columns: 64px auto;
+  grid-template-columns: 80px auto;
   padding: 2.4rem 0;
   transition: opacity 0.4s;
 }
@@ -191,7 +191,7 @@ cart-items {
 }
 @media (min-width: 768px) {
   .cart-item {
-    grid-template-columns: 112px auto auto;
+    grid-template-columns: 140px auto auto;
   }
   .cart-item__details,
   .cart-item__qty {

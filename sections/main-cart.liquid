@@ -43,7 +43,7 @@
             <product-ymm-recommendations
               class="product-ymm-recommendations block"
               style="display: block; box-sizing: border-box; width: 100%; max-width: 100%; overflow: hidden;"
-              data-limit="6"
+              data-limit="3"
               data-product-id="{{ current_product_id }}"
               data-product-title="{{ cart_product.title | escape }}"
               data-product-tags="{{ tags_payload | escape }}"
@@ -114,8 +114,8 @@
             @media (min-width: 768px) {
               .product-ymm-recommendations__grid {
                 display: grid !important;
-                grid-template-columns: repeat(3, minmax(0, 1fr)) !important; /* 3 Columns on Tablet */
-                gap: 20px !important;
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important; /* 3 Columns on Tablet & Desktop */
+                gap: 24px !important;
                 overflow-x: visible !important;
                 padding: 0 !important;
               }
@@ -125,20 +125,6 @@
                 min-width: 0 !important;
                 max-width: none !important;
                 scroll-snap-align: none !important;
-              }
-            }
-
-            @media (min-width: 990px) {
-              .product-ymm-recommendations__grid {
-                grid-template-columns: repeat(4, minmax(0, 1fr)) !important; /* 4 Columns on Small Desktop */
-                gap: 20px !important;
-              }
-            }
-
-            @media (min-width: 1200px) {
-              .product-ymm-recommendations__grid {
-                grid-template-columns: repeat(6, minmax(0, 1fr)) !important; /* 6 Columns on Wide Desktop */
-                gap: 20px !important;
               }
             }
 
@@ -634,7 +620,7 @@
                   if (hasTagOverlap) return { priority: 1, score: 6000 + associationScore, reason: `Confirmed fitment for your bike` };
                   if (sameModel && this.yearsOverlap(sourceFitment.years, candidateFitment.years)) return { priority: 1, score: 4000 + associationScore, reason: `Fits: ${sourceFitment.brand.toUpperCase()} ${sourceFitment.model}` };
                   if (sameModel) return { priority: 2, score: 3000 + associationScore, reason: `Fits: ${sourceFitment.brand.toUpperCase()} ${sourceFitment.model}` };
-                  return { priority: 4, score: 1000 + associationScore, reason: `Fits: ${sourceFitment.brand.toUpperCase()}` };
+                  return null;
                 }
 
                 money(centsOrPrice) {
