@@ -185,11 +185,12 @@
 
       bikeCategory(modelText) {
         const model = this.normalize(modelText);
-        if (/(s1000rr|cbr\d*rr|r1\b|r6\b|zx-?6|zx-?10|gsx-?r|panigale|rc8|ninja|daytona)/.test(model)) return 'sport';
-        if (/(gs\b|r1250gs|r1200gs|africa\s*twin|tiger|multistrada|tracer|v-?strom|norden|adventure|himalayan)/.test(model)) return 'adventure';
-        if (/(mt-?\d|cb\d*r|z\d|duke|monster|streetfighter|street\s*triple|speed\s*triple|brutale|tuono|shiver)/.test(model)) return 'naked';
-        if (/(gold\s*wing|fjr|rt\b|k1600|concours|pan\s*america|flh|flt)/.test(model)) return 'touring';
-        if (/(sh\d|forza|pcx|tmax|burgman|integra|x-?adv|medley)/.test(model)) return 'scooter';
+        const compact = model.replace(/\s+/g, '');
+        if (/(s1000rr|cbr\d*rr|r1\b|r6\b|zx-?6|zx-?10|gsx-?r|panigale|rc8|ninja|daytona)/.test(compact)) return 'sport';
+        if (/(gs\b|r1250gs|r1200gs|africatwin|africa\s*twin|tiger|multistrada|tracer|v-?strom|norden|adventure|himalayan)/.test(model) || /(gs\b|r1250gs|r1200gs|africatwin|tiger|multistrada|tracer|v-?strom|norden|adventure|himalayan)/.test(compact)) return 'adventure';
+        if (/(mt-?\d|cb\d*r|z\d|duke|monster|streetfighter|streettriple|street\s*triple|speed\s*triple|speedtriple|brutale|tuono|shiver)/.test(model) || /(mt-?\d|cb\d*r|z\d|duke|monster|streetfighter|streettriple|speedtriple|brutale|tuono|shiver)/.test(compact)) return 'naked';
+        if (/(goldwing|gold\s*wing|fjr|rt\b|k1600|concours|panamerica|pan\s*america|flh|flt)/.test(model) || /(goldwing|fjr|rt\b|k1600|concours|panamerica|flh|flt)/.test(compact)) return 'touring';
+        if (/(sh\d|forza|pcx|tmax|burgman|integra|x-?adv|medley)/.test(compact)) return 'scooter';
         return 'unknown';
       }
 
@@ -286,43 +287,48 @@
       }
 
       searchTerms(fitment, sourcePart) {
-        const roleTerms = {
-          filter: 'air filter',
-          exhaust: 'exhaust',
-          decat: 'decat pipe',
-          db_killer: 'db killer',
-          tail_tidy: 'tail tidy',
-          stand: 'paddock stand',
-          protection: 'frame sliders crash protection',
-          exhaust_support: 'exhaust gasket heat shield',
-          engine_parts: 'engine parts',
-          airbox: 'air box cover',
-          service_intake: 'service kit cleaning kit intake',
-          tuning: 'ecu remap',
-          racing_screen: 'racing screen',
-          touring_screen: 'touring screen',
-          screen: 'screen',
-          rearsets: 'rearsets',
-          tank_grip: 'tank grips',
-          touring: 'hand guards wind deflectors',
-          mounts: 'phone gps mount',
-          luggage: 'top box luggage',
-          lighting: 'led indicators auxiliary lights',
-          bar_ends: 'mirrors bar end',
-          levers: 'lever protectors'
-        };
-        const spacedModel = (val) => String(val || '').replace(/([a-zA-Z]+)(\d+)/g, '$1 $2').replace(/(\d+)([a-zA-Z]+)/g, '$1 $2').replace(/\s+/g, ' ').trim();
-        const base1 = `${fitment.brand} ${fitment.model}`.trim();
-        const spaced = spacedModel(fitment.model);
-        const base2 = spaced !== fitment.model ? `${fitment.brand} ${spaced}`.trim() : null;
+        const brand = fitment.brand;
+        const model = fitment.model;
+        const segments = model.match(/[a-zA-Z]+|\d+/g) || [];
         
-        const terms = [];
-        if (base2) terms.push(base2);
-        terms.push(base1);
-        terms.push(spaced || fitment.model);
-        terms.push(fitment.brand);
+        function getCombinations(segs) {
+          if (segs.length === 0) return [];
+          if (segs.length === 1) return [segs[0]];
+          const first = segs[0];
+          const rest = getCombinations(segs.slice(1));
+          const results = [];
+          for (const r of rest) {
+            results.push(first + r);
+            results.push(first + ' ' + r);
+          }
+          return results;
+        }
 
-        return [...new Set(terms)];
+        const modelCombos = getCombinations(segments);
+        const terms = [];
+        for (const combo of modelCombos) {
+          terms.push(`${brand} ${combo}`);
+          terms.push(combo);
+        }
+        terms.push(brand);
+        terms.push(`${brand} ${model}`);
+        terms.push(model);
+
+        return [...new Set(terms.map(t => t.trim()).filter(Boolean))];
+      }
+
+      getCompactedYmmTags(product) {
+        let tagsRaw = product.tags;
+        if (!tagsRaw) return [];
+        let tagsArr = [];
+        if (Array.isArray(tagsRaw)) {
+          tagsArr = tagsRaw;
+        } else if (typeof tagsRaw === 'string') {
+          tagsArr = tagsRaw.split(/\|\||,/);
+        }
+        return tagsArr
+          .map(tag => String(tag).trim().toLowerCase().replace(/[^a-z0-9]/g, ''))
+          .filter(tag => /(19|20)\d{2}/.test(tag) && tag.length >= 6);
       }
 
       async suggest(query) {
@@ -377,18 +383,32 @@
         }
       }
 
-      scoreCandidate(candidate, candidateFitment, sourceFitment, sourcePart, sourceCategory) {
+      scoreCandidate(candidate, candidateFitment, sourceFitment, sourcePart, sourceCategory, sourceProduct) {
         if (!candidateFitment || candidateFitment.brand !== sourceFitment.brand) return null;
         if (sourceCategory !== 'unknown' && candidateFitment.category !== 'unknown' && candidateFitment.category !== sourceCategory) return null;
         const candidatePart = this.partCategory(candidate);
         const assocRank = this.associationRank(sourcePart, candidatePart, sourceCategory);
         if (assocRank === null) return null;
         const candidateTitleCompact = this.compact(candidate.title);
-        const sameModel = sourceFitment.modelCompact && (
+
+        let hasTagOverlap = false;
+        if (sourceProduct) {
+          const sourceTags = this.getCompactedYmmTags(sourceProduct);
+          const candidateTags = this.getCompactedYmmTags(candidate);
+          hasTagOverlap = sourceTags.some(tag => candidateTags.includes(tag));
+        }
+
+        const sameModel = (sourceFitment.modelCompact && (
           candidateTitleCompact.includes(sourceFitment.modelCompact) ||
-          sourceFitment.modelTokens.every((token) => candidateTitleCompact.includes(token))
-        );
+          sourceFitment.modelTokens.every((token) => candidateTitleCompact.includes(token)) ||
+          (candidateFitment.modelCompact && sourceFitment.modelCompact.includes(candidateFitment.modelCompact)) ||
+          (candidateFitment.modelCompact && candidateFitment.modelCompact.includes(sourceFitment.modelCompact))
+        )) || hasTagOverlap;
+
         const associationScore = 100 - assocRank * 10;
+        if (hasTagOverlap) {
+          return { priority: 1, score: 5000 + associationScore, reason: `Matching fitment tags found for your bike` };
+        }
         if (sameModel && this.yearsOverlap(sourceFitment.years, candidateFitment.years)) return { priority: 1, score: 4000 + associationScore, reason: `Exact model match: ${sourceFitment.brand.toUpperCase()} ${sourceFitment.model}` };
         if (sameModel) return { priority: 2, score: 3000 + associationScore, reason: `Model match: ${sourceFitment.brand.toUpperCase()} ${sourceFitment.model}` };
         if (sourceCategory !== 'unknown' && candidateFitment.category === sourceCategory) return { priority: 3, score: 2000 + associationScore, reason: `Same ${sourceCategory} platform: ${sourceFitment.brand.toUpperCase()}` };
@@ -493,7 +513,7 @@
             const product = await this.productJson(result);
             if (!product || cartProductIds.has(Number(product.id))) continue;
             const fitment = this.parseBike(product);
-            const score = this.scoreCandidate(product, fitment, source.fitment, source.part, source.fitment.category);
+            const score = this.scoreCandidate(product, fitment, source.fitment, source.part, source.fitment.category, source.item);
             console.log(`Scored candidate "${product ? product.title : ''}":`, score, "Fitment:", fitment);
             if (!score) continue;
             recommendations.push({ product, ...score, category: this.partCategory(product) });
