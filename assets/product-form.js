@@ -97,9 +97,10 @@ if (!customElements.get('product-form')) {
             if (this.cartDrawer) {
               this.cartDrawer.renderContents(
                 data,
-                !quickAddDrawer && theme.settings.afterAtc === 'drawer'
+                !quickAddDrawer && theme.settings.afterAtc === 'drawer' && window.location.pathname !== theme.routes.cart
               );
-            } else if (window.location.pathname === theme.routes.cart) {
+            }
+            if (window.location.pathname === theme.routes.cart) {
               const cartItems = document.querySelector('cart-items');
               if (cartItems) {
                 if (cartItems.dataset.empty === 'true') {
