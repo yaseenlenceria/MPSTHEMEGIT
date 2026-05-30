@@ -286,73 +286,318 @@
 
         /* Mobile specific optimizations */
         @media (max-width: 767px) {
-          /* Reduce spacing gaps on mobile */
-          .cart.form .mt-8,
-          .cart.form .cart__shipping-calculator.mt-8,
-          .cart.form .cart-page-recommendations.mt-8 {
-            margin-top: 16px !important;
+          /* Add padding at the bottom of body to prevent sticky bar overlaying content */
+          body.template-cart {
+            padding-bottom: 90px !important;
           }
-          .cart.form .mb-8 {
-            margin-bottom: 16px !important;
+
+          /* Main Cart layout reordering on Mobile */
+          .cart.form {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 16px !important;
           }
-          .cart.form .mt-6 {
-            margin-top: 12px !important;
+          .cart__items {
+            display: contents !important;
           }
-          .cart.form .mb-6 {
-            margin-bottom: 12px !important;
+          .cart-content {
+            display: contents !important;
           }
           
-          /* Compact Panels on Mobile */
-          .cart__shipping-calculator.panel,
-          .cart__summary,
-          .cart__summary--payment {
-            padding: 16px !important;
+          /* Order direct children of cart form */
+          .cart.form > h1,
+          .cart.form > .free-shipping-container,
+          .cart.form > #cart-errors {
+            order: 1 !important;
+          }
+          cart-items#cart-items {
+            order: 2 !important;
+            display: block !important;
+            width: 100% !important;
+          }
+          .cart__summary {
+            order: 3 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            padding: 16px !important; /* Less padding */
+            margin-top: 8px !important;
+            margin-bottom: 12px !important;
             border-radius: 8px !important;
           }
-          
-          /* Cart Item Row Spacing */
-          .cart-item {
-            padding: 16px 0 !important;
+          .cart-page-recommendations {
+            order: 4 !important;
+            margin-top: 16px !important;
+            margin-bottom: 16px !important;
+            display: block !important;
+            width: 100% !important;
           }
-          
+          .cart__shipping-calculator {
+            order: 5 !important;
+            margin-top: 0 !important;
+            margin-bottom: 16px !important;
+            display: block !important;
+            width: 100% !important;
+          }
+          .cart__summary--payment {
+            order: 6 !important;
+            margin-top: 0 !important;
+            margin-bottom: 24px !important;
+            display: block !important;
+            width: 100% !important;
+          }
+
+          /* Redesign Order Summary Panel */
+          .cart__summary-subtotal {
+            order: 1 !important;
+            margin-top: 0 !important;
+            margin-bottom: 12px !important;
+            padding-bottom: 8px !important;
+            border-bottom: 1px solid #f0f0f0 !important;
+          }
+          .cart__summary-subtotal h3 {
+            font-size: 1.15rem !important;
+            font-weight: 700 !important;
+          }
+          .cart__summary-subtotal p {
+            font-size: 1.35rem !important;
+            font-weight: 800 !important;
+            color: #ff580d !important;
+          }
+          .cart__summary-checkout {
+            order: 2 !important;
+            margin-top: 0 !important;
+            margin-bottom: 8px !important;
+          }
+          .cart__summary-checkout button {
+            padding: 14px 20px !important;
+            font-size: 1.05rem !important;
+            min-height: 48px !important; /* Tap Target */
+            border-radius: 24px !important;
+          }
+          .cart__summary-terms {
+            order: 3 !important;
+            margin-top: 0 !important;
+            margin-bottom: 12px !important;
+          }
+          .cart__summary-note {
+            order: 4 !important;
+            margin-top: 4px !important;
+          }
+          .cart-note-disclosure {
+            padding: 10px 14px !important;
+          }
+
+          /* Cart Product Card Redesign on Mobile */
+          .cart-item {
+            display: grid !important;
+            grid-template-columns: 100px 1fr !important;
+            column-gap: 16px !important;
+            row-gap: 8px !important;
+            padding: 16px 0 !important;
+            border-bottom: 1px solid #f0f0f0 !important;
+          }
+          .cart-item__image {
+            grid-column: 1 / 2 !important;
+            grid-row: 1 / 4 !important;
+            width: 100px !important;
+            height: auto !important;
+          }
+          .cart-item__image img {
+            width: 100% !important;
+            height: auto !important;
+            object-fit: contain !important;
+            max-height: 120px !important;
+            border-radius: 6px !important;
+          }
+          .cart-item__details {
+            grid-column: 2 / 3 !important;
+            grid-row: 1 / 2 !important;
+            padding: 0 !important;
+          }
+          .cart-item__title {
+            font-size: 0.95rem !important;
+            line-height: 1.35 !important;
+            margin-bottom: 4px !important;
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important;
+            -webkit-box-orient: vertical !important;
+            overflow: hidden !important;
+          }
+          .cart-item__details .text-theme-light {
+            font-size: 0.75rem !important; /* Smaller vendor name */
+            margin-bottom: 2px !important;
+          }
+          .cart-item__info .price__current {
+            font-size: 1.05rem !important;
+            font-weight: 800 !important;
+            color: #ff580d !important;
+          }
+          .cart-item__qty {
+            grid-column: 2 / 3 !important;
+            grid-row: 2 / 3 !important;
+            padding: 0 !important;
+            margin-top: 4px !important;
+            display: flex !important;
+            align-items: center !important;
+          }
+          .cart-item__qty .flex {
+            margin-top: 0 !important;
+            gap: 12px !important;
+          }
+          .cart-item__remove {
+            width: 44px !important;
+            height: 44px !important; /* Tap target */
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+          }
+          .cart-item__total {
+            grid-column: 2 / 3 !important;
+            grid-row: 3 / 4 !important;
+            padding: 0 !important;
+            margin-top: 4px !important;
+            text-align: left !important;
+          }
+          .cart-item__total .text-theme-light {
+            display: none !important; /* Remove wasted text label */
+          }
+
+          /* Sticky Mobile Checkout Bar styles */
+          .mobile-sticky-checkout-bar {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            background: #ffffff !important;
+            box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08) !important;
+            border-top: 1px solid #eeeeee !important;
+            z-index: 999 !important;
+            padding: 12px 16px !important;
+          }
+          .mobile-sticky-checkout-container {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            max-width: 600px !important;
+            margin: 0 auto !important;
+          }
+          .mobile-sticky-checkout-info {
+            display: flex !important;
+            flex-direction: column !important;
+          }
+          .mobile-sticky-checkout-label {
+            font-size: 0.7rem !important;
+            text-transform: uppercase !important;
+            color: #888888 !important;
+            font-weight: 700 !important;
+            line-height: 1 !important;
+            margin-bottom: 2px !important;
+          }
+          .mobile-sticky-checkout-price {
+            font-size: 1.15rem !important;
+            font-weight: 800 !important;
+            color: #ff580d !important;
+            line-height: 1 !important;
+          }
+          .mobile-sticky-checkout-btn {
+            background: #ff580d !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 24px !important;
+            padding: 12px 24px !important;
+            font-size: 0.95rem !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            cursor: pointer !important;
+            box-shadow: 0 4px 12px rgba(255, 88, 13, 0.2) !important;
+            min-height: 44px !important; /* 44px tap target */
+          }
+
           /* YMM recommendations section title mobile adjustment */
           .product-ymm-recommendations .section-heading {
-            margin-bottom: 16px !important;
+            margin-bottom: 12px !important;
             padding-bottom: 8px !important;
           }
           .product-ymm-recommendations .section-heading h3 {
-            font-size: 1.3rem !important;
+            font-size: 1.15rem !important;
           }
           
-          /* Grid list card adjustments */
+          /* Horizontal swipe carousel for YMM Recommendations - 2 cards partially visible */
           .product-ymm-recommendations__grid > li {
-            flex: 0 0 200px !important;
-            width: 200px !important;
-            min-width: 200px !important;
-            max-width: 200px !important;
+            flex: 0 0 45% !important; /* 2 cards partially visible (45% + 45% = 90%, leaving 10% peek) */
+            width: 45% !important;
+            min-width: 145px !important;
+            max-width: 175px !important;
           }
           .ymm-rec-card {
             padding: 10px !important;
+            border-radius: 8px !important;
+            border: 1px solid #e5e5e5 !important;
+          }
+          .ymm-rec-media {
+            margin-bottom: 8px !important;
+            border-radius: 6px !important;
           }
           .ymm-rec-title {
-            font-size: 0.9rem !important;
+            font-size: 0.85rem !important;
             height: 2.6em !important;
             min-height: 2.6em !important;
-            margin-bottom: 6px !important;
+            margin-bottom: 4px !important;
+            line-height: 1.3 !important;
           }
           .ymm-rec-reason {
             font-size: 0.75rem !important;
             padding: 2px 6px !important;
-            margin-bottom: 8px !important;
+            margin-bottom: 6px !important;
           }
           .ymm-rec-price {
-            font-size: 1rem !important;
-            margin-bottom: 8px !important;
+            font-size: 0.95rem !important;
+            margin-bottom: 6px !important;
+            font-weight: 800 !important;
           }
           .ymm-rec-btn {
-            font-size: 0.85rem !important;
+            font-size: 0.8rem !important;
             padding: 8px !important;
             border-radius: 20px !important;
+            min-height: 38px !important; /* Touch target optimized */
+          }
+
+          /* Simplification of Shipping Calculator accordion */
+          .cart__shipping-calculator.panel {
+            padding: 16px !important;
+            border-radius: 8px !important;
+            border: 1px solid #e5e5e5 !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+          }
+          .shipping-calculator-disclosure summary {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+          }
+
+          /* Compact Payment block */
+          .cart__summary--payment {
+            padding: 12px !important;
+            border-radius: 8px !important;
+            margin-top: 0 !important;
+          }
+          .cart__summary--payment h3 {
+            font-size: 0.95rem !important;
+            margin-bottom: 6px !important;
+            font-weight: 700 !important;
+          }
+          .cart__summary--payment .payment-icons {
+            margin-bottom: 6px !important;
+            gap: 4px !important;
+          }
+          .cart__summary--payment .payment-icon,
+          .cart__summary--payment .payment-icons svg {
+            width: 32px !important;
+          }
+          .cart__summary--payment .rte {
+            font-size: 0.75rem !important;
+            line-height: 1.4 !important;
+            margin-top: 4px !important;
           }
         }
       </style>
@@ -840,10 +1085,29 @@
   {%- endif -%}
       {%- if section.settings.show_shipping_calculator and cart != empty -%}
         <div class="cart__shipping-calculator panel mt-8">
-          {% render 'shipping-calculator',
-            id: 'cart',
-            default_country: section.settings.shipping_calculator_default_country
-          %}
+          <details class="shipping-calculator-disclosure disclosure" id="shipping-calculator-details">
+            <summary class="disclosure__toggle flex justify-between items-center cursor-pointer font-bold" style="list-style: none; outline: none;">
+              <span class="h5 m-0" style="font-size: 1.1rem; font-weight: 700; margin: 0;">Estimate shipping</span>
+              <span class="disclosure__toggle-icon" style="margin-left: auto;">
+                {%- if settings.disclosure_toggle == 'plus' -%}
+                  {% render 'icon-plus' %}
+                {%- else -%}
+                  {% render 'icon-chevron-down' %}
+                {%- endif -%}
+              </span>
+            </summary>
+            <div class="disclosure__panel mt-4">
+              {% render 'shipping-calculator',
+                id: 'cart',
+                default_country: section.settings.shipping_calculator_default_country
+              %}
+            </div>
+          </details>
+          <script>
+            if (window.innerWidth >= 768) {
+              document.getElementById('shipping-calculator-details')?.setAttribute('open', '');
+            }
+          </script>
         </div>
       {%- endif -%}
     </div>
@@ -853,7 +1117,7 @@
         <div class="cart__summary p-6 md:p-8 mb-8" id="cart-summary" data-section="{{ section.id }}">
           <h2 class="h5">{{ 'cart.summary.title' | t }}</h2>
           {%- if section.settings.show_order_note -%}
-            <details-disclosure class="block mt-6">
+            <details-disclosure class="block mt-6 cart__summary-note">
               <details class="cart-note-disclosure disclosure disclosure--row">
                 <summary>
                   <div class="flex justify-between items-center">
@@ -899,13 +1163,13 @@
             </ul>
           {%- endif -%}
 
-          <div class="flex justify-between items-center mt-6">
+          <div class="flex justify-between items-center mt-6 cart__summary-subtotal">
             <h3 class="mb-0 h6">{{ 'cart.summary.subtotal' | t }}:</h3>
             <p class="mb-0 h6">{%- render 'price-as-money', price: cart.total_price, show_money_with_currency: true -%}</p>
           </div>
 
           {%- if section.settings.cart_terms_page != blank -%}
-            <cart-terms class="block mt-6">
+            <cart-terms class="block mt-6 cart__summary-terms">
               <input type="checkbox" class="checkbox js-cart-terms-checkbox" id="cart-terms" form="cart">
               <label for="cart-terms">
                 <span class="rte">{{ 'cart.terms.agreement_html' | t: terms_url: section.settings.cart_terms_page }}</span>
@@ -913,7 +1177,7 @@
             </cart-terms>
           {%- endif -%}
 
-          <div class="mt-6">
+          <div class="mt-6 cart__summary-checkout">
             <button class="btn btn--primary btn--icon-with-text w-full" name="checkout">
               {%- if settings.cart_icon == 'bag' -%}
                 {%- render 'icon-bag' -%}
@@ -1032,6 +1296,22 @@
       {%- endif-%}
     </div>
   </form>
+
+  {%- if cart != empty -%}
+    <div class="mobile-sticky-checkout-bar md:hidden" id="mobile-sticky-checkout">
+      <div class="mobile-sticky-checkout-container flex justify-between items-center px-4 py-3">
+        <div class="mobile-sticky-checkout-info">
+          <span class="mobile-sticky-checkout-label text-xs uppercase font-bold text-gray-500">Subtotal</span>
+          <div class="mobile-sticky-checkout-price font-bold text-lg text-theme-text">
+            {%- render 'price-as-money', price: cart.total_price, show_money_with_currency: true -%}
+          </div>
+        </div>
+        <button type="submit" name="checkout" form="cart" class="btn btn--primary mobile-sticky-checkout-btn font-bold px-6 py-3 text-sm uppercase rounded-full">
+          Checkout
+        </button>
+      </div>
+    </div>
+  {%- endif -%}
 
   
   {%- if section.settings.cart_terms_page != blank -%}
