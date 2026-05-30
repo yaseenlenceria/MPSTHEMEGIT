@@ -1,0 +1,1064 @@
+{% doc %}
+  @prompt
+    1. It's pagination. It needs to show all testimonials 
+    2. Name and date to show at bottom
+    3. It needs to show the the full information and not cut off.
+    4. The text needs to be in line Okay, so we have testimonials. So, you have to create testimonials section which we have on the website which says blogs and then testimonials, okay. And for that testimonials, we want to have these testimonials., also how image we have thumbnails, Posts per page
+     give us ability to show Posts per page
+     we can change and also reove date, add stars now keep everythingsame add stras and adopt images and also give us ability to increase wirth add button for abovre taht we canling title on top and  adpopt image and blogs cards  Hey pal. We have to sort the testimonials page out.
+    
+    1. It's pagination. It needs to show all testimonials 
+    2. Name and date to show at bottom
+    3. It needs to show the the full information and not cut off.
+    4. The text needs to be in line and also we can chagen posts per page to 50 and change wirth and also can add and remove dfates and responsite we can enable bog post thumbnails and also  add star rattings and also amaizng , titles below starts and make images bigger and adopt image size and also , We're really proud to have fabulous customers who take the time to write such lovely comments. It makes our day! Thank you.
+    Want to leave a testimonial?
+    Submit Testimonial add this and button abdove heading
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-testimonials-{{ ai_gen_id }} {
+    padding: {{ block.settings.section_padding_top }}px 0 {{ block.settings.section_padding_bottom }}px;
+    background-color: {{ block.settings.background_color }};
+  }
+
+  .ai-testimonials-container-{{ ai_gen_id }} {
+    max-width: {{ block.settings.container_width }}px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .ai-testimonials-intro-{{ ai_gen_id }} {
+    text-align: {{ block.settings.intro_alignment }};
+    margin-bottom: 30px;
+  }
+
+  .ai-testimonials-intro-text-{{ ai_gen_id }} {
+    font-size: {{ block.settings.intro_text_size }}px;
+    color: {{ block.settings.intro_text_color }};
+    line-height: 1.6;
+    margin: 0 0 20px;
+  }
+
+  .ai-testimonials-cta-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    justify-content: {{ block.settings.intro_alignment }};
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .ai-testimonials-cta-text-{{ ai_gen_id }} {
+    font-size: {{ block.settings.cta_text_size }}px;
+    color: {{ block.settings.cta_text_color }};
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .ai-testimonials-cta-button-{{ ai_gen_id }} {
+    display: inline-block;
+    padding: {{ block.settings.button_padding_vertical }}px {{ block.settings.button_padding_horizontal }}px;
+    background-color: {{ block.settings.button_bg_color }};
+    color: {{ block.settings.button_text_color }};
+    border-radius: {{ block.settings.button_border_radius }}px;
+    text-decoration: none;
+    font-size: {{ block.settings.button_text_size }}px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: {{ block.settings.button_border_width }}px solid {{ block.settings.button_border_color }};
+  }
+
+  .ai-testimonials-cta-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_bg }};
+    color: {{ block.settings.button_hover_text }};
+    border-color: {{ block.settings.button_hover_border }};
+    transform: translateY(-2px);
+  }
+
+  .ai-testimonials-header-{{ ai_gen_id }} {
+    text-align: {{ block.settings.heading_alignment }};
+    margin-bottom: 40px;
+  }
+
+  .ai-testimonials-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.heading_size }}px;
+    color: {{ block.settings.heading_color }};
+    margin: 0 0 16px;
+    font-weight: 600;
+  }
+
+  .ai-testimonials-subtitle-{{ ai_gen_id }} {
+    font-size: {{ block.settings.subheading_size }}px;
+    color: {{ block.settings.subheading_color }};
+    margin: 0;
+  }
+
+  .ai-testimonials-grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat({{ block.settings.columns_desktop }}, 1fr);
+    gap: {{ block.settings.card_spacing }}px;
+    margin-bottom: 40px;
+  }
+
+  .ai-testimonial-card-{{ ai_gen_id }} {
+    background-color: {{ block.settings.card_background }};
+    border-radius: {{ block.settings.card_border_radius }}px;
+    padding: {{ block.settings.card_padding }}px;
+    box-shadow: {{ block.settings.card_shadow }};
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .ai-testimonial-card-{{ ai_gen_id }}:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
+
+  .ai-testimonial-image-wrapper-{{ ai_gen_id }} {
+    width: 100%;
+    aspect-ratio: {{ block.settings.image_ratio }};
+    border-radius: {{ block.settings.image_border_radius }}px;
+    overflow: hidden;
+    margin-bottom: {{ block.settings.image_spacing }}px;
+    flex-shrink: 0;
+  }
+
+  .ai-testimonial-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-testimonial-image-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-testimonial-image-placeholder-{{ ai_gen_id }} svg {
+    width: 50%;
+    height: 50%;
+  }
+
+  .ai-testimonial-content-{{ ai_gen_id }} {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ai-testimonial-stars-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: {{ block.settings.content_alignment }};
+    gap: 4px;
+    margin-bottom: 16px;
+  }
+
+  .ai-testimonial-star-{{ ai_gen_id }} {
+    width: {{ block.settings.star_size }}px;
+    height: {{ block.settings.star_size }}px;
+    fill: {{ block.settings.star_color }};
+  }
+
+  .ai-testimonial-text-{{ ai_gen_id }} {
+    font-size: {{ block.settings.text_size }}px;
+    line-height: 1.6;
+    color: {{ block.settings.text_color }};
+    margin-bottom: 20px;
+    text-align: {{ block.settings.content_alignment }};
+    flex-grow: 1;
+  }
+
+  /* Bold AND italic text - red and new line */
+  .ai-testimonial-text-{{ ai_gen_id }} strong em,
+  .ai-testimonial-text-{{ ai_gen_id }} strong i,
+  .ai-testimonial-text-{{ ai_gen_id }} b em,
+  .ai-testimonial-text-{{ ai_gen_id }} b i,
+  .ai-testimonial-text-{{ ai_gen_id }} em strong,
+  .ai-testimonial-text-{{ ai_gen_id }} em b,
+  .ai-testimonial-text-{{ ai_gen_id }} i strong,
+  .ai-testimonial-text-{{ ai_gen_id }} i b {
+    color: red !important;
+    display: block !important;
+  }
+
+  .ai-testimonial-footer-{{ ai_gen_id }} {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    text-align: {{ block.settings.content_alignment }};
+  }
+
+  .ai-testimonial-author-{{ ai_gen_id }} {
+    font-size: {{ block.settings.author_size }}px;
+    font-weight: 600;
+    color: {{ block.settings.author_color }};
+    margin: 0 0 4px;
+  }
+
+  .ai-testimonial-date-{{ ai_gen_id }} {
+    font-size: {{ block.settings.date_size }}px;
+    color: {{ block.settings.date_color }};
+    margin: 0;
+  }
+
+  .ai-testimonials-pagination-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 40px;
+  }
+
+  .ai-pagination-link-{{ ai_gen_id }} {
+    padding: 10px 16px;
+    background-color: {{ block.settings.pagination_bg }};
+    color: {{ block.settings.pagination_text }};
+    border-radius: {{ block.settings.pagination_border_radius }}px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 1px solid {{ block.settings.pagination_border }};
+  }
+
+  .ai-pagination-link-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.pagination_hover_bg }};
+    color: {{ block.settings.pagination_hover_text }};
+  }
+
+  .ai-pagination-link-{{ ai_gen_id }}.active {
+    background-color: {{ block.settings.pagination_active_bg }};
+    color: {{ block.settings.pagination_active_text }};
+    border-color: {{ block.settings.pagination_active_bg }};
+  }
+
+  .ai-pagination-link-{{ ai_gen_id }}.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  @media screen and (max-width: 989px) {
+    .ai-testimonials-grid-{{ ai_gen_id }} {
+      grid-template-columns: repeat({{ block.settings.columns_tablet }}, 1fr);
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-testimonials-grid-{{ ai_gen_id }} {
+      grid-template-columns: repeat({{ block.settings.columns_mobile }}, 1fr);
+    }
+
+    .ai-testimonials-title-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.heading_size }}px * 0.8);
+    }
+
+    .ai-testimonial-card-{{ ai_gen_id }} {
+      padding: {{ block.settings.card_padding | times: 0.75 }}px;
+    }
+
+    .ai-testimonials-cta-{{ ai_gen_id }} {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-testimonials-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-testimonials-container-{{ ai_gen_id }}">
+    {% if block.settings.show_intro %}
+      <div class="ai-testimonials-intro-{{ ai_gen_id }}">
+        {% if block.settings.intro_text != blank %}
+          <p class="ai-testimonials-intro-text-{{ ai_gen_id }}">{{ block.settings.intro_text }}</p>
+        {% endif %}
+        
+        <div class="ai-testimonials-cta-{{ ai_gen_id }}">
+          {% if block.settings.cta_text != blank %}
+            <p class="ai-testimonials-cta-text-{{ ai_gen_id }}">{{ block.settings.cta_text }}</p>
+          {% endif %}
+          {% if block.settings.button_text != blank %}
+            <a href="{{ block.settings.button_link }}" class="ai-testimonials-cta-button-{{ ai_gen_id }}">
+              {{ block.settings.button_text }}
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+
+    {% if block.settings.heading != blank or block.settings.subheading != blank %}
+      <div class="ai-testimonials-header-{{ ai_gen_id }}">
+        {% if block.settings.heading != blank %}
+          <h2 class="ai-testimonials-title-{{ ai_gen_id }}">{{ block.settings.heading }}</h2>
+        {% endif %}
+        {% if block.settings.subheading != blank %}
+          <div class="ai-testimonials-subtitle-{{ ai_gen_id }}">{{ block.settings.subheading }}</div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {% if block.settings.blog != blank %}
+      {% assign posts_per_page = block.settings.posts_per_page %}
+      {% paginate block.settings.blog.articles by posts_per_page %}
+        <div class="ai-testimonials-grid-{{ ai_gen_id }}">
+          {% for article in block.settings.blog.articles %}
+            <div class="ai-testimonial-card-{{ ai_gen_id }}">
+              {% if block.settings.show_image %}
+                <div class="ai-testimonial-image-wrapper-{{ ai_gen_id }}">
+                  {% if article.image %}
+                    <img
+                      src="{{ article.image | image_url: width: 400 }}"
+                      alt="{{ article.image.alt | escape }}"
+                      class="ai-testimonial-image-{{ ai_gen_id }}"
+                      loading="lazy"
+                      width="400"
+                      height="400"
+                    >
+                  {% else %}
+                    <div class="ai-testimonial-image-placeholder-{{ ai_gen_id }}">
+                      {{ 'image' | placeholder_svg_tag }}
+                    </div>
+                  {% endif %}
+                </div>
+              {% endif %}
+
+              <div class="ai-testimonial-content-{{ ai_gen_id }}">
+                {% if block.settings.show_stars %}
+                  <div class="ai-testimonial-stars-{{ ai_gen_id }}">
+                    {% for i in (1..block.settings.star_count) %}
+                      <svg class="ai-testimonial-star-{{ ai_gen_id }}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                      </svg>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+
+                <div class="ai-testimonial-footer-{{ ai_gen_id }}" style="border: none; padding-top: 0; margin-bottom: 16px;">
+                  <h3 class="ai-testimonial-author-{{ ai_gen_id }}">{{ article.title }}</h3>
+                  {% if block.settings.show_date %}
+                    <p class="ai-testimonial-date-{{ ai_gen_id }}">{{ article.published_at | date: block.settings.date_format }}</p>
+                  {% endif %}
+                </div>
+
+                <div class="ai-testimonial-text-{{ ai_gen_id }}">
+                  {% if article.excerpt != blank %}
+                    {{ article.excerpt }}
+                  {% else %}
+                    {{ article.content }}
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        {% if paginate.pages > 1 %}
+          <div class="ai-testimonials-pagination-{{ ai_gen_id }}">
+            {% if paginate.previous %}
+              <a href="{{ paginate.previous.url }}" class="ai-pagination-link-{{ ai_gen_id }}">
+                ← Previous
+              </a>
+            {% else %}
+              <span class="ai-pagination-link-{{ ai_gen_id }} disabled">← Previous</span>
+            {% endif %}
+
+            {% for part in paginate.parts %}
+              {% if part.is_link %}
+                <a href="{{ part.url }}" class="ai-pagination-link-{{ ai_gen_id }}">
+                  {{ part.title }}
+                </a>
+              {% else %}
+                {% if part.title == paginate.current_page %}
+                  <span class="ai-pagination-link-{{ ai_gen_id }} active">{{ part.title }}</span>
+                {% else %}
+                  <span class="ai-pagination-link-{{ ai_gen_id }}">{{ part.title }}</span>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+
+            {% if paginate.next %}
+              <a href="{{ paginate.next.url }}" class="ai-pagination-link-{{ ai_gen_id }}">
+                Next →
+              </a>
+            {% else %}
+              <span class="ai-pagination-link-{{ ai_gen_id }} disabled">Next →</span>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endpaginate %}
+    {% else %}
+      <div style="text-align: center; padding: 60px 20px; background: #f4f4f4; border-radius: 8px;">
+        <p style="font-size: 16px; color: #666; margin: 0;">Please select a blog to display testimonials</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Testimonials blog",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Introduction section"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_intro",
+      "label": "Show introduction",
+      "default": true
+    },
+    {
+      "type": "textarea",
+      "id": "intro_text",
+      "label": "Introduction text",
+      "default": "We're really proud to have fabulous customers who take the time to write such lovely comments. It makes our day! Thank you."
+    },
+    {
+      "type": "range",
+      "id": "intro_text_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Introduction text size",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "intro_text_color",
+      "label": "Introduction text color",
+      "default": "#333333"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "Call to action text",
+      "default": "Want to leave a testimonial?"
+    },
+    {
+      "type": "range",
+      "id": "cta_text_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "CTA text size",
+      "default": 18
+    },
+    {
+      "type": "color",
+      "id": "cta_text_color",
+      "label": "CTA text color",
+      "default": "#111111"
+    },
+    {
+      "type": "select",
+      "id": "intro_alignment",
+      "label": "Introduction alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Submit button"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "Submit Testimonial"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "range",
+      "id": "button_text_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Button text size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "button_padding_vertical",
+      "min": 8,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Button padding vertical",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "button_padding_horizontal",
+      "min": 16,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Button padding horizontal",
+      "default": 32
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Button background",
+      "default": "#a30505"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_border_color",
+      "label": "Button border color",
+      "default": "#a30505"
+    },
+    {
+      "type": "range",
+      "id": "button_border_width",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "unit": "px",
+      "label": "Button border width",
+      "default": 2
+    },
+    {
+      "type": "color",
+      "id": "button_hover_bg",
+      "label": "Button hover background",
+      "default": "#fc5732"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_text",
+      "label": "Button hover text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_border",
+      "label": "Button hover border",
+      "default": "#fc5732"
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Button border radius",
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "blog",
+      "id": "blog",
+      "label": "Blog"
+    },
+    {
+      "type": "range",
+      "id": "posts_per_page",
+      "min": 3,
+      "max": 50,
+      "step": 1,
+      "label": "Posts per page",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "excerpt_length",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "label": "Excerpt length (words)",
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Customer Testimonials"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 20,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading size",
+      "default": 36
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#111111"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "See what our customers are saying"
+    },
+    {
+      "type": "range",
+      "id": "subheading_size",
+      "min": 12,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Subheading size",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Subheading color",
+      "default": "#666666"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Heading alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "container_width",
+      "min": 800,
+      "max": 1800,
+      "step": 50,
+      "unit": "px",
+      "label": "Container width",
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "label": "Columns on desktop",
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "columns_tablet",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "label": "Columns on tablet",
+      "default": 2
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Columns on mobile",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "range",
+      "id": "card_spacing",
+      "min": 10,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Card spacing",
+      "default": 24
+    },
+    {
+      "type": "header",
+      "content": "Card style"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "card_padding",
+      "min": 10,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Card padding",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Card border radius",
+      "default": 12
+    },
+    {
+      "type": "select",
+      "id": "card_shadow",
+      "label": "Card shadow",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "0 2px 8px rgba(0, 0, 0, 0.08)",
+          "label": "Light"
+        },
+        {
+          "value": "0 4px 12px rgba(0, 0, 0, 0.12)",
+          "label": "Medium"
+        },
+        {
+          "value": "0 8px 20px rgba(0, 0, 0, 0.15)",
+          "label": "Strong"
+        }
+      ],
+      "default": "0 2px 8px rgba(0, 0, 0, 0.08)"
+    },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "Content alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_image",
+      "label": "Show image",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image ratio",
+      "options": [
+        {
+          "value": "1 / 1",
+          "label": "Square (1:1)"
+        },
+        {
+          "value": "4 / 3",
+          "label": "Landscape (4:3)"
+        },
+        {
+          "value": "16 / 9",
+          "label": "Wide (16:9)"
+        },
+        {
+          "value": "3 / 4",
+          "label": "Portrait (3:4)"
+        },
+        {
+          "value": "2 / 3",
+          "label": "Tall (2:3)"
+        }
+      ],
+      "default": "1 / 1"
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Image border radius",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "image_spacing",
+      "min": 10,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Image spacing",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Star rating"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_stars",
+      "label": "Show star rating",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "star_count",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "label": "Number of stars",
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "star_size",
+      "min": 12,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Star size",
+      "default": 18
+    },
+    {
+      "type": "color",
+      "id": "star_color",
+      "label": "Star color",
+      "default": "#ffc107"
+    },
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Text size",
+      "default": 15
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "header",
+      "content": "Author"
+    },
+    {
+      "type": "range",
+      "id": "author_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Author name size",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "author_color",
+      "label": "Author name color",
+      "default": "#111111"
+    },
+    {
+      "type": "header",
+      "content": "Date"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_date",
+      "label": "Show date",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "date_format",
+      "label": "Date format",
+      "default": "%B %d, %Y",
+      "info": "Use Liquid date format. Example: %B %d, %Y = January 01, 2024"
+    },
+    {
+      "type": "range",
+      "id": "date_size",
+      "min": 10,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Date size",
+      "default": 13
+    },
+    {
+      "type": "color",
+      "id": "date_color",
+      "label": "Date color",
+      "default": "#999999"
+    },
+    {
+      "type": "header",
+      "content": "Pagination"
+    },
+    {
+      "type": "color",
+      "id": "pagination_bg",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "pagination_text",
+      "label": "Text color",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "pagination_border",
+      "label": "Border color",
+      "default": "#dddddd"
+    },
+    {
+      "type": "color",
+      "id": "pagination_hover_bg",
+      "label": "Hover background",
+      "default": "#f4f4f4"
+    },
+    {
+      "type": "color",
+      "id": "pagination_hover_text",
+      "label": "Hover text color",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "pagination_active_bg",
+      "label": "Active background",
+      "default": "#a30505"
+    },
+    {
+      "type": "color",
+      "id": "pagination_active_text",
+      "label": "Active text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "pagination_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 6
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 60
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f8fafb"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Testimonials blog"
+    }
+  ]
+}
+{% endschema %}

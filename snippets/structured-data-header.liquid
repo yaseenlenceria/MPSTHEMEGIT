@@ -1,0 +1,141 @@
+{%- liquid
+  assign organization_id = shop.url | append: '#organization'
+  assign website_id = shop.url | append: '#website'
+  assign search_action_target = shop.url | append: routes.search_url | append: '?q={search_term_string}'
+  assign business_description = 'Motorcycle Performance Store is a UK based motorcycle parts and accessories retailer specialising in high quality aftermarket and performance upgrades for riders across the world.'
+
+  assign logo_url = blank
+  assign logo_width = 0
+  assign logo_height = 0
+  if section and section.settings.logo
+    assign logo_url = section.settings.logo | image_url: width: section.settings.logo.width | prepend: 'https:'
+    assign logo_width = section.settings.logo.width
+    assign logo_height = section.settings.logo.height
+  else
+    assign logo_url = 'https://motorcycleperformancestore.co.uk/cdn/shop/files/Logo_620x151.png'
+    assign logo_width = 620
+    assign logo_height = 151
+  endif
+-%}
+
+{%- capture same_as_json -%}
+  {%- if settings.social_facebook_url != blank -%}{{ settings.social_facebook_url | json }},{%- endif -%}
+  {%- if settings.social_instagram_url != blank -%}{{ settings.social_instagram_url | json }},{%- endif -%}
+  {%- if settings.social_youtube_url != blank -%}{{ settings.social_youtube_url | json }},{%- endif -%}
+  {%- if settings.social_tiktok_url != blank -%}{{ settings.social_tiktok_url | json }},{%- endif -%}
+  {%- if settings.social_pinterest_url != blank -%}{{ settings.social_pinterest_url | json }},{%- endif -%}
+  {%- if settings.social_twitter_url != blank -%}{{ settings.social_twitter_url | json }},{%- endif -%}
+  {%- if settings.social_linkedin_url != blank -%}{{ settings.social_linkedin_url | json }},{%- endif -%}
+  {%- if settings.social_whatsapp_url != blank -%}{{ settings.social_whatsapp_url | json }},{%- endif -%}
+  {%- if settings.social_threads_url != blank -%}{{ settings.social_threads_url | json }},{%- endif -%}
+  {%- if settings.social_custom_url != blank -%}{{ settings.social_custom_url | json }},{%- endif -%}
+  "https://maps.app.goo.gl/mDbEnZf7LZqZrHKCA",
+  "https://www.ebay.co.uk/str/motorcycleperformancestore"
+{%- endcapture -%}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": ["Organization", "Store"],
+      "@id": {{ organization_id | json }},
+      "name": "Motorcycle Performance Store",
+      "url": {{ shop.url | json }},
+      {%- if logo_url != blank %}
+        "logo": {
+          "@type": "ImageObject",
+          "url": {{ logo_url | json }},
+          "width": {{ logo_width | json }},
+          "height": {{ logo_height | json }}
+        },
+      {%- endif %}
+      "description": {{ business_description | json }},
+      "foundingDate": "2020-01-15",
+      "email": "info@motorcycleperformancestore.co.uk",
+      "telephone": "+44 1600 772121",
+      "priceRange": "GBP",
+      "currenciesAccepted": ["GBP", "EUR", "USD"],
+      "paymentAccepted": ["Credit Card", "Debit Card", "PayPal", "Shop Pay", "Bank Transfer"],
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Bank Street",
+        "addressLocality": "Coleford",
+        "addressRegion": "Gloucestershire",
+        "postalCode": "GL16 8BA",
+        "addressCountry": "GB"
+      },
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "telephone": "+44 1600 772121",
+          "contactType": "customer service",
+          "areaServed": ["GB", "EU", "Worldwide"],
+          "availableLanguage": ["en"]
+        },
+        {
+          "@type": "ContactPoint",
+          "telephone": "+44 7483 404279",
+          "contactType": "sales",
+          "areaServed": ["GB", "EU", "Worldwide"],
+          "availableLanguage": ["en"]
+        }
+      ],
+      "sameAs": [
+        {{ same_as_json | strip }}
+      ],
+      "knowsAbout": [
+        "Motorcycle exhaust systems",
+        "Motorcycle performance parts",
+        "Motorcycle accessories",
+        "Motorcycle air filters",
+        "Motorcycle windscreens",
+        "Motorcycle touring accessories"
+      ],
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Motorcycle parts and accessories",
+        "itemListElement": [
+          {
+            "@type": "OfferCatalog",
+            "name": "Exhaust systems"
+          },
+          {
+            "@type": "OfferCatalog",
+            "name": "Performance air filters"
+          },
+          {
+            "@type": "OfferCatalog",
+            "name": "Screens and windshields"
+          },
+          {
+            "@type": "OfferCatalog",
+            "name": "Motorcycle seats and covers"
+          },
+          {
+            "@type": "OfferCatalog",
+            "name": "Touring luggage and accessories"
+          }
+        ]
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": {{ website_id | json }},
+      "name": "Motorcycle Performance Store",
+      "url": {{ shop.url | json }},
+      "publisher": {
+        "@id": {{ organization_id | json }}
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": {{ search_action_target | json }}
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+  ]
+}
+</script>

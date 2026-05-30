@@ -1,0 +1,1275 @@
+{%- comment -%}
+  Parameters:
+  - is_cart {Boolean} - Recommendations are for the cart contents.
+  - intent {Boolean} - Recommendations intent - 'related' or 'complementary' (optional, default is 'related').
+  - products_to_show {Number} - Maximum number of products to show.
+  - heading {String} - Heading for the recommendations (optional).
+  - heading_align {String} - Heading alignment
+  - layout {String} - Layout for the cards - 'carousel' or 'grid' (optional, default is 'carousel').
+  - grid_classes {String} - Classes for the products grid
+  - always_open_quickbuy {Boolean} - If true, when a product only has a default variant the quickbuy drawer will still
+      open and not be directly added to cart
+
+  Usage:
+  {% render 'recommendations',
+    intent: 'complementary',
+    products_to_show: section.settings.products_to_show,
+    heading: section.settings.heading,
+    heading_align: 'text-start',
+    grid_classes: 'grid grid-cols-1 gap-y-4'
+  %}
+{%- endcomment -%}
+
+{%- if section.index > 2 -%}
+  <link rel="stylesheet" href="{{ 'product.css' | asset_url }}" media="print" onload="this.media='all'">
+{%- else -%}
+  {{ 'product.css' | asset_url | stylesheet_tag }}
+{%- endif -%}
+
+{%- if settings.enable_quick_add -%}
+  <link rel="stylesheet" href="{{ 'quick-add.css' | asset_url }}" media="print" onload="this.media='all'">
+  <script src="{{ 'quick-add.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'variant-picker.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'custom-select.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{%- liquid
+  unless intent
+    assign intent = 'related'
+  endunless
+
+  assign upsell_limit = upsell_limit | default: 1
+
+  if layout == 'carousel' or layout == nil
+    assign carousel = true
+  else
+    assign carousel = false
+  endif
+
+  if is_cart
+    # Fetch 4 extra in case a recommended product is already in the cart, and therefore not shown.
+    assign limit = products_to_show | plus: 4
+    assign product_id = cart.items.first.product_id
+  else
+    assign limit = products_to_show
+    assign product_id = product.id
+  endif
+
+  assign show_dna_service_upsell = false
+  assign dna_service_product = all_products['dna_performance_air_filter_service_kit-product-7361']
+  assign show_dna_filter_upsell = false
+  assign show_puig_visor_upsell = false
+  assign show_bar_end_mirrors_upsell = false
+  assign show_universal_footpegs_upsell = false
+  assign show_universal_bar_ends_upsell = false
+  assign show_universal_levers_upsell = false
+  assign dna_filter_product = blank
+  assign puig_visor_product = blank
+  assign bar_end_mirrors_product = blank
+  assign universal_footpegs_product = blank
+  assign universal_bar_ends_product = blank
+  assign universal_levers_product = blank
+  assign cart_universal_fallback_product = blank
+  assign has_dna_in_cart = false
+  assign exhaust_vendors = 'termignoni,ixil,ixrace,ironhead,qd,arrow,upmap,mivv,g&g,marving,exan,giannelli' | split: ','
+  assign bike_make_list = 'aprilia,bmw,cfmoto,ducati,harley,honda,husqvarna,kawasaki,ktm,moto guzzi,mv agusta,suzuki,triumph,yamaha,zero' | split: ','
+  assign bike_fitment_stop_words = ',a,an,and,arrow,black,carbon,cat,decat,db,exan,exhaust,exhausts,filter,filters,for,from,full,heat,ironhead,ixil,ixrace,link,marving,mivv,pipe,pipes,qd,relevance,remap,remapping,service,shield,shields,silencer,silencers,slip,steel,system,systems,termignoni,the,titanium,to,upmap,with,without,'
+
+  if is_cart
+    assign has_dna_service = false
+    assign has_exhaust = false
+    assign has_puig_screen = false
+    assign has_extender_visor = false
+    assign has_levers = false
+    assign has_bar_end_mirrors = false
+    assign has_universal = false
+    assign has_universal_footpegs = false
+    assign has_universal_bar_ends = false
+    assign has_universal_levers = false
+    assign cart_bike_make = ''
+    assign cart_fitment_words = ','
+
+    for item in cart.items
+      assign item_vendor = item.product.vendor | downcase
+      assign item_type = item.product.type | downcase
+      assign item_title = item.product.title | downcase
+      assign item_tags = item.product.tags | join: ',' | downcase
+      assign item_url = item.product.url | downcase
+
+      if cart_bike_make == blank
+        for make in bike_make_list
+          if item_title contains make
+            assign cart_bike_make = make
+            break
+          endif
+        endfor
+      endif
+
+      assign item_title_words = item_title | replace: '/', ' ' | replace: '(', ' ' | replace: ')', ' ' | replace: ',', ' ' | replace: '.', ' ' | replace: '+', ' ' | replace: '&', ' ' | replace: '-', ' ' | replace: '–', ' ' | split: ' '
+      for item_word in item_title_words
+        assign normalized_word = item_word | strip
+        assign word_token = ',' | append: normalized_word | append: ','
+        assign year_prefix = normalized_word | slice: 0, 2
+        assign word_has_digit = false
+        if normalized_word contains '0' or normalized_word contains '1' or normalized_word contains '2' or normalized_word contains '3' or normalized_word contains '4' or normalized_word contains '5' or normalized_word contains '6' or normalized_word contains '7' or normalized_word contains '8' or normalized_word contains '9'
+          assign word_has_digit = true
+        endif
+        unless normalized_word == blank or bike_fitment_stop_words contains word_token or year_prefix == '19' or year_prefix == '20' or bike_make_list contains normalized_word
+          if normalized_word.size >= 3 or word_has_digit
+            unless cart_fitment_words contains word_token
+              assign cart_fitment_words = cart_fitment_words | append: normalized_word | append: ','
+            endunless
+          endif
+        endunless
+      endfor
+
+      if exhaust_vendors contains item_vendor
+        assign has_exhaust = true
+      elsif item_vendor == 'red thunder'
+        assign has_exhaust = true
+      elsif item_type contains 'exhaust'
+        assign has_exhaust = true
+      elsif item_title contains 'exhaust'
+        assign has_exhaust = true
+      elsif item_title contains 'termignoni'
+        assign has_exhaust = true
+      elsif item_title contains 'red thunder'
+        assign has_exhaust = true
+      else
+        for exhaust_vendor in exhaust_vendors
+          if item_title contains exhaust_vendor
+            assign has_exhaust = true
+            break
+          endif
+        endfor
+      endif
+
+      if item_tags contains 'dna-air-filter'
+        assign has_dna_in_cart = true
+      elsif item_vendor == 'dna' and item_type contains 'air filter' and item_title != 'dna performance air filter - service kit'
+        assign has_dna_in_cart = true
+      endif
+
+      if item_tags contains 'dna-service-kit'
+        assign has_dna_service = true
+      elsif item_vendor == 'dna' and item_title contains 'service kit'
+        assign has_dna_service = true
+      elsif item.product_id == dna_service_product.id
+        assign has_dna_service = true
+      endif
+
+      if item_vendor == 'puig'
+        if item_type contains 'screen' or item_tags contains 'puig screens'
+          assign has_puig_screen = true
+        endif
+      endif
+
+      if item_title contains 'extender' or item_title contains 'visor' or item_type contains 'visor'
+        assign has_extender_visor = true
+      endif
+
+      if item_type contains 'lever'
+        assign has_levers = true
+      elsif item_title contains 'lever'
+        assign has_levers = true
+      elsif item_url contains 'lever'
+        assign has_levers = true
+      elsif item_tags contains 'adjustable levers'
+        assign has_levers = true
+      elsif item_tags contains 'extendable levers'
+        assign has_levers = true
+      endif
+
+      if item_type contains 'mirror' and item_title contains 'bar end'
+        assign has_bar_end_mirrors = true
+      elsif item_tags contains 'puig mirrors'
+        assign has_bar_end_mirrors = true
+      endif
+
+      if item_tags contains 'universal'
+        assign has_universal = true
+      endif
+
+      if item_tags contains 'puig footpegs'
+        assign has_universal_footpegs = true
+      elsif item_type contains 'foot peg'
+        assign has_universal_footpegs = true
+      elsif item_type contains 'footpeg'
+        assign has_universal_footpegs = true
+      elsif item_title contains 'foot peg'
+        assign has_universal_footpegs = true
+      elsif item_title contains 'footpeg'
+        assign has_universal_footpegs = true
+      endif
+
+      if item_type contains 'mirror' and item_title contains 'bar end'
+        assign has_universal_bar_ends = true
+      elsif item_tags contains 'puig mirrors'
+        assign has_universal_bar_ends = true
+      elsif item_tags contains 'bar ends'
+        assign has_universal_bar_ends = true
+      elsif item_type contains 'bar end'
+        assign has_universal_bar_ends = true
+      elsif item_type contains 'bar ends'
+        assign has_universal_bar_ends = true
+      elsif item_title contains 'bar end'
+        assign has_universal_bar_ends = true
+      elsif item_title contains 'bar ends'
+        assign has_universal_bar_ends = true
+      endif
+
+      if item_type contains 'lever'
+        assign has_universal_levers = true
+      elsif item_title contains 'lever'
+        assign has_universal_levers = true
+      endif
+    endfor
+
+    if has_dna_in_cart and has_dna_service == false and dna_service_product
+      assign show_dna_service_upsell = true
+    endif
+
+    if has_exhaust and has_dna_in_cart == false
+      assign show_dna_filter_upsell = true
+    endif
+
+    if has_puig_screen and has_extender_visor == false
+      assign show_puig_visor_upsell = true
+    endif
+
+    if has_levers or has_universal or has_universal_footpegs or has_universal_bar_ends
+      assign has_universal_accessory = true
+    else
+      assign has_universal_accessory = false
+    endif
+
+    if has_universal_accessory and has_universal_footpegs == false
+      assign show_universal_footpegs_upsell = true
+    endif
+    if has_universal_accessory and has_universal_footpegs and has_universal_bar_ends == false
+      assign show_universal_bar_ends_upsell = true
+    endif
+    if has_universal_accessory and has_universal_footpegs and has_universal_bar_ends and has_universal_levers == false
+      assign show_universal_levers_upsell = true
+    endif
+
+    if show_dna_filter_upsell
+      assign dna_collection = collections['DNA Performance Air Filters']
+      if dna_collection == nil or dna_collection.products == blank
+        assign dna_collection = collections['dna-performance-air-filters']
+      endif
+      if dna_collection and dna_collection.products != blank
+        for product in dna_collection.products
+          assign product_title = product.title | downcase
+          assign product_fitment_score = 0
+          if cart_bike_make != blank and product_title contains cart_bike_make
+            assign product_title_compact = product_title | remove: ' ' | remove: '-' | remove: '–' | remove: '/' | remove: '(' | remove: ')' | remove: '.'
+            assign cart_fitment_tokens = cart_fitment_words | split: ','
+            assign product_title_words = product_title | replace: '/', ' ' | replace: '(', ' ' | replace: ')', ' ' | replace: ',', ' ' | replace: '.', ' ' | replace: '+', ' ' | replace: '&', ' ' | replace: '-', ' ' | replace: '–', ' ' | split: ' '
+            for product_word in product_title_words
+              assign product_word_token = ',' | append: product_word | append: ','
+              if cart_fitment_words contains product_word_token
+                assign product_fitment_score = product_fitment_score | plus: 1
+              endif
+            endfor
+            for cart_fitment_token in cart_fitment_tokens
+              if cart_fitment_token.size > 1 and product_title_compact contains cart_fitment_token
+                assign product_fitment_score = product_fitment_score | plus: 1
+              endif
+            endfor
+          endif
+          unless product_title contains 'service kit'
+            if cart_bike_make != blank and product_fitment_score > 0
+              assign dna_filter_product = product
+              break
+            endif
+          endunless
+        endfor
+      endif
+    endif
+
+    if show_dna_filter_upsell and dna_filter_product == blank
+      assign catalog = collections.all
+      if catalog == nil or catalog.products == blank
+        assign catalog = collections['all']
+      endif
+
+      if catalog and catalog.products != blank
+        for candidate in catalog.products
+          assign candidate_vendor = candidate.vendor | downcase
+          assign candidate_type = candidate.type | downcase
+          assign candidate_title = candidate.title | downcase
+          assign candidate_fitment_score = 0
+          if cart_bike_make != blank and candidate_title contains cart_bike_make
+            assign candidate_title_compact = candidate_title | remove: ' ' | remove: '-' | remove: '–' | remove: '/' | remove: '(' | remove: ')' | remove: '.'
+            assign cart_fitment_tokens = cart_fitment_words | split: ','
+            assign candidate_title_words = candidate_title | replace: '/', ' ' | replace: '(', ' ' | replace: ')', ' ' | replace: ',', ' ' | replace: '.', ' ' | replace: '+', ' ' | replace: '&', ' ' | replace: '-', ' ' | replace: '–', ' ' | split: ' '
+            for candidate_word in candidate_title_words
+              assign candidate_word_token = ',' | append: candidate_word | append: ','
+              if cart_fitment_words contains candidate_word_token
+                assign candidate_fitment_score = candidate_fitment_score | plus: 1
+              endif
+            endfor
+            for cart_fitment_token in cart_fitment_tokens
+              if cart_fitment_token.size > 1 and candidate_title_compact contains cart_fitment_token
+                assign candidate_fitment_score = candidate_fitment_score | plus: 1
+              endif
+            endfor
+          endif
+
+          if candidate_vendor == 'dna' and candidate_type contains 'air filter'
+            if candidate_title contains 'service kit'
+            else
+              if cart_bike_make != blank and candidate_fitment_score > 0
+                assign dna_filter_product = candidate
+                break
+              endif
+            endif
+          endif
+        endfor
+      endif
+    endif
+
+    if show_puig_visor_upsell
+      assign puig_visor_product = all_products['puig_extender_visor__screwon-_3_sizes-product-15965']
+      if puig_visor_product == blank
+        assign puig_visor_product = all_products['puig_extender_visor_clampon-_3_sizes-product-15966']
+      endif
+    endif
+
+    if show_puig_visor_upsell and puig_visor_product == blank
+      assign catalog = collections.all
+      if catalog == nil or catalog.products == blank
+        assign catalog = collections['all']
+      endif
+
+      if catalog and catalog.products != blank
+        for candidate in catalog.products
+          assign candidate_vendor = candidate.vendor | downcase
+          assign candidate_title = candidate.title | downcase
+          assign candidate_tags = candidate.tags | join: ',' | downcase
+
+          if candidate_vendor == 'puig' and candidate_title contains 'extender' and candidate_tags contains 'universal'
+            assign puig_visor_product = candidate
+            break
+          endif
+        endfor
+      endif
+    endif
+
+    if show_bar_end_mirrors_upsell
+      assign bar_end_mirrors_product = all_products['puig_mirrors_ht4_bar_end_in_black_silver_various_models-product-17691']
+      if bar_end_mirrors_product == blank
+        assign bar_end_mirrors_product = all_products['puig_mirrors_tracker_bar_end_mirrors_in_black_silver_various_models-product-19232']
+      endif
+
+      if bar_end_mirrors_product == blank
+        assign catalog = collections.all
+        if catalog == nil or catalog.products == blank
+          assign catalog = collections['all']
+        endif
+
+        if catalog and catalog.products != blank
+          for candidate in catalog.products
+            assign candidate_vendor = candidate.vendor | downcase
+            assign candidate_tags = candidate.tags | join: ',' | downcase
+            assign candidate_title = candidate.title | downcase
+            assign candidate_type = candidate.type | downcase
+
+            if candidate_vendor == 'puig' and candidate_type contains 'mirror' and candidate_title contains 'bar end' and candidate_tags contains 'universal'
+              assign bar_end_mirrors_product = candidate
+              break
+            endif
+          endfor
+        endif
+      endif
+    endif
+
+    if show_universal_footpegs_upsell
+      assign universal_footpegs_product = all_products['puig_foot_pegs__racing-product-17312']
+    endif
+
+    if show_universal_bar_ends_upsell
+      assign catalog = collections.all
+      if catalog == nil or catalog.products == blank
+        assign catalog = collections['all']
+      endif
+
+      if catalog and catalog.products != blank
+        for candidate in catalog.products
+          assign candidate_vendor = candidate.vendor | downcase
+          assign candidate_tags = candidate.tags | join: ',' | downcase
+          assign candidate_title = candidate.title | downcase
+          assign candidate_type = candidate.type | downcase
+
+          if candidate_vendor == 'puig' and candidate_title contains 'sport' and candidate_title contains 'bar end'
+            assign universal_bar_ends_product = candidate
+            break
+          elsif candidate_vendor == 'puig' and candidate_tags contains 'bar ends' and candidate_title contains 'sport'
+            assign universal_bar_ends_product = candidate
+            break
+          elsif candidate_vendor == 'puig' and candidate_type contains 'bar end' and candidate_title contains 'sport'
+            assign universal_bar_ends_product = candidate
+            break
+          endif
+        endfor
+
+        if universal_bar_ends_product == blank
+          for candidate in catalog.products
+            assign candidate_vendor = candidate.vendor | downcase
+            assign candidate_tags = candidate.tags | join: ',' | downcase
+            assign candidate_title = candidate.title | downcase
+            assign candidate_type = candidate.type | downcase
+
+            if candidate_vendor == 'puig' and candidate_title contains 'bar end'
+              assign universal_bar_ends_product = candidate
+              break
+            elsif candidate_vendor == 'puig' and candidate_tags contains 'bar ends'
+              assign universal_bar_ends_product = candidate
+              break
+            elsif candidate_vendor == 'puig' and candidate_type contains 'bar end'
+              assign universal_bar_ends_product = candidate
+              break
+            endif
+          endfor
+        endif
+      endif
+
+      if universal_bar_ends_product == blank
+        assign universal_bar_ends_product = all_products['puig_mirrors_ht4_bar_end_in_black_silver_various_models-product-17691']
+      endif
+    endif
+
+    if show_universal_levers_upsell
+      assign universal_levers_product = all_products['puig_gen_3_racing_lever_adjusters']
+    endif
+
+    if cart_bike_make != blank
+      if dna_filter_product
+        assign upsell_title = dna_filter_product.title | downcase
+        assign upsell_fitment_score = 0
+        if upsell_title contains cart_bike_make
+          assign upsell_title_compact = upsell_title | remove: ' ' | remove: '-' | remove: '–' | remove: '/' | remove: '(' | remove: ')' | remove: '.'
+          assign cart_fitment_tokens = cart_fitment_words | split: ','
+          assign upsell_title_words = upsell_title | replace: '/', ' ' | replace: '(', ' ' | replace: ')', ' ' | replace: ',', ' ' | replace: '.', ' ' | replace: '+', ' ' | replace: '&', ' ' | replace: '-', ' ' | replace: '–', ' ' | split: ' '
+          for upsell_word in upsell_title_words
+            assign upsell_word_token = ',' | append: upsell_word | append: ','
+            if cart_fitment_words contains upsell_word_token
+              assign upsell_fitment_score = upsell_fitment_score | plus: 1
+            endif
+          endfor
+          for cart_fitment_token in cart_fitment_tokens
+            if cart_fitment_token.size > 1 and upsell_title_compact contains cart_fitment_token
+              assign upsell_fitment_score = upsell_fitment_score | plus: 1
+            endif
+          endfor
+        endif
+        if upsell_fitment_score == 0
+          assign dna_filter_product = blank
+        endif
+      endif
+
+      if puig_visor_product
+        assign upsell_title = puig_visor_product.title | downcase
+        assign upsell_fitment_score = 0
+        if upsell_title contains cart_bike_make
+          assign upsell_title_compact = upsell_title | remove: ' ' | remove: '-' | remove: '–' | remove: '/' | remove: '(' | remove: ')' | remove: '.'
+          assign cart_fitment_tokens = cart_fitment_words | split: ','
+          assign upsell_title_words = upsell_title | replace: '/', ' ' | replace: '(', ' ' | replace: ')', ' ' | replace: ',', ' ' | replace: '.', ' ' | replace: '+', ' ' | replace: '&', ' ' | replace: '-', ' ' | replace: '–', ' ' | split: ' '
+          for upsell_word in upsell_title_words
+            assign upsell_word_token = ',' | append: upsell_word | append: ','
+            if cart_fitment_words contains upsell_word_token
+              assign upsell_fitment_score = upsell_fitment_score | plus: 1
+            endif
+          endfor
+          for cart_fitment_token in cart_fitment_tokens
+            if cart_fitment_token.size > 1 and upsell_title_compact contains cart_fitment_token
+              assign upsell_fitment_score = upsell_fitment_score | plus: 1
+            endif
+          endfor
+        endif
+        if upsell_fitment_score == 0
+          assign puig_visor_product = blank
+        endif
+      endif
+
+      if bar_end_mirrors_product
+        assign upsell_title = bar_end_mirrors_product.title | downcase
+        assign upsell_fitment_score = 0
+        if upsell_title contains cart_bike_make
+          assign upsell_title_compact = upsell_title | remove: ' ' | remove: '-' | remove: '–' | remove: '/' | remove: '(' | remove: ')' | remove: '.'
+          assign cart_fitment_tokens = cart_fitment_words | split: ','
+          assign upsell_title_words = upsell_title | replace: '/', ' ' | replace: '(', ' ' | replace: ')', ' ' | replace: ',', ' ' | replace: '.', ' ' | replace: '+', ' ' | replace: '&', ' ' | replace: '-', ' ' | replace: '–', ' ' | split: ' '
+          for upsell_word in upsell_title_words
+            assign upsell_word_token = ',' | append: upsell_word | append: ','
+            if cart_fitment_words contains upsell_word_token
+              assign upsell_fitment_score = upsell_fitment_score | plus: 1
+            endif
+          endfor
+          for cart_fitment_token in cart_fitment_tokens
+            if cart_fitment_token.size > 1 and upsell_title_compact contains cart_fitment_token
+              assign upsell_fitment_score = upsell_fitment_score | plus: 1
+            endif
+          endfor
+        endif
+        if upsell_fitment_score == 0
+          assign bar_end_mirrors_product = blank
+        endif
+      endif
+
+      if universal_footpegs_product
+        assign upsell_title = universal_footpegs_product.title | downcase
+        assign upsell_fitment_score = 0
+        if upsell_title contains cart_bike_make
+          assign upsell_title_compact = upsell_title | remove: ' ' | remove: '-' | remove: '–' | remove: '/' | remove: '(' | remove: ')' | remove: '.'
+          assign cart_fitment_tokens = cart_fitment_words | split: ','
+          assign upsell_title_words = upsell_title | replace: '/', ' ' | replace: '(', ' ' | replace: ')', ' ' | replace: ',', ' ' | replace: '.', ' ' | replace: '+', ' ' | replace: '&', ' ' | replace: '-', ' ' | replace: '–', ' ' | split: ' '
+          for upsell_word in upsell_title_words
+            assign upsell_word_token = ',' | append: upsell_word | append: ','
+            if cart_fitment_words contains upsell_word_token
+              assign upsell_fitment_score = upsell_fitment_score | plus: 1
+            endif
+          endfor
+          for cart_fitment_token in cart_fitment_tokens
+            if cart_fitment_token.size > 1 and upsell_title_compact contains cart_fitment_token
+              assign upsell_fitment_score = upsell_fitment_score | plus: 1
+            endif
+          endfor
+        endif
+        if upsell_fitment_score == 0
+          assign universal_footpegs_product = blank
+        endif
+      endif
+
+      if universal_bar_ends_product
+        assign upsell_title = universal_bar_ends_product.title | downcase
+        assign upsell_fitment_score = 0
+        if upsell_title contains cart_bike_make
+          assign upsell_title_compact = upsell_title | remove: ' ' | remove: '-' | remove: '–' | remove: '/' | remove: '(' | remove: ')' | remove: '.'
+          assign cart_fitment_tokens = cart_fitment_words | split: ','
+          assign upsell_title_words = upsell_title | replace: '/', ' ' | replace: '(', ' ' | replace: ')', ' ' | replace: ',', ' ' | replace: '.', ' ' | replace: '+', ' ' | replace: '&', ' ' | replace: '-', ' ' | replace: '–', ' ' | split: ' '
+          for upsell_word in upsell_title_words
+            assign upsell_word_token = ',' | append: upsell_word | append: ','
+            if cart_fitment_words contains upsell_word_token
+              assign upsell_fitment_score = upsell_fitment_score | plus: 1
+            endif
+          endfor
+          for cart_fitment_token in cart_fitment_tokens
+            if cart_fitment_token.size > 1 and upsell_title_compact contains cart_fitment_token
+              assign upsell_fitment_score = upsell_fitment_score | plus: 1
+            endif
+          endfor
+        endif
+        if upsell_fitment_score == 0
+          assign universal_bar_ends_product = blank
+        endif
+      endif
+
+      if universal_levers_product
+        assign upsell_title = universal_levers_product.title | downcase
+        assign upsell_fitment_score = 0
+        if upsell_title contains cart_bike_make
+          assign upsell_title_compact = upsell_title | remove: ' ' | remove: '-' | remove: '–' | remove: '/' | remove: '(' | remove: ')' | remove: '.'
+          assign cart_fitment_tokens = cart_fitment_words | split: ','
+          assign upsell_title_words = upsell_title | replace: '/', ' ' | replace: '(', ' ' | replace: ')', ' ' | replace: ',', ' ' | replace: '.', ' ' | replace: '+', ' ' | replace: '&', ' ' | replace: '-', ' ' | replace: '–', ' ' | split: ' '
+          for upsell_word in upsell_title_words
+            assign upsell_word_token = ',' | append: upsell_word | append: ','
+            if cart_fitment_words contains upsell_word_token
+              assign upsell_fitment_score = upsell_fitment_score | plus: 1
+            endif
+          endfor
+          for cart_fitment_token in cart_fitment_tokens
+            if cart_fitment_token.size > 1 and upsell_title_compact contains cart_fitment_token
+              assign upsell_fitment_score = upsell_fitment_score | plus: 1
+            endif
+          endfor
+        endif
+        if upsell_fitment_score == 0
+          assign universal_levers_product = blank
+        endif
+      endif
+    endif
+
+    if show_dna_filter_upsell and dna_filter_product == blank
+      assign show_dna_filter_upsell = false
+    endif
+    if show_puig_visor_upsell and puig_visor_product == blank
+      assign show_puig_visor_upsell = false
+    endif
+    if show_bar_end_mirrors_upsell and bar_end_mirrors_product == blank
+      assign show_bar_end_mirrors_upsell = false
+    endif
+    if show_universal_footpegs_upsell and universal_footpegs_product == blank
+      assign show_universal_footpegs_upsell = false
+    endif
+    if show_universal_bar_ends_upsell and universal_bar_ends_product == blank
+      assign show_universal_bar_ends_upsell = false
+    endif
+    if show_universal_levers_upsell and universal_levers_product == blank
+      assign show_universal_levers_upsell = false
+    endif
+  endif
+
+  if is_cart == false
+    assign has_levers = false
+    assign has_bar_end_mirrors = false
+    assign has_exhaust = false
+    assign has_universal = false
+    assign has_universal_footpegs = false
+    assign has_universal_bar_ends = false
+    assign has_universal_levers = false
+    assign product_title = product.title | downcase
+    assign product_type = product.type | downcase
+    assign product_url = product.url | downcase
+    assign product_tags = product.tags | join: ',' | downcase
+    assign product_vendor = product.vendor | downcase
+
+    if exhaust_vendors contains product_vendor
+      assign has_exhaust = true
+    elsif product_type contains 'exhaust'
+      assign has_exhaust = true
+    elsif product_title contains 'exhaust'
+      assign has_exhaust = true
+    elsif product_title contains 'termignoni'
+      assign has_exhaust = true
+    else
+      for exhaust_vendor in exhaust_vendors
+        if product_title contains exhaust_vendor
+          assign has_exhaust = true
+          break
+        endif
+      endfor
+    endif
+
+    if product_type contains 'lever'
+      assign has_levers = true
+    elsif product_title contains 'lever'
+      assign has_levers = true
+    elsif product_url contains 'lever'
+      assign has_levers = true
+    elsif product_tags contains 'adjustable levers'
+      assign has_levers = true
+    elsif product_tags contains 'extendable levers'
+      assign has_levers = true
+    endif
+
+    if product_type contains 'mirror' and product_title contains 'bar end'
+      assign has_bar_end_mirrors = true
+    elsif product_tags contains 'puig mirrors'
+      assign has_bar_end_mirrors = true
+    endif
+
+    if product_tags contains 'universal'
+      assign has_universal = true
+    endif
+
+    if product_tags contains 'puig footpegs'
+      assign has_universal_footpegs = true
+    elsif product_type contains 'foot peg'
+      assign has_universal_footpegs = true
+    endif
+
+    if product_type contains 'mirror' and product_title contains 'bar end'
+      assign has_universal_bar_ends = true
+    elsif product_tags contains 'puig mirrors'
+      assign has_universal_bar_ends = true
+    endif
+
+    if product_type contains 'lever'
+      assign has_universal_levers = true
+    elsif product_title contains 'lever'
+      assign has_universal_levers = true
+    endif
+
+    if has_exhaust and has_dna_in_cart == false
+      assign show_dna_filter_upsell = true
+    endif
+
+    if has_levers and has_bar_end_mirrors == false
+      assign show_bar_end_mirrors_upsell = true
+    endif
+
+    if has_universal and has_universal_footpegs == false
+      assign show_universal_footpegs_upsell = true
+    endif
+    if has_universal and has_universal_footpegs and has_universal_bar_ends == false
+      assign show_universal_bar_ends_upsell = true
+    endif
+    if has_universal and has_universal_footpegs and has_universal_bar_ends and has_universal_levers == false
+      assign show_universal_levers_upsell = true
+    endif
+
+    if show_dna_filter_upsell and dna_filter_product == blank
+      assign dna_collection = collections['DNA Performance Air Filters']
+      if dna_collection == nil or dna_collection.products == blank
+        assign dna_collection = collections['dna-performance-air-filters']
+      endif
+
+      if dna_collection and dna_collection.products != blank
+        for product_item in dna_collection.products limit: 12
+          assign product_title = product_item.title | downcase
+          assign product_vendor = product_item.vendor | downcase
+          unless product_title contains 'service kit'
+            if product_vendor == 'dna'
+              assign dna_filter_product = product_item
+              break
+            endif
+          endunless
+        endfor
+      endif
+    endif
+
+    if show_dna_filter_upsell and dna_filter_product == blank
+      assign catalog = collections.all
+      if catalog == nil or catalog.products == blank
+        assign catalog = collections['all']
+      endif
+
+      if catalog and catalog.products != blank
+        for candidate in catalog.products
+          assign candidate_vendor = candidate.vendor | downcase
+          assign candidate_type = candidate.type | downcase
+          assign candidate_title = candidate.title | downcase
+
+          if candidate_vendor == 'dna'
+            if candidate_type contains 'air filter' or candidate_title contains 'air filter'
+              if candidate_title contains 'service kit'
+              else
+                assign dna_filter_product = candidate
+                break
+              endif
+            endif
+          endif
+        endfor
+      endif
+    endif
+
+    if show_bar_end_mirrors_upsell
+      assign bar_end_mirrors_product = all_products['puig_mirrors_ht4_bar_end_in_black_silver_various_models-product-17691']
+      if bar_end_mirrors_product == blank
+        assign bar_end_mirrors_product = all_products['puig_mirrors_tracker_bar_end_mirrors_in_black_silver_various_models-product-19232']
+      endif
+
+      if bar_end_mirrors_product == blank
+        assign catalog = collections.all
+        if catalog == nil or catalog.products == blank
+          assign catalog = collections['all']
+        endif
+
+        if catalog and catalog.products != blank
+          for candidate in catalog.products
+            assign candidate_vendor = candidate.vendor | downcase
+            assign candidate_tags = candidate.tags | join: ',' | downcase
+            assign candidate_title = candidate.title | downcase
+            assign candidate_type = candidate.type | downcase
+
+            if candidate_vendor == 'puig' and candidate_type contains 'mirror' and candidate_title contains 'bar end' and candidate_tags contains 'universal'
+              assign bar_end_mirrors_product = candidate
+              break
+            endif
+          endfor
+        endif
+      endif
+    endif
+
+    if show_universal_footpegs_upsell
+      assign universal_footpegs_product = all_products['puig_foot_pegs__racing-product-17312']
+    endif
+
+    if show_universal_bar_ends_upsell
+      assign universal_bar_ends_product = all_products['puig_mirrors_ht4_bar_end_in_black_silver_various_models-product-17691']
+    endif
+
+    if show_universal_levers_upsell
+      assign universal_levers_product = all_products['puig_gen_3_racing_lever_adjusters']
+    endif
+  endif
+
+  assign show_any_upsell = false
+  if show_dna_service_upsell
+    assign show_any_upsell = true
+  endif
+  if show_any_upsell == false and show_dna_filter_upsell
+    assign show_any_upsell = true
+  endif
+  if show_any_upsell == false and show_puig_visor_upsell
+    assign show_any_upsell = true
+  endif
+  if show_any_upsell == false and show_bar_end_mirrors_upsell
+    assign show_any_upsell = true
+  endif
+  if show_any_upsell == false and show_universal_footpegs_upsell
+    assign show_any_upsell = true
+  endif
+  if show_any_upsell == false and show_universal_bar_ends_upsell
+    assign show_any_upsell = true
+  endif
+  if show_any_upsell == false and show_universal_levers_upsell
+    assign show_any_upsell = true
+  endif
+
+  assign show_recommendations = show_any_upsell
+  assign show_only_upsells = true
+  assign fallback_collection = collections['universal-products-for-your-bike-other']
+  assign fallback_products = blank
+  if is_cart
+    assign fallback_collection = collections.all
+    if fallback_collection == nil or fallback_collection.products == blank
+      assign fallback_collection = collections['all']
+    endif
+  endif
+  if show_recommendations == false and fallback_collection and fallback_collection.products != blank
+    assign fallback_products = fallback_collection.products
+    assign show_recommendations = true
+    assign show_only_upsells = false
+  endif
+  if is_cart and cart != empty
+    assign show_recommendations = true
+  endif
+-%}
+
+<product-recommendations class="block{% if is_cart %} cart-recommendations{% endif %}"{% if is_cart %} id="cart-recommendations" data-static-cart="true"{% else %} data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product_id }}&limit={{ limit }}&intent={{ intent }}" data-product-id="{{ product_id }}"{% endif %}>
+  {%- if show_recommendations -%}
+    {%- if heading != blank and carousel == false -%}
+      <h2 class="h6{% if heading_align %} {{ heading_align }}{% endif %}">{{ heading | escape }}</h2>
+    {%- endif -%}
+
+    {%- if carousel -%}
+      <carousel-slider class="carousel block" inactive>
+
+        <div class="mb-2 flex items-center justify-between">
+          {%- if heading != blank -%}
+            <h2 class="flex-auto mb-0 h6 max-w-full{% if heading_align %} {{ heading_align }}{% endif %}">{{- heading | escape -}}</h2>
+          {%- endif -%}
+
+          <div class="slider-nav slide-nav--inline flex no-js-hidden">
+            <button type="button" class="slider-nav__btn tap-target btn has-ltr-icon" name="prev" aria-controls="slider-{{ section.id }}">
+              <span class="visually-hidden">{{ 'general.slider.previous' | t }}</span>
+              {% render 'icon-chevron-left' %}
+            </button>
+            <button type="button" class="slider-nav__btn slider-nav__btn--offset tap-target btn has-ltr-icon" name="next" aria-controls="slider-{{ section.id }}">
+              <span class="visually-hidden">{{ 'general.slider.next' | t }}</span>
+              {% render 'icon-chevron-right' %}
+            </button>
+          </div>
+        </div>
+
+        <div class="relative">
+          <div class="slider slider--no-scrollbar" id="slider-{{ section.id }}">
+    {%- endif -%}
+
+    <ul class="{% if carousel %}slider__grid {% endif %}{{ grid_classes }}{% if settings.card_contain %} small__grid{% endif %}" role="list">
+      {%- assign rec_count = 0 -%}
+      {%- assign upsell_count = 0 -%}
+      {%- assign added_ids = ',' -%}
+      {%- assign added_recommendation_categories = ',' -%}
+      {%- if show_dna_filter_upsell and dna_filter_product and upsell_count < upsell_limit -%}
+        {%- liquid
+          assign cart_matches = cart.items | where: 'product_id', dna_filter_product.id
+          assign id_token = ',' | append: dna_filter_product.id | append: ','
+          assign cart_fitment_allowed = true
+          if is_cart and cart_bike_make != blank
+            assign cart_fitment_allowed = false
+            assign upsell_title = dna_filter_product.title | downcase
+            assign upsell_title_compact = upsell_title | remove: ' ' | remove: '-' | remove: '/' | remove: '(' | remove: ')' | remove: '.'
+            assign cart_fitment_tokens = cart_fitment_words | split: ','
+            if upsell_title contains cart_bike_make
+              for cart_fitment_token in cart_fitment_tokens
+                if cart_fitment_token != blank
+                  assign cart_fitment_token_compact = cart_fitment_token | remove: ' ' | remove: '-' | remove: 'â€“' | remove: '–'
+                  if upsell_title contains cart_fitment_token or upsell_title_compact contains cart_fitment_token_compact
+                    assign cart_fitment_allowed = true
+                    break
+                  endif
+                endif
+              endfor
+            endif
+          endif
+        -%}
+        {%- if cart_matches.size == 0 -%}
+          {%- if added_ids contains id_token -%}
+            {%- assign skip_add = true -%}
+          {%- else -%}
+            {%- assign skip_add = false -%}
+          {%- endif -%}
+        {%- else -%}
+          {%- assign skip_add = true -%}
+        {%- endif -%}
+        {%- unless cart_fitment_allowed -%}
+          {%- assign skip_add = true -%}
+        {%- endunless -%}
+        {%- if skip_add == false -%}
+          {%- assign added_ids = added_ids | append: dna_filter_product.id | append: ',' -%}
+          {%- assign added_recommendation_categories = added_recommendation_categories | append: 'filter,' -%}
+          {%- assign upsell_count = upsell_count | plus: 1 -%}
+          {%- assign rec_count = rec_count | plus: 1 -%}
+          <li{% if carousel %} class="slider__item"{% endif %}>
+            {%- render 'product-card-mini', product: dna_filter_product, always_open_quickbuy: always_open_quickbuy -%}
+            <p class="text-sm mt-2">Boost airflow to match your exhaust upgrade.</p>
+          </li>
+        {%- endif -%}
+      {%- endif -%}
+      {%- if show_dna_service_upsell and upsell_count < upsell_limit -%}
+        {%- assign upsell_count = upsell_count | plus: 1 -%}
+        {%- assign added_recommendation_categories = added_recommendation_categories | append: 'service,' -%}
+        {%- assign rec_count = rec_count | plus: 1 -%}
+        <li{% if carousel %} class="slider__item"{% endif %}>
+          {%- render 'product-card-mini', product: dna_service_product, always_open_quickbuy: always_open_quickbuy -%}
+          <p class="text-sm mt-2">Keep your DNA filter clean and performing.</p>
+        </li>
+      {%- endif -%}
+      {%- if show_puig_visor_upsell and puig_visor_product and upsell_count < upsell_limit -%}
+        {%- liquid
+          assign cart_matches = cart.items | where: 'product_id', puig_visor_product.id
+          assign id_token = ',' | append: puig_visor_product.id | append: ','
+        -%}
+        {%- if cart_matches.size == 0 -%}
+          {%- if added_ids contains id_token -%}
+            {%- assign skip_add = true -%}
+          {%- else -%}
+            {%- assign skip_add = false -%}
+          {%- endif -%}
+        {%- else -%}
+          {%- assign skip_add = true -%}
+        {%- endif -%}
+        {%- if skip_add == false -%}
+          {%- assign added_ids = added_ids | append: puig_visor_product.id | append: ',' -%}
+          {%- assign added_recommendation_categories = added_recommendation_categories | append: 'screen,' -%}
+          {%- assign upsell_count = upsell_count | plus: 1 -%}
+          {%- assign rec_count = rec_count | plus: 1 -%}
+          <li{% if carousel %} class="slider__item"{% endif %}>
+            {%- render 'product-card-mini', product: puig_visor_product, always_open_quickbuy: always_open_quickbuy -%}
+            <p class="text-sm mt-2">Add extra wind protection to your screen.</p>
+          </li>
+        {%- endif -%}
+      {%- endif -%}
+      {%- if show_universal_footpegs_upsell and universal_footpegs_product and upsell_count < upsell_limit -%}
+        {%- liquid
+          assign cart_matches = cart.items | where: 'product_id', universal_footpegs_product.id
+          assign id_token = ',' | append: universal_footpegs_product.id | append: ','
+        -%}
+        {%- if cart_matches.size == 0 -%}
+          {%- if added_ids contains id_token -%}
+            {%- assign skip_add = true -%}
+          {%- else -%}
+            {%- assign skip_add = false -%}
+          {%- endif -%}
+        {%- else -%}
+          {%- assign skip_add = true -%}
+        {%- endif -%}
+        {%- if skip_add == false -%}
+          {%- assign added_ids = added_ids | append: universal_footpegs_product.id | append: ',' -%}
+          {%- assign added_recommendation_categories = added_recommendation_categories | append: 'footpegs,' -%}
+          {%- assign upsell_count = upsell_count | plus: 1 -%}
+          {%- assign rec_count = rec_count | plus: 1 -%}
+          <li{% if carousel %} class="slider__item"{% endif %}>
+            {%- render 'product-card-mini', product: universal_footpegs_product, always_open_quickbuy: always_open_quickbuy -%}
+            <p class="text-sm mt-2">Improve grip and control with racing footpegs.</p>
+          </li>
+        {%- endif -%}
+      {%- endif -%}
+      {%- if show_universal_bar_ends_upsell and universal_bar_ends_product and upsell_count < upsell_limit -%}
+        {%- liquid
+          assign cart_matches = cart.items | where: 'product_id', universal_bar_ends_product.id
+          assign id_token = ',' | append: universal_bar_ends_product.id | append: ','
+        -%}
+        {%- if cart_matches.size == 0 -%}
+          {%- if added_ids contains id_token -%}
+            {%- assign skip_add = true -%}
+          {%- else -%}
+            {%- assign skip_add = false -%}
+          {%- endif -%}
+        {%- else -%}
+          {%- assign skip_add = true -%}
+        {%- endif -%}
+        {%- if skip_add == false -%}
+          {%- assign added_ids = added_ids | append: universal_bar_ends_product.id | append: ',' -%}
+          {%- assign added_recommendation_categories = added_recommendation_categories | append: 'bar_ends,' -%}
+          {%- assign upsell_count = upsell_count | plus: 1 -%}
+          {%- assign rec_count = rec_count | plus: 1 -%}
+          <li{% if carousel %} class="slider__item"{% endif %}>
+            {%- render 'product-card-mini', product: universal_bar_ends_product, always_open_quickbuy: always_open_quickbuy -%}
+            <p class="text-sm mt-2">Balance your bars and finish the setup.</p>
+          </li>
+        {%- endif -%}
+      {%- endif -%}
+      {%- if show_universal_levers_upsell and universal_levers_product and upsell_count < upsell_limit -%}
+        {%- liquid
+          assign cart_matches = cart.items | where: 'product_id', universal_levers_product.id
+          assign id_token = ',' | append: universal_levers_product.id | append: ','
+        -%}
+        {%- if cart_matches.size == 0 -%}
+          {%- if added_ids contains id_token -%}
+            {%- assign skip_add = true -%}
+          {%- else -%}
+            {%- assign skip_add = false -%}
+          {%- endif -%}
+        {%- else -%}
+          {%- assign skip_add = true -%}
+        {%- endif -%}
+        {%- if skip_add == false -%}
+          {%- assign added_ids = added_ids | append: universal_levers_product.id | append: ',' -%}
+          {%- assign added_recommendation_categories = added_recommendation_categories | append: 'levers,' -%}
+          {%- assign upsell_count = upsell_count | plus: 1 -%}
+          {%- assign rec_count = rec_count | plus: 1 -%}
+          <li{% if carousel %} class="slider__item"{% endif %}>
+            {%- render 'product-card-mini', product: universal_levers_product, always_open_quickbuy: always_open_quickbuy -%}
+            <p class="text-sm mt-2">Fine-tune lever feel for better control.</p>
+          </li>
+        {%- endif -%}
+      {%- endif -%}
+      {%- if show_bar_end_mirrors_upsell and bar_end_mirrors_product and upsell_count < upsell_limit -%}
+        {%- liquid
+          assign cart_matches = cart.items | where: 'product_id', bar_end_mirrors_product.id
+          assign id_token = ',' | append: bar_end_mirrors_product.id | append: ','
+        -%}
+        {%- if cart_matches.size == 0 -%}
+          {%- if added_ids contains id_token -%}
+            {%- assign skip_add = true -%}
+          {%- else -%}
+            {%- assign skip_add = false -%}
+          {%- endif -%}
+        {%- else -%}
+          {%- assign skip_add = true -%}
+        {%- endif -%}
+        {%- if skip_add == false -%}
+          {%- assign added_ids = added_ids | append: bar_end_mirrors_product.id | append: ',' -%}
+          {%- assign added_recommendation_categories = added_recommendation_categories | append: 'bar_ends,' -%}
+          {%- assign upsell_count = upsell_count | plus: 1 -%}
+          {%- assign rec_count = rec_count | plus: 1 -%}
+          <li{% if carousel %} class="slider__item"{% endif %}>
+            {%- render 'product-card-mini', product: bar_end_mirrors_product, always_open_quickbuy: always_open_quickbuy -%}
+            <p class="text-sm mt-2">Clean bar-end mirrors to match your controls.</p>
+          </li>
+        {%- endif -%}
+      {%- endif -%}
+      {%- if show_only_upsells == false -%}
+        {%- assign source_products = fallback_products | default: recommendations.products -%}
+        {%- for product in source_products -%}
+          {%- if is_cart -%}
+            {%- liquid
+              if rec_count == products_to_show
+                break
+              endif
+              assign cart_matches = cart.items | where: 'product_id', product.id
+              assign cart_fallback_allowed = true
+              if cart_bike_make != blank
+                assign cart_fallback_allowed = false
+                assign fallback_title = product.title | downcase
+                assign fallback_type = product.type | downcase
+                assign fallback_tags = product.tags | join: ',' | downcase
+                assign fallback_title_compact = fallback_title | remove: ' ' | remove: '-' | remove: '/' | remove: '(' | remove: ')' | remove: '.'
+                assign fallback_is_associated = false
+                if has_exhaust
+                  if fallback_title contains 'filter' or fallback_type contains 'filter' or fallback_tags contains 'air filter' or fallback_title contains 'tail tidy' or fallback_title contains 'screen' or fallback_title contains 'crash' or fallback_title contains 'radiator guard' or fallback_title contains 'tank grip' or fallback_title contains 'decat' or fallback_title contains 'gasket' or fallback_title contains 'db killer' or fallback_title contains 'ecu' or fallback_title contains 'remap'
+                    assign fallback_is_associated = true
+                  endif
+                endif
+                if has_dna_in_cart
+                  if fallback_title contains 'exhaust' or fallback_type contains 'exhaust' or fallback_title contains 'spark plug' or fallback_title contains 'airbox' or fallback_title contains 'velocity stack' or fallback_title contains 'intake' or fallback_title contains 'service kit' or fallback_title contains 'cleaning kit' or fallback_title contains 'ecu' or fallback_title contains 'remap'
+                    assign fallback_is_associated = true
+                  endif
+                endif
+                if has_puig_screen
+                  if fallback_title contains 'hand guard' or fallback_title contains 'phone' or fallback_title contains 'tank bag' or fallback_title contains 'seat' or fallback_title contains 'gps' or fallback_title contains 'top box' or fallback_title contains 'wind deflector'
+                    assign fallback_is_associated = true
+                  endif
+                endif
+                if fallback_is_associated == false and fallback_title contains 'tail tidy'
+                  assign fallback_is_associated = true
+                endif
+                if fallback_title contains cart_bike_make and fallback_is_associated
+                  assign cart_fitment_tokens = cart_fitment_words | split: ','
+                  for cart_fitment_token in cart_fitment_tokens
+                    if cart_fitment_token != blank
+                      assign cart_fitment_token_compact = cart_fitment_token | remove: ' ' | remove: '-'
+                      if fallback_title contains cart_fitment_token or fallback_title_compact contains cart_fitment_token_compact
+                        assign cart_fallback_allowed = true
+                        break
+                      endif
+                    endif
+                  endfor
+                endif
+              endif
+            -%}
+            {%- if cart_matches.size == 0 and cart_fallback_allowed -%}
+              {%- assign rec_count = rec_count | plus: 1 -%}
+              <li{% if carousel %} class="slider__item"{% endif %}>
+                {%- render 'product-card-mini', product: product, always_open_quickbuy: always_open_quickbuy -%}
+              </li>
+            {%- endif -%}
+          {%- else -%}
+            <li{% if carousel %} class="slider__item"{% endif %}>
+              {%- render 'product-card-mini', product: product, always_open_quickbuy: always_open_quickbuy -%}
+            </li>
+          {%- endif -%}
+        {%- endfor -%}
+        {%- if is_cart and rec_count == 0 and cart_bike_make != blank -%}
+          {%- for product in source_products -%}
+            {%- liquid
+              if rec_count == products_to_show
+                break
+              endif
+              assign cart_matches = cart.items | where: 'product_id', product.id
+              assign fallback_title = product.title | downcase
+              assign fallback_type = product.type | downcase
+              assign fallback_tags = product.tags | join: ',' | downcase
+              assign same_make_allowed = false
+              assign fallback_is_associated = false
+              if has_exhaust
+                if fallback_title contains 'filter' or fallback_type contains 'filter' or fallback_tags contains 'air filter' or fallback_title contains 'tail tidy' or fallback_title contains 'screen' or fallback_title contains 'crash' or fallback_title contains 'radiator guard' or fallback_title contains 'tank grip' or fallback_title contains 'decat' or fallback_title contains 'gasket' or fallback_title contains 'db killer' or fallback_title contains 'ecu' or fallback_title contains 'remap'
+                  assign fallback_is_associated = true
+                endif
+              endif
+              if has_dna_in_cart
+                if fallback_title contains 'exhaust' or fallback_type contains 'exhaust' or fallback_title contains 'spark plug' or fallback_title contains 'airbox' or fallback_title contains 'velocity stack' or fallback_title contains 'intake' or fallback_title contains 'service kit' or fallback_title contains 'cleaning kit' or fallback_title contains 'ecu' or fallback_title contains 'remap'
+                  assign fallback_is_associated = true
+                endif
+              endif
+              if has_puig_screen
+                if fallback_title contains 'hand guard' or fallback_title contains 'phone' or fallback_title contains 'tank bag' or fallback_title contains 'seat' or fallback_title contains 'gps' or fallback_title contains 'top box' or fallback_title contains 'wind deflector'
+                  assign fallback_is_associated = true
+                endif
+              endif
+              if fallback_title contains cart_bike_make and fallback_is_associated
+                assign same_make_allowed = true
+              endif
+            -%}
+            {%- if cart_matches.size == 0 and same_make_allowed -%}
+              {%- assign rec_count = rec_count | plus: 1 -%}
+              <li{% if carousel %} class="slider__item"{% endif %}>
+                {%- render 'product-card-mini', product: product, always_open_quickbuy: always_open_quickbuy -%}
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endif -%}
+      {%- if is_cart and rec_count < products_to_show -%}
+        {%- liquid
+          assign universal_fallback_collection = collections['universal-products-for-your-bike-other']
+          if universal_fallback_collection == nil or universal_fallback_collection.products == blank
+            assign universal_fallback_collection = collections['Universal Products For Your Bike Other']
+          endif
+          assign cart_universal_fallback_product = blank
+          if has_exhaust or has_dna_in_cart or has_puig_screen
+            assign cart_universal_fallback_product = all_products['puig_foot_pegs__racing-product-17312']
+            if cart_universal_fallback_product == blank
+              assign cart_universal_fallback_product = all_products['puig_mirrors_ht4_bar_end_in_black_silver_various_models-product-17691']
+            endif
+            if cart_universal_fallback_product == blank
+              assign cart_universal_fallback_product = all_products['puig_extender_visor__screwon-_3_sizes-product-15965']
+            endif
+          endif
+        -%}
+        {%- if universal_fallback_collection and universal_fallback_collection.products != blank -%}
+          {%- for product in universal_fallback_collection.products -%}
+            {%- liquid
+              if rec_count == products_to_show
+                break
+              endif
+              assign cart_matches = cart.items | where: 'product_id', product.id
+              assign universal_title = product.title | downcase
+              assign universal_type = product.type | downcase
+              assign universal_tags = product.tags | join: ',' | downcase
+              assign universal_allowed = false
+              assign universal_category = 'universal'
+              if universal_title contains 'filter' or universal_type contains 'filter' or universal_tags contains 'air filter'
+                assign universal_category = 'filter'
+              elsif universal_title contains 'tail tidy'
+                assign universal_category = 'tail_tidy'
+              elsif universal_title contains 'screen' or universal_title contains 'visor' or universal_title contains 'wind'
+                assign universal_category = 'screen'
+              elsif universal_title contains 'crash' or universal_title contains 'protector' or universal_title contains 'protection' or universal_title contains 'guard'
+                assign universal_category = 'protection'
+              elsif universal_title contains 'paddock' or universal_title contains 'stand'
+                assign universal_category = 'stand'
+              elsif universal_title contains 'footpeg' or universal_title contains 'foot peg' or universal_type contains 'foot'
+                assign universal_category = 'footpegs'
+              elsif universal_title contains 'bar end' or universal_title contains 'mirror'
+                assign universal_category = 'bar_ends'
+              elsif universal_title contains 'lever'
+                assign universal_category = 'levers'
+              elsif universal_title contains 'phone' or universal_title contains 'gps'
+                assign universal_category = 'mounts'
+              elsif universal_title contains 'tank bag' or universal_title contains 'top box' or universal_title contains 'luggage'
+                assign universal_category = 'luggage'
+              endif
+              assign universal_category_token = ',' | append: universal_category | append: ','
+              if added_recommendation_categories contains universal_category_token
+                assign universal_allowed = false
+              endif
+              if has_exhaust
+                if universal_title contains 'paddock' or universal_title contains 'stand' or universal_title contains 'protector' or universal_title contains 'protection' or universal_title contains 'crash' or universal_title contains 'guard' or universal_title contains 'footpeg' or universal_title contains 'foot peg' or universal_type contains 'foot' or universal_tags contains 'universal'
+                  assign universal_allowed = true
+                endif
+              elsif has_dna_in_cart
+                if universal_title contains 'service' or universal_title contains 'clean' or universal_title contains 'intake' or universal_title contains 'velocity' or universal_tags contains 'universal'
+                  assign universal_allowed = true
+                endif
+              elsif has_puig_screen
+                if universal_title contains 'phone' or universal_title contains 'tank bag' or universal_title contains 'top box' or universal_title contains 'gps' or universal_title contains 'guard' or universal_tags contains 'universal'
+                  assign universal_allowed = true
+                endif
+              elsif universal_tags contains 'universal'
+                assign universal_allowed = true
+              endif
+            -%}
+            {%- if added_recommendation_categories contains universal_category_token -%}
+              {%- assign universal_allowed = false -%}
+            {%- endif -%}
+            {%- if cart_matches.size == 0 and universal_allowed -%}
+              {%- assign added_recommendation_categories = added_recommendation_categories | append: universal_category | append: ',' -%}
+              {%- assign rec_count = rec_count | plus: 1 -%}
+              <li{% if carousel %} class="slider__item"{% endif %}>
+                {%- render 'product-card-mini', product: product, always_open_quickbuy: always_open_quickbuy -%}
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+        {%- if rec_count < products_to_show -%}
+          {%- assign universal_fallback_handles = 'puig_foot_pegs__racing-product-17312,puig_mirrors_ht4_bar_end_in_black_silver_various_models-product-17691,puig_extender_visor__screwon-_3_sizes-product-15965' | split: ',' -%}
+          {%- for fallback_handle in universal_fallback_handles -%}
+            {%- liquid
+              if rec_count == products_to_show
+                break
+              endif
+              assign fallback_product = all_products[fallback_handle]
+              assign fallback_allowed = false
+              assign fallback_category = 'universal'
+              if fallback_product
+                assign cart_matches = cart.items | where: 'product_id', fallback_product.id
+                assign fallback_title = fallback_product.title | downcase
+                assign fallback_type = fallback_product.type | downcase
+                if fallback_title contains 'footpeg' or fallback_title contains 'foot peg' or fallback_type contains 'foot'
+                  assign fallback_category = 'footpegs'
+                elsif fallback_title contains 'bar end' or fallback_title contains 'mirror'
+                  assign fallback_category = 'bar_ends'
+                elsif fallback_title contains 'screen' or fallback_title contains 'visor' or fallback_title contains 'wind'
+                  assign fallback_category = 'screen'
+                endif
+                assign fallback_category_token = ',' | append: fallback_category | append: ','
+                unless added_recommendation_categories contains fallback_category_token
+                  assign fallback_allowed = true
+                endunless
+              endif
+            -%}
+            {%- if fallback_product and cart_matches.size == 0 and fallback_allowed -%}
+              {%- assign added_recommendation_categories = added_recommendation_categories | append: fallback_category | append: ',' -%}
+              {%- assign rec_count = rec_count | plus: 1 -%}
+              <li{% if carousel %} class="slider__item"{% endif %}>
+                {%- render 'product-card-mini', product: fallback_product, always_open_quickbuy: always_open_quickbuy -%}
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endif -%}
+    </ul>
+
+    {%- if carousel -%}
+          </div>
+        </div>
+      </carousel-slider>
+    {%- endif -%}
+  {%- endif -%}
+</product-recommendations>

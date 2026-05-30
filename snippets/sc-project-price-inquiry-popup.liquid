@@ -1,0 +1,405 @@
+{% comment %}
+  SC Project Price Inquiry Popup
+  Displays a contact form for products where price should be hidden
+{% endcomment %}
+
+<div class="sc-price-inquiry-modal" id="scPriceInquiryModal" style="display: none;">
+  <div class="sc-price-inquiry-modal__overlay"></div>
+  <div class="sc-price-inquiry-modal__container">
+    <div class="sc-price-inquiry-modal__content">
+      <button class="sc-price-inquiry-modal__close" aria-label="Close">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <h2 class="sc-price-inquiry-modal__title">Request Price & Availability</h2>
+      <p class="sc-price-inquiry-modal__subtitle">Fill out the form below and our team will get back to you with pricing and availability information.</p>
+
+      {% form 'contact', class: 'sc-price-inquiry-form', id: 'sc-price-inquiry-form' %}
+        {% if form.posted_successfully? %}
+          <div class="sc-price-inquiry-form__success">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+              <circle cx="24" cy="24" r="22" fill="#4CAF50"/>
+              <path d="M14 24L20 30L34 16" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h3>Thank you for your inquiry!</h3>
+            <p>We've received your request and will get back to you shortly with pricing and availability information.</p>
+          </div>
+        {% elsif form.errors %}
+          <div class="sc-price-inquiry-form__error">
+            {{ form.errors | default_errors }}
+          </div>
+        {% endif %}
+
+        {% unless form.posted_successfully? %}
+          <input
+            type="hidden"
+            name="contact[subject]"
+            value="SC Project Price Inquiry - {{ product.title }}"
+          >
+
+          <input
+            type="hidden"
+            name="contact[product_url]"
+            value="{{ shop.url }}{{ product.url }}"
+          >
+
+          <input
+            type="hidden"
+            name="contact[product_title]"
+            value="{{ product.title }}"
+          >
+
+          <div class="sc-price-inquiry-form__product-info">
+            <div class="sc-price-inquiry-form__product-image">
+              {% if product.featured_image %}
+                <img src="{{ product.featured_image | img_url: '100x100' }}" alt="{{ product.title }}" width="60" height="60">
+              {% endif %}
+            </div>
+            <div class="sc-price-inquiry-form__product-details">
+              <h4>{{ product.title }}</h4>
+              {% if product.vendor %}
+                <p class="vendor">{{ product.vendor }}</p>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="sc-price-inquiry-form__fields">
+            <div class="sc-price-inquiry-form__field">
+              <label for="contact-name">Name <span class="required">*</span></label>
+              <input
+                type="text"
+                id="contact-name"
+                name="contact[name]"
+                required
+                placeholder="Your full name"
+              >
+            </div>
+
+            <div class="sc-price-inquiry-form__field">
+              <label for="contact-email">Email <span class="required">*</span></label>
+              <input
+                type="email"
+                id="contact-email"
+                name="contact[email]"
+                required
+                placeholder="your@email.com"
+                {% if customer %}value="{{ customer.email }}"{% endif %}
+              >
+            </div>
+
+            <div class="sc-price-inquiry-form__field">
+              <label for="contact-phone">Phone</label>
+              <input
+                type="tel"
+                id="contact-phone"
+                name="contact[phone]"
+                placeholder="+44 1234 567890"
+              >
+            </div>
+
+            <div class="sc-price-inquiry-form__field">
+              <label for="contact-quantity">Quantity</label>
+              <input
+                type="number"
+                id="contact-quantity"
+                name="contact[quantity]"
+                min="1"
+                value="1"
+                placeholder="1"
+              >
+            </div>
+
+            <div class="sc-price-inquiry-form__field sc-price-inquiry-form__field--full">
+              <label for="contact-message">Message</label>
+              <textarea
+                id="contact-message"
+                name="contact[message]"
+                rows="4"
+                placeholder="Please provide any additional information about your inquiry..."
+              >I am interested in {{ product.title }}. Please provide pricing and availability information.</textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="sc-price-inquiry-form__submit">
+            <span>Send Inquiry</span>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        {% endunless %}
+      {% endform %}
+    </div>
+  </div>
+</div>
+
+<style>
+  .sc-price-inquiry-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  .sc-price-inquiry-modal.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .sc-price-inquiry-modal__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+  }
+
+  .sc-price-inquiry-modal__container {
+    position: relative;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #ffffff;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+    opacity: 1;
+  }
+
+  .sc-price-inquiry-modal.active .sc-price-inquiry-modal__container {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .sc-price-inquiry-modal__content {
+    padding: 3rem 2.5rem;
+    background: #ffffff;
+    background-color: #ffffff;
+    opacity: 1;
+  }
+
+  .sc-price-inquiry-modal__close {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: rgba(var(--text-color), 0.1);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: rgb(var(--text-color));
+  }
+
+  .sc-price-inquiry-modal__close:hover {
+    background: rgba(var(--text-color), 0.15);
+    transform: rotate(90deg);
+  }
+
+  .sc-price-inquiry-modal__title {
+    font-size: 2.4rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    color: rgb(var(--text-color));
+  }
+
+  .sc-price-inquiry-modal__subtitle {
+    font-size: 1.4rem;
+    color: rgba(var(--text-color), 0.7);
+    margin: 0 0 2rem 0;
+  }
+
+  .sc-price-inquiry-form__product-info {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: rgba(var(--text-color), 0.03);
+    border-radius: 8px;
+    margin-bottom: 2rem;
+  }
+
+  .sc-price-inquiry-form__product-image img {
+    border-radius: 6px;
+    object-fit: cover;
+  }
+
+  .sc-price-inquiry-form__product-details h4 {
+    font-size: 1.6rem;
+    margin: 0 0 0.5rem 0;
+    font-weight: 600;
+  }
+
+  .sc-price-inquiry-form__product-details .vendor {
+    font-size: 1.3rem;
+    color: rgba(var(--text-color), 0.6);
+    margin: 0;
+  }
+
+  .sc-price-inquiry-form__fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .sc-price-inquiry-form__field {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sc-price-inquiry-form__field--full {
+    grid-column: 1 / -1;
+  }
+
+  .sc-price-inquiry-form__field label {
+    font-size: 1.4rem;
+    font-weight: 500;
+    margin-bottom: 0.8rem;
+    color: rgb(var(--text-color));
+  }
+
+  .sc-price-inquiry-form__field .required {
+    color: #d32f2f;
+  }
+
+  .sc-price-inquiry-form__field input,
+  .sc-price-inquiry-form__field textarea {
+    padding: 1.2rem 1.5rem;
+    border: 1px solid rgba(var(--text-color), 0.2);
+    border-radius: 8px;
+    font-size: 1.5rem;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    background: var(--bg-color, #ffffff);
+    color: rgb(var(--text-color));
+  }
+
+  .sc-price-inquiry-form__field input:focus,
+  .sc-price-inquiry-form__field textarea:focus {
+    outline: none;
+    border-color: var(--link-color, #000000);
+    box-shadow: 0 0 0 3px rgba(var(--text-color), 0.1);
+  }
+
+  .sc-price-inquiry-form__submit {
+    width: 100%;
+    padding: 1.5rem 2rem;
+    background: rgb(var(--color-scheme-1-btn-bg, 76, 175, 80));
+    color: rgb(var(--color-scheme-1-btn-text, 255, 255, 255));
+    border: none;
+    border-radius: 8px;
+    font-size: 1.6rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    transition: all 0.2s ease;
+  }
+
+  .sc-price-inquiry-form__submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(var(--text-color), 0.3);
+  }
+
+  .sc-price-inquiry-form__success {
+    text-align: center;
+    padding: 3rem 0;
+  }
+
+  .sc-price-inquiry-form__success svg {
+    margin-bottom: 1.5rem;
+  }
+
+  .sc-price-inquiry-form__success h3 {
+    font-size: 2rem;
+    margin: 0 0 1rem 0;
+    color: #4CAF50;
+  }
+
+  .sc-price-inquiry-form__success p {
+    font-size: 1.5rem;
+    color: rgba(var(--text-color), 0.7);
+  }
+
+  .sc-price-inquiry-form__error {
+    padding: 1.5rem;
+    background: #ffebee;
+    border: 1px solid #ef5350;
+    border-radius: 8px;
+    color: #c62828;
+    margin-bottom: 2rem;
+  }
+
+  @media (max-width: 767px) {
+    .sc-price-inquiry-modal__content {
+      padding: 2rem 1.5rem;
+    }
+
+    .sc-price-inquiry-form__fields {
+      grid-template-columns: 1fr;
+    }
+
+    .sc-price-inquiry-modal__title {
+      font-size: 2rem;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('scPriceInquiryModal');
+    if (!modal) return;
+
+    const overlay = modal.querySelector('.sc-price-inquiry-modal__overlay');
+    const closeBtn = modal.querySelector('.sc-price-inquiry-modal__close');
+
+    // Open modal
+    window.openSCPriceInquiry = function() {
+      modal.style.display = 'flex';
+      setTimeout(() => {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }, 10);
+    };
+
+    // Close modal
+    function closeModal() {
+      modal.classList.remove('active');
+      setTimeout(() => {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+      }, 300);
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', closeModal);
+
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        closeModal();
+      }
+    });
+  });
+</script>

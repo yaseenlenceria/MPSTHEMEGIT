@@ -1,0 +1,389 @@
+{%- comment -%}
+  Product Fitment Checker Widget
+  Parses product tags matching "[Make]+[Model]+[Year]" to check compatibility dynamically.
+  Saves the user's selected vehicle in localStorage to check compatibility across all product pages automatically.
+{%- endcomment -%}
+
+<div class="product-fitment-checker" id="product-fitment-checker" data-tags="{{ product.tags | join: '|||' | escape }}">
+  <div class="fitment-card">
+    <div class="fitment-header">
+      <svg class="fitment-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 8v4M12 16h.01"/>
+      </svg>
+      <span class="fitment-title">Fitment Check</span>
+    </div>
+
+    <!-- Active Fitment Banner -->
+    <div class="fitment-banner hidden" id="fitment-result-banner">
+      <div class="fitment-banner-content">
+        <span class="fitment-banner-icon"></span>
+        <span class="fitment-banner-text"></span>
+      </div>
+      <button type="button" class="fitment-change-btn" id="fitment-change-btn">Change Vehicle</button>
+    </div>
+
+    <!-- Selector Fields Form -->
+    <div class="fitment-form" id="fitment-form-inputs">
+      <p class="fitment-instruction">Select your vehicle to confirm fitment:</p>
+      <div class="fitment-fields">
+        <div class="fitment-field">
+          <select id="fitment-make" class="fitment-select" aria-label="Make">
+            <option value="">Make</option>
+          </select>
+        </div>
+        <div class="fitment-field">
+          <select id="fitment-model" class="fitment-select" aria-label="Model" disabled>
+            <option value="">Model</option>
+          </select>
+        </div>
+        <div class="fitment-field">
+          <select id="fitment-year" class="fitment-select" aria-label="Year" disabled>
+            <option value="">Year</option>
+          </select>
+        </div>
+      </div>
+      <button type="button" class="fitment-submit-btn" id="fitment-check-btn" disabled>Check Fitment</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .product-fitment-checker {
+    margin: 1.5rem 0;
+    font-family: var(--font-body-family, 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  }
+
+  .fitment-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    transition: all 0.3s ease;
+  }
+
+  .fitment-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #1a1a1a;
+    margin-bottom: 0.75rem;
+  }
+
+  .fitment-icon {
+    color: #ff9f1c;
+  }
+
+  .fitment-instruction {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin: 0 0 0.75rem 0;
+  }
+
+  .fitment-fields {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .fitment-select {
+    width: 100%;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: #495057;
+    background-color: white;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M9 1L5 5L1 1' stroke='%236c757d' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2rem;
+    transition: all 0.2s ease;
+  }
+
+  .fitment-select:hover:not(:disabled) {
+    border-color: #ff9f1c;
+  }
+
+  .fitment-select:focus {
+    outline: none;
+    border-color: #ff9f1c;
+    box-shadow: 0 0 0 3px rgba(255, 159, 28, 0.15);
+  }
+
+  .fitment-select:disabled {
+    opacity: 0.6;
+    background-color: #e9ecef;
+    cursor: not-allowed;
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M9 1L5 5L1 1' stroke='%23adb5bd' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  }
+
+  .fitment-submit-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background: #ff9f1c;
+    color: white;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .fitment-submit-btn:hover:not(:disabled) {
+    background: #e68a00;
+  }
+
+  .fitment-submit-btn:disabled {
+    opacity: 0.5;
+    background: #ced4da;
+    cursor: not-allowed;
+  }
+
+  /* Banner Styles */
+  .fitment-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.85rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .fitment-banner.success {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+  }
+
+  .fitment-banner.error {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+  }
+
+  .fitment-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .fitment-banner.success .fitment-banner-icon::before {
+    content: '✓';
+    font-size: 1.1rem;
+  }
+
+  .fitment-banner.error .fitment-banner-icon::before {
+    content: '✕';
+    font-size: 1.1rem;
+  }
+
+  .fitment-change-btn {
+    background: transparent;
+    border: none;
+    text-decoration: underline;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    color: inherit;
+    padding: 0;
+  }
+
+  .fitment-change-btn:hover {
+    opacity: 0.8;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  @media (max-width: 576px) {
+    .fitment-fields {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+  }
+</style>
+
+<script>
+(function() {
+  const container = document.getElementById('product-fitment-checker');
+  if (!container) return;
+
+  const tagsData = container.getAttribute('data-tags') || '';
+  const productTags = tagsData.split('|||').map(t => t.trim().toLowerCase());
+
+  const makeSelect = document.getElementById('fitment-make');
+  const modelSelect = document.getElementById('fitment-model');
+  const yearSelect = document.getElementById('fitment-year');
+  const checkBtn = document.getElementById('fitment-check-btn');
+  const banner = document.getElementById('fitment-result-banner');
+  const formInputs = document.getElementById('fitment-form-inputs');
+  const changeBtn = document.getElementById('fitment-change-btn');
+
+  function initChecker() {
+    if (typeof window.bikes === 'undefined' || window.bikes.length === 0) return;
+
+    populateMakes();
+    
+    // Check if user has saved vehicle in localStorage
+    const saved = localStorage.getItem('sj_selected_vehicle');
+    if (saved) {
+      try {
+        const vehicle = JSON.parse(saved);
+        if (vehicle.make && vehicle.model && vehicle.year) {
+          runCompatibilityCheck(vehicle.make, vehicle.model, vehicle.year);
+        }
+      } catch(e) {
+        console.warn("Failed to load saved vehicle", e);
+      }
+    }
+  }
+
+  function resetSelect(select, placeholder) {
+    select.innerHTML = '<option value="">' + placeholder + '</option>';
+    select.disabled = true;
+  }
+
+  function sjSortByKey(array, key) {
+    return array.sort(function(a, b) {
+      var x = a[key];
+      var y = b[key];
+      return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+    });
+  }
+
+  function populateMakes() {
+    resetSelect(makeSelect, 'Make');
+    resetSelect(modelSelect, 'Model');
+    resetSelect(yearSelect, 'Year');
+
+    makeSelect.disabled = false;
+    sjSortByKey(window.bikes, "make");
+
+    const seen = {};
+    window.bikes.forEach(item => {
+      if (item.make && !seen[item.make]) {
+        seen[item.make] = true;
+        const opt = document.createElement('option');
+        opt.value = item.make;
+        opt.textContent = item.make;
+        makeSelect.appendChild(opt);
+      }
+    });
+  }
+
+  function populateModels(make) {
+    resetSelect(modelSelect, 'Model');
+    resetSelect(yearSelect, 'Year');
+    checkBtn.disabled = true;
+
+    if (!make) return;
+
+    const makeObj = window.bikes.find(entry => entry.make === make);
+    if (!makeObj || !Array.isArray(makeObj.models)) return;
+
+    modelSelect.disabled = false;
+    const current_models = makeObj.models;
+    sjSortByKey(current_models, "model");
+
+    current_models.forEach(item => {
+      if (item.model) {
+        const opt = document.createElement('option');
+        opt.value = item.model;
+        opt.textContent = item.model;
+        modelSelect.appendChild(opt);
+      }
+    });
+  }
+
+  function populateYears(make, model) {
+    resetSelect(yearSelect, 'Year');
+    checkBtn.disabled = true;
+
+    if (!make || !model) return;
+
+    const makeObj = window.bikes.find(entry => entry.make === make);
+    if (!makeObj) return;
+
+    const modelObj = makeObj.models.find(entry => entry.model === model);
+    if (!modelObj || !Array.isArray(modelObj.years)) return;
+
+    yearSelect.disabled = false;
+    const current_years = modelObj.years.slice().sort();
+
+    current_years.forEach(year => {
+      if (year) {
+        const opt = document.createElement('option');
+        opt.value = year;
+        opt.textContent = year;
+        yearSelect.appendChild(opt);
+      }
+    });
+  }
+
+  function runCompatibilityCheck(make, model, year) {
+    // Save selection
+    localStorage.setItem('sj_selected_vehicle', JSON.stringify({ make, model, year }));
+
+    // Format target tag: e.g. "triumph+speed triple 1050+2005"
+    const targetTag = `${make.toLowerCase()}+${model.toLowerCase()}+${year.toLowerCase()}`;
+    const fits = productTags.includes(targetTag);
+
+    // Update banner
+    banner.className = 'fitment-banner ' + (fits ? 'success' : 'error');
+    const textNode = banner.querySelector('.fitment-banner-text');
+    
+    if (fits) {
+      textNode.textContent = `Confirmed: Fits your ${make} ${model} (${year})!`;
+    } else {
+      textNode.textContent = `Warning: This does not fit your ${make} ${model} (${year}).`;
+    }
+
+    banner.classList.remove('hidden');
+    formInputs.classList.add('hidden');
+  }
+
+  makeSelect.addEventListener('change', e => {
+    populateModels(e.target.value);
+  });
+
+  modelSelect.addEventListener('change', e => {
+    populateYears(makeSelect.value, e.target.value);
+  });
+
+  yearSelect.addEventListener('change', e => {
+    checkBtn.disabled = !e.target.value;
+  });
+
+  checkBtn.addEventListener('click', () => {
+    runCompatibilityCheck(makeSelect.value, modelSelect.value, yearSelect.value);
+  });
+
+  changeBtn.addEventListener('click', () => {
+    banner.classList.add('hidden');
+    formInputs.classList.remove('hidden');
+    populateMakes();
+  });
+
+  if (window.bikes && window.bikes.length > 0) {
+    initChecker();
+  } else {
+    document.addEventListener('bikes:loaded', initChecker);
+  }
+})();
+</script>

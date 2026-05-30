@@ -1,0 +1,87 @@
+{% render "all-bikes" %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script defer>
+          jQuery(document).ready(function(){
+            function initBikeFinder() {
+              if (!window.bikes || window.bikes.length === 0) return;
+              var make_options = '<option>Make</option>';
+              sjSortByKey(window.bikes,"make");
+              window.bikes.forEach(function(item){
+                  if(item.make != undefined && item.make != "" ){
+                     make_options += '<option value="'+item.make+'">'+item.make+'</option>';     
+                  }    
+              });
+              jQuery('#sj-make').html(make_options);
+            }
+
+            //Add models to select dropdown
+            jQuery(document).on('change','#sj-make',function(){
+                var model_options = '<option>Model</option>';
+                var current_make = jQuery(this).val();
+                var current_make_object = window.bikes.find(item => item.make === current_make);
+                if (!current_make_object) return;
+                var current_models = current_make_object.models; 
+                sjSortByKey(current_models,"model");
+                current_models.forEach(function(item){
+                    if(item.model != undefined && item.model != ""){
+                        model_options += '<option value="'+item.model+'">'+item.model+'</option>';
+                    }
+                });
+                jQuery('#sj-model').html(model_options);
+            });
+
+            //Add years to select dropdown
+            jQuery(document).on('change','#sj-model',function(){
+                var year_options = '<option>Year</option>';
+                var current_make = jQuery('#sj-make').val();
+                var current_model = jQuery(this).val();   
+                var current_make_object = window.bikes.find(item => item.make === current_make);
+                if (!current_make_object) return;
+                var current_models = current_make_object.models;
+                var current_model_object = current_models.find(item => item.model === current_model);
+                if (!current_model_object) return;
+                var current_years = current_model_object.years;
+                current_years.sort();
+                current_years.forEach(function(year){
+                    if(year != undefined && year != ""){
+                        year_options += '<option value="'+year+'">'+year+'</option>';
+                    }
+                });
+                jQuery('#sj-year').html(year_options);
+            });
+            
+            // Redirect to Specific tag
+            jQuery(document).on('click','.sj-submit',function(){
+                var site_url = "https://motorcycleperformancestore.co.uk/collections/all/";
+                var make     = jQuery('#sj-make').val().toLowerCase().replace(/\s/g, "-").replace(/\//g, "-");
+                var model    = jQuery('#sj-model').val().toLowerCase().replace(/\s/g, "-").replace(/\//g, "-");
+                var year     = jQuery('#sj-year').val();
+                if(model != "" && model != undefined){
+                    model = "-"+model;
+                }
+                if(year != "" && year != undefined){
+                    year = "-"+year
+                }
+                var tag_handle = site_url+make+model+year;
+                location.href = tag_handle;
+            });
+
+            if (window.bikes && window.bikes.length > 0) {
+              initBikeFinder();
+            } else {
+              document.addEventListener('bikes:loaded', initBikeFinder);
+            }
+        });
+
+   function sjSortByKey(array, key) {
+        return array.sort(function(a, b) {
+            var x = a[key]; var y = b[key];
+            return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+        });
+    }
+</script>
+<style>
+  .sj-vat-price{
+    font-size: 1.25rem;
+  }
+</style>

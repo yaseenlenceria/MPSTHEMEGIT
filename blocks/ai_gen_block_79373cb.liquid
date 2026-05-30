@@ -1,0 +1,546 @@
+{% doc %}
+  @prompt
+    collection desraption in responsicve way and image on top collections do best greate layout, make image Layout
+    
+    Stacked
+    
+     smaller and adopt and do best
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-collection-hero-{{ ai_gen_id }} {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  .ai-collection-hero__container-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: {{ block.settings.content_spacing }}px;
+    align-items: center;
+  }
+
+  .ai-collection-hero__image-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    max-width: {{ block.settings.image_max_width_mobile }}px;
+    overflow: hidden;
+    border-radius: {{ block.settings.image_border_radius }}px;
+  }
+
+  .ai-collection-hero__image-{{ ai_gen_id }} {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+  }
+
+  .ai-collection-hero__image-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    aspect-ratio: {{ block.settings.image_aspect_ratio }};
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ai-collection-hero__image-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    max-width: 400px;
+    max-height: 400px;
+  }
+
+  .ai-collection-hero__empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 20px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .ai-collection-hero__content-{{ ai_gen_id }} {
+    width: 100%;
+    padding: {{ block.settings.content_padding_mobile }}px;
+    background-color: {{ block.settings.content_bg_color }};
+    border-radius: {{ block.settings.content_border_radius }}px;
+  }
+
+  .ai-collection-hero__title-{{ ai_gen_id }} {
+    margin: 0 0 {{ block.settings.title_spacing }}px;
+    color: {{ block.settings.title_color }};
+    font-size: {{ block.settings.title_size_mobile }}px;
+    font-weight: {{ block.settings.title_weight }};
+    text-align: {{ block.settings.text_align }};
+    line-height: 1.2;
+  }
+
+  .ai-collection-hero__description-{{ ai_gen_id }} {
+    margin: 0;
+    color: {{ block.settings.description_color }};
+    font-size: {{ block.settings.description_size_mobile }}px;
+    line-height: 1.6;
+    text-align: {{ block.settings.text_align }};
+  }
+
+  .ai-collection-hero__description-{{ ai_gen_id }} p {
+    margin: 0 0 16px;
+  }
+
+  .ai-collection-hero__description-{{ ai_gen_id }} p:last-child {
+    margin-bottom: 0;
+  }
+
+  .ai-collection-hero__description-{{ ai_gen_id }} h1,
+  .ai-collection-hero__description-{{ ai_gen_id }} h2,
+  .ai-collection-hero__description-{{ ai_gen_id }} h3,
+  .ai-collection-hero__description-{{ ai_gen_id }} h4,
+  .ai-collection-hero__description-{{ ai_gen_id }} h5,
+  .ai-collection-hero__description-{{ ai_gen_id }} h6 {
+    margin: 0 0 12px;
+    color: {{ block.settings.title_color }};
+  }
+
+  .ai-collection-hero__description-{{ ai_gen_id }} ul,
+  .ai-collection-hero__description-{{ ai_gen_id }} ol {
+    margin: 0 0 16px;
+    padding-left: 20px;
+  }
+
+  .ai-collection-hero__description-{{ ai_gen_id }} a {
+    color: {{ block.settings.link_color }};
+    text-decoration: underline;
+  }
+
+  .ai-collection-hero__description-{{ ai_gen_id }} a:hover {
+    opacity: 0.8;
+  }
+
+  @media screen and (min-width: 750px) {
+    .ai-collection-hero__container-{{ ai_gen_id }} {
+      gap: {{ block.settings.content_spacing_desktop }}px;
+    }
+
+    .ai-collection-hero__image-wrapper-{{ ai_gen_id }} {
+      max-width: {{ block.settings.image_max_width_desktop }}px;
+    }
+
+    .ai-collection-hero__content-{{ ai_gen_id }} {
+      padding: {{ block.settings.content_padding_desktop }}px;
+    }
+
+    .ai-collection-hero__title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.title_size_desktop }}px;
+    }
+
+    .ai-collection-hero__description-{{ ai_gen_id }} {
+      font-size: {{ block.settings.description_size_desktop }}px;
+    }
+  }
+
+  @media screen and (min-width: 990px) {
+    {% if block.settings.layout == 'side-by-side' %}
+      .ai-collection-hero__container-{{ ai_gen_id }} {
+        flex-direction: row;
+        align-items: center;
+      }
+
+      .ai-collection-hero__image-wrapper-{{ ai_gen_id }} {
+        flex: 0 0 {{ block.settings.image_width }}%;
+        max-width: {{ block.settings.image_width }}%;
+      }
+
+      .ai-collection-hero__content-{{ ai_gen_id }} {
+        flex: 1;
+      }
+
+      {% if block.settings.image_position == 'right' %}
+        .ai-collection-hero__container-{{ ai_gen_id }} {
+          flex-direction: row-reverse;
+        }
+      {% endif %}
+    {% endif %}
+  }
+{% endstyle %}
+
+<div class="ai-collection-hero-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-collection-hero__container-{{ ai_gen_id }}">
+    {% if collection.image or block.settings.fallback_image %}
+      <div class="ai-collection-hero__image-wrapper-{{ ai_gen_id }}">
+        {% if collection.image %}
+          <img
+            src="{{ collection.image | image_url: width: 1200 }}"
+            alt="{{ collection.image.alt | escape }}"
+            loading="lazy"
+            width="{{ collection.image.width }}"
+            height="{{ collection.image.height }}"
+            class="ai-collection-hero__image-{{ ai_gen_id }}"
+            style="aspect-ratio: {{ block.settings.image_aspect_ratio }};"
+          >
+        {% elsif block.settings.fallback_image %}
+          <img
+            src="{{ block.settings.fallback_image | image_url: width: 1200 }}"
+            alt="{{ block.settings.fallback_image.alt | escape }}"
+            loading="lazy"
+            width="{{ block.settings.fallback_image.width }}"
+            height="{{ block.settings.fallback_image.height }}"
+            class="ai-collection-hero__image-{{ ai_gen_id }}"
+            style="aspect-ratio: {{ block.settings.image_aspect_ratio }};"
+          >
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="ai-collection-hero__content-{{ ai_gen_id }}">
+      {% if block.settings.show_title and collection.title != blank %}
+        <h1 class="ai-collection-hero__title-{{ ai_gen_id }}">
+          {{ collection.title }}
+        </h1>
+      {% endif %}
+
+      {% if block.settings.show_description and collection.description != blank %}
+        <div class="ai-collection-hero__description-{{ ai_gen_id }}">
+          {{ collection.description }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Collection description",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "stacked",
+          "label": "Stacked"
+        },
+        {
+          "value": "side-by-side",
+          "label": "Side by side"
+        }
+      ],
+      "default": "stacked",
+      "info": "Side by side layout applies on large screens only"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image position",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left",
+      "info": "Only applies to side by side layout on large screens"
+    },
+    {
+      "type": "range",
+      "id": "image_width",
+      "min": 30,
+      "max": 70,
+      "step": 5,
+      "unit": "%",
+      "label": "Image width",
+      "default": 40,
+      "info": "Only applies to side by side layout on large screens"
+    },
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "fallback_image",
+      "label": "Fallback image",
+      "info": "Used when collection has no image"
+    },
+    {
+      "type": "range",
+      "id": "image_max_width_mobile",
+      "min": 200,
+      "max": 600,
+      "step": 20,
+      "unit": "px",
+      "label": "Maximum image width (mobile)",
+      "default": 400
+    },
+    {
+      "type": "range",
+      "id": "image_max_width_desktop",
+      "min": 300,
+      "max": 1000,
+      "step": 50,
+      "unit": "px",
+      "label": "Maximum image width (desktop)",
+      "default": 600
+    },
+    {
+      "type": "select",
+      "id": "image_aspect_ratio",
+      "label": "Image aspect ratio",
+      "options": [
+        {
+          "value": "2.35",
+          "label": "Cinematic"
+        },
+        {
+          "value": "2",
+          "label": "Wide"
+        },
+        {
+          "value": "1.77",
+          "label": "Landscape"
+        },
+        {
+          "value": "1.33",
+          "label": "Standard"
+        },
+        {
+          "value": "1",
+          "label": "Square"
+        },
+        {
+          "value": "0.75",
+          "label": "Portrait"
+        }
+      ],
+      "default": "1.77"
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Image border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_title",
+      "label": "Show collection title",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Show collection description",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "content_spacing",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Spacing between image and content (mobile)",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "content_spacing_desktop",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Spacing between image and content (desktop)",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "content_padding_mobile",
+      "min": 0,
+      "max": 60,
+      "step": 4,
+      "unit": "px",
+      "label": "Content padding (mobile)",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "content_padding_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Content padding (desktop)",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "content_border_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Content border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Title style"
+    },
+    {
+      "type": "range",
+      "id": "title_size_mobile",
+      "min": 20,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Title size (mobile)",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "title_size_desktop",
+      "min": 24,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "label": "Title size (desktop)",
+      "default": 36
+    },
+    {
+      "type": "select",
+      "id": "title_weight",
+      "label": "Title weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "range",
+      "id": "title_spacing",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Space below title",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Description style"
+    },
+    {
+      "type": "range",
+      "id": "description_size_mobile",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Description size (mobile)",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "description_size_desktop",
+      "min": 14,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "label": "Description size (desktop)",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "content_bg_color",
+      "label": "Content background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title",
+      "default": "#2a2b2a"
+    },
+    {
+      "type": "color",
+      "id": "description_color",
+      "label": "Description",
+      "default": "#2a2b2a"
+    },
+    {
+      "type": "color",
+      "id": "link_color",
+      "label": "Links",
+      "default": "#ff580d"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection description"
+    }
+  ]
+}
+{% endschema %}

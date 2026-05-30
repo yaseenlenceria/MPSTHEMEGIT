@@ -1,0 +1,620 @@
+{% doc %}
+  @prompt
+    sound file, give the ability to upload the audio here, we want to be able to upload audio file directly to this section
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-audio-player-{{ ai_gen_id }} {
+    padding: 40px;
+    background-color: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .ai-audio-player__content-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .ai-audio-player__header-{{ ai_gen_id }} {
+    text-align: center;
+  }
+
+  .ai-audio-player__title-{{ ai_gen_id }} {
+    margin: 0 0 8px;
+    color: {{ block.settings.text_color }};
+    font-size: {{ block.settings.title_size }}px;
+  }
+
+  .ai-audio-player__description-{{ ai_gen_id }} {
+    margin: 0;
+    color: {{ block.settings.text_color }};
+    opacity: 0.8;
+    font-size: {{ block.settings.description_size }}px;
+  }
+
+  .ai-audio-player__controls-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .ai-audio-player__play-button-{{ ai_gen_id }} {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: {{ block.settings.button_color }};
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  .ai-audio-player__play-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_color }};
+    transform: scale(1.05);
+  }
+
+  .ai-audio-player__play-button-{{ ai_gen_id }}:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .ai-audio-player__play-button-{{ ai_gen_id }} svg {
+    width: 24px;
+    height: 24px;
+    fill: {{ block.settings.button_icon_color }};
+  }
+
+  .ai-audio-player__progress-container-{{ ai_gen_id }} {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ai-audio-player__progress-bar-{{ ai_gen_id }} {
+    width: 100%;
+    height: 8px;
+    background-color: {{ block.settings.progress_bg_color }};
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .ai-audio-player__progress-fill-{{ ai_gen_id }} {
+    height: 100%;
+    background-color: {{ block.settings.progress_fill_color }};
+    width: 0%;
+    transition: width 0.1s linear;
+  }
+
+  .ai-audio-player__time-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: {{ block.settings.text_color }};
+    opacity: 0.7;
+  }
+
+  .ai-audio-player__volume-container-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .ai-audio-player__volume-button-{{ ai_gen_id }} {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: transparent;
+    border: 2px solid {{ block.settings.button_color }};
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background-color 0.3s ease;
+  }
+
+  .ai-audio-player__volume-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_color }};
+  }
+
+  .ai-audio-player__volume-button-{{ ai_gen_id }} svg {
+    width: 20px;
+    height: 20px;
+    fill: {{ block.settings.button_color }};
+  }
+
+  .ai-audio-player__volume-button-{{ ai_gen_id }}:hover svg {
+    fill: {{ block.settings.button_icon_color }};
+  }
+
+  .ai-audio-player__volume-slider-{{ ai_gen_id }} {
+    width: 100px;
+    height: 4px;
+    border-radius: 2px;
+    background-color: {{ block.settings.progress_bg_color }};
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+  }
+
+  .ai-audio-player__volume-slider-{{ ai_gen_id }}::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: {{ block.settings.progress_fill_color }};
+    cursor: pointer;
+  }
+
+  .ai-audio-player__volume-slider-{{ ai_gen_id }}::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: {{ block.settings.progress_fill_color }};
+    cursor: pointer;
+    border: none;
+  }
+
+  .ai-audio-player__empty-state-{{ ai_gen_id }} {
+    text-align: center;
+    padding: 40px 20px;
+    color: {{ block.settings.text_color }};
+    opacity: 0.6;
+  }
+
+  .ai-audio-player__instructions-{{ ai_gen_id }} {
+    background-color: rgba(255, 88, 13, 0.1);
+    border: 2px dashed {{ block.settings.button_color }};
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 12px;
+  }
+
+  .ai-audio-player__instructions-title-{{ ai_gen_id }} {
+    font-weight: 700;
+    margin: 0 0 12px;
+    color: {{ block.settings.button_color }};
+    font-size: 16px;
+  }
+
+  .ai-audio-player__instructions-list-{{ ai_gen_id }} {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+  }
+
+  .ai-audio-player__instructions-list-{{ ai_gen_id }} li {
+    padding: 8px 0;
+    color: {{ block.settings.text_color }};
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .ai-audio-player__instructions-list-{{ ai_gen_id }} li strong {
+    color: {{ block.settings.button_color }};
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-audio-player-{{ ai_gen_id }} {
+      padding: 24px;
+    }
+
+    .ai-audio-player__controls-{{ ai_gen_id }} {
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .ai-audio-player__progress-container-{{ ai_gen_id }} {
+      width: 100%;
+    }
+
+    .ai-audio-player__volume-container-{{ ai_gen_id }} {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .ai-audio-player__volume-slider-{{ ai_gen_id }} {
+      flex-grow: 1;
+      max-width: 200px;
+    }
+  }
+{% endstyle %}
+
+<audio-player-{{ ai_gen_id }}
+  class="ai-audio-player-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  {% if block.settings.audio_file != blank %}
+    <div class="ai-audio-player__content-{{ ai_gen_id }}">
+      {% if block.settings.title != blank or block.settings.description != blank %}
+        <div class="ai-audio-player__header-{{ ai_gen_id }}">
+          {% if block.settings.title != blank %}
+            <h3 class="ai-audio-player__title-{{ ai_gen_id }}">{{ block.settings.title }}</h3>
+          {% endif %}
+          {% if block.settings.description != blank %}
+            <p class="ai-audio-player__description-{{ ai_gen_id }}">{{ block.settings.description }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <div class="ai-audio-player__controls-{{ ai_gen_id }}">
+        <button
+          class="ai-audio-player__play-button-{{ ai_gen_id }}"
+          aria-label="Play audio"
+          data-play-button
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            data-play-icon
+          >
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            data-pause-icon
+            style="display: none;"
+          >
+            <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+          </svg>
+        </button>
+
+        <div class="ai-audio-player__progress-container-{{ ai_gen_id }}">
+          <div
+            class="ai-audio-player__progress-bar-{{ ai_gen_id }}"
+            data-progress-bar
+          >
+            <div
+              class="ai-audio-player__progress-fill-{{ ai_gen_id }}"
+              data-progress-fill
+            ></div>
+          </div>
+          <div class="ai-audio-player__time-{{ ai_gen_id }}">
+            <span data-current-time>0:00</span>
+            <span data-duration>0:00</span>
+          </div>
+        </div>
+      </div>
+
+      {% if block.settings.show_volume_control %}
+        <div class="ai-audio-player__volume-container-{{ ai_gen_id }}">
+          <button
+            class="ai-audio-player__volume-button-{{ ai_gen_id }}"
+            aria-label="Toggle mute"
+            data-volume-button
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              data-volume-icon
+            >
+              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+            </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              data-mute-icon
+              style="display: none;"
+            >
+              <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+            </svg>
+          </button>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value="{{ block.settings.default_volume }}"
+            class="ai-audio-player__volume-slider-{{ ai_gen_id }}"
+            aria-label="Volume control"
+            data-volume-slider
+          >
+        </div>
+      {% endif %}
+
+      <audio
+        data-audio
+        preload="metadata"
+      >
+        <source src="{{ block.settings.audio_file }}" type="audio/mpeg">
+      </audio>
+    </div>
+  {% else %}
+    <div class="ai-audio-player__empty-state-{{ ai_gen_id }}">
+      <p style="font-size: 18px; margin: 0 0 8px; font-weight: 600;">No audio file added yet</p>
+      <div class="ai-audio-player__instructions-{{ ai_gen_id }}">
+        <p class="ai-audio-player__instructions-title-{{ ai_gen_id }}">📁 How to add your audio file:</p>
+        <ol class="ai-audio-player__instructions-list-{{ ai_gen_id }}">
+          <li><strong>Step 1:</strong> Go to Settings → Files in your Shopify admin</li>
+          <li><strong>Step 2:</strong> Click "Upload files" and select your audio file (MP3, WAV, etc.)</li>
+          <li><strong>Step 3:</strong> After upload, click on the file and copy its URL</li>
+          <li><strong>Step 4:</strong> Paste the URL in the "Audio file URL" field below</li>
+        </ol>
+      </div>
+    </div>
+  {% endif %}
+</audio-player-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class AudioPlayer{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.audio = this.querySelector('[data-audio]');
+        if (!this.audio) return;
+
+        this.playButton = this.querySelector('[data-play-button]');
+        this.playIcon = this.querySelector('[data-play-icon]');
+        this.pauseIcon = this.querySelector('[data-pause-icon]');
+        this.progressBar = this.querySelector('[data-progress-bar]');
+        this.progressFill = this.querySelector('[data-progress-fill]');
+        this.currentTimeEl = this.querySelector('[data-current-time]');
+        this.durationEl = this.querySelector('[data-duration]');
+        this.volumeButton = this.querySelector('[data-volume-button]');
+        this.volumeIcon = this.querySelector('[data-volume-icon]');
+        this.muteIcon = this.querySelector('[data-mute-icon]');
+        this.volumeSlider = this.querySelector('[data-volume-slider]');
+
+        this.setupEventListeners();
+        this.setVolume(this.volumeSlider ? this.volumeSlider.value / 100 : 1);
+      }
+
+      setupEventListeners() {
+        this.playButton.addEventListener('click', () => this.togglePlay());
+
+        this.audio.addEventListener('loadedmetadata', () => {
+          this.durationEl.textContent = this.formatTime(this.audio.duration);
+        });
+
+        this.audio.addEventListener('timeupdate', () => {
+          const progress = (this.audio.currentTime / this.audio.duration) * 100;
+          this.progressFill.style.width = progress + '%';
+          this.currentTimeEl.textContent = this.formatTime(this.audio.currentTime);
+        });
+
+        this.audio.addEventListener('ended', () => {
+          this.playIcon.style.display = 'block';
+          this.pauseIcon.style.display = 'none';
+          this.progressFill.style.width = '0%';
+          this.currentTimeEl.textContent = '0:00';
+        });
+
+        this.progressBar.addEventListener('click', (e) => {
+          const rect = this.progressBar.getBoundingClientRect();
+          const percent = (e.clientX - rect.left) / rect.width;
+          this.audio.currentTime = percent * this.audio.duration;
+        });
+
+        if (this.volumeButton) {
+          this.volumeButton.addEventListener('click', () => this.toggleMute());
+        }
+
+        if (this.volumeSlider) {
+          this.volumeSlider.addEventListener('input', (e) => {
+            this.setVolume(e.target.value / 100);
+          });
+        }
+      }
+
+      togglePlay() {
+        if (this.audio.paused) {
+          this.audio.play();
+          this.playIcon.style.display = 'none';
+          this.pauseIcon.style.display = 'block';
+        } else {
+          this.audio.pause();
+          this.playIcon.style.display = 'block';
+          this.pauseIcon.style.display = 'none';
+        }
+      }
+
+      toggleMute() {
+        if (this.audio.muted) {
+          this.audio.muted = false;
+          this.volumeIcon.style.display = 'block';
+          this.muteIcon.style.display = 'none';
+          if (this.volumeSlider) {
+            this.volumeSlider.value = this.audio.volume * 100;
+          }
+        } else {
+          this.audio.muted = true;
+          this.volumeIcon.style.display = 'none';
+          this.muteIcon.style.display = 'block';
+        }
+      }
+
+      setVolume(value) {
+        this.audio.volume = value;
+        if (this.volumeSlider) {
+          this.volumeSlider.value = value * 100;
+        }
+        if (value === 0) {
+          this.audio.muted = true;
+          if (this.volumeIcon && this.muteIcon) {
+            this.volumeIcon.style.display = 'none';
+            this.muteIcon.style.display = 'block';
+          }
+        } else {
+          this.audio.muted = false;
+          if (this.volumeIcon && this.muteIcon) {
+            this.volumeIcon.style.display = 'block';
+            this.muteIcon.style.display = 'none';
+          }
+        }
+      }
+
+      formatTime(seconds) {
+        if (isNaN(seconds)) return '0:00';
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return mins + ':' + (secs < 10 ? '0' : '') + secs;
+      }
+    }
+
+    customElements.define('audio-player-{{ ai_gen_id }}', AudioPlayer{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Audio player",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Audio file"
+    },
+    {
+      "type": "paragraph",
+      "content": "⚠️ Shopify does not support direct audio uploads in theme blocks. Follow these steps:"
+    },
+    {
+      "type": "paragraph",
+      "content": "1. Go to Settings → Files in Shopify admin"
+    },
+    {
+      "type": "paragraph",
+      "content": "2. Upload your audio file (MP3, WAV, OGG)"
+    },
+    {
+      "type": "paragraph",
+      "content": "3. Copy the file URL and paste it below"
+    },
+    {
+      "type": "url",
+      "id": "audio_file",
+      "label": "Audio file URL"
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Title size",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "description_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Description size",
+      "default": 14
+    },
+    {
+      "type": "header",
+      "content": "Controls"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_volume_control",
+      "label": "Show volume control",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "default_volume",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "unit": "%",
+      "label": "Default volume",
+      "default": 80
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f4f4f4"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#2a2b2a"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button color",
+      "default": "#ff580d"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_color",
+      "label": "Button hover color",
+      "default": "#ea4900"
+    },
+    {
+      "type": "color",
+      "id": "button_icon_color",
+      "label": "Button icon color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "progress_bg_color",
+      "label": "Progress background",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "progress_fill_color",
+      "label": "Progress fill",
+      "default": "#ff580d"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 16
+    }
+  ],
+  "presets": [
+    {
+      "name": "Audio player"
+    }
+  ]
+}
+{% endschema %}

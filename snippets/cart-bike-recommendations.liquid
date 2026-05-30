@@ -1,0 +1,514 @@
+{%- comment -%}
+  Cart-only bike/model aware recommendations.
+  Searches storefront products from parsed cart fitment instead of relying on Shopify's generic recommendations.
+{%- endcomment -%}
+
+{%- liquid
+  assign cart_payload = '['
+  for item in cart.items
+    assign tags_payload = item.product.tags | join: '||'
+    capture item_payload
+      echo '{'
+      echo '"id":' | append: item.product.id | append: ','
+      echo '"variantId":' | append: item.variant_id | append: ','
+      echo '"title":'
+      echo item.product.title | json
+      echo ','
+      echo '"vendor":'
+      echo item.product.vendor | json
+      echo ','
+      echo '"type":'
+      echo item.product.type | json
+      echo ','
+      echo '"tags":'
+      echo tags_payload | json
+      echo ','
+      echo '"url":'
+      echo item.product.url | json
+      echo '}'
+    endcapture
+    assign cart_payload = cart_payload | append: item_payload
+    unless forloop.last
+      assign cart_payload = cart_payload | append: ','
+    endunless
+  endfor
+  assign cart_payload = cart_payload | append: ']'
+
+  assign cart_has_exhaust = false
+  assign cart_has_dna_filter = false
+  assign cart_has_dna_service = false
+  for item in cart.items
+    assign cart_item_title = item.product.title | downcase
+    assign cart_item_type = item.product.type | downcase
+    assign cart_item_vendor = item.product.vendor | downcase
+    assign cart_item_tags = item.product.tags | join: ',' | downcase
+    if cart_item_title contains 'exhaust' or cart_item_title contains 'silencer' or cart_item_title contains 'slip on' or cart_item_title contains 'full system' or cart_item_type contains 'exhaust'
+      assign cart_has_exhaust = true
+    endif
+    if cart_item_tags contains 'dna-service-kit' or cart_item_title contains 'service kit' or cart_item_title contains 'cleaning kit'
+      assign cart_has_dna_service = true
+    elsif cart_item_vendor == 'dna'
+      assign cart_has_dna_filter = true
+    endif
+  endfor
+  if cart_has_dna_filter and cart_has_dna_service == false
+    assign fallback_handles = 'dna_performance_air_filter_service_kit-product-7361,puig_extender_visor__screwon-_3_sizes-product-15965,puig_foot_pegs__racing-product-17312' | split: ','
+  else
+    assign fallback_handles = 'puig_extender_visor__screwon-_3_sizes-product-15965,puig_foot_pegs__racing-product-17312,puig_mirrors_ht4_bar_end_in_black_silver_various_models-product-17691' | split: ','
+  endif
+  assign fallback_count = 0
+  assign fallback_categories = ','
+-%}
+
+<cart-bike-recommendations
+  class="cart-bike-recommendations block cart-recommendations"
+  data-limit="{{ products_to_show | default: 2 }}"
+  data-cart='{{ cart_payload | escape }}'
+  data-currency="{{ cart.currency.iso_code | default: shop.currency | escape }}"
+  data-locale="{{ request.locale.iso_code | default: shop.locale | escape }}">
+  {%- if heading != blank -%}
+    <h2 class="h6 mb-4">{{ heading | escape }}</h2>
+  {%- endif -%}
+  <ul class="{{ grid_classes | default: 'grid grid-cols-1 gap-x-theme' }} cart-bike-recommendations__grid" role="list">
+    {%- for fallback_handle in fallback_handles -%}
+      {%- liquid
+        if fallback_count >= 2
+          break
+        endif
+        assign fallback_product = all_products[fallback_handle]
+        assign fallback_category = 'universal'
+        assign fallback_title = fallback_product.title | downcase
+        assign fallback_type = fallback_product.type | downcase
+        if fallback_title contains 'footpeg' or fallback_title contains 'foot peg' or fallback_type contains 'foot'
+          assign fallback_category = 'footpegs'
+        elsif fallback_title contains 'bar end' or fallback_title contains 'mirror'
+          assign fallback_category = 'bar_ends'
+        elsif fallback_title contains 'screen' or fallback_title contains 'visor' or fallback_title contains 'wind'
+          assign fallback_category = 'screen'
+        endif
+        assign fallback_category_token = ',' | append: fallback_category | append: ','
+        assign cart_matches = cart.items | where: 'product_id', fallback_product.id
+      -%}
+      {%- if fallback_product and cart_matches.size == 0 and fallback_categories contains fallback_category_token -%}
+      {%- elsif fallback_product and cart_matches.size == 0 -%}
+        {%- assign fallback_categories = fallback_categories | append: fallback_category | append: ',' -%}
+        {%- assign fallback_count = fallback_count | plus: 1 -%}
+        <li{% if layout == 'carousel' %} class="slider__item"{% endif %}>
+          {%- render 'product-card-mini', product: fallback_product, always_open_quickbuy: always_open_quickbuy -%}
+          <p class="text-sm mt-2">{% if cart_has_dna_filter %}Keep your DNA filter clean and performing.{% elsif cart_has_exhaust %}Universal fallback while exact exhaust matches load.{% else %}Universal fallback while exact bike matches load.{% endif %}</p>
+        </li>
+      {%- endif -%}
+    {%- endfor -%}
+  </ul>
+</cart-bike-recommendations>
+
+<script>
+  if (!customElements.get('cart-bike-recommendations')) {
+    customElements.define('cart-bike-recommendations', class CartBikeRecommendations extends HTMLElement {
+      connectedCallback() {
+        if (this.dataset.loaded === 'true') return;
+        this.dataset.loaded = 'true';
+        this.limit = Number(this.dataset.limit || 2);
+        this.grid = this.querySelector('.cart-bike-recommendations__grid');
+        try {
+          this.cartItems = JSON.parse(this.dataset.cart || '[]');
+        } catch (error) {
+          this.cartItems = [];
+        }
+        this.currency = this.dataset.currency || 'GBP';
+        this.locale = this.dataset.locale || 'en-GB';
+        this.run();
+      }
+
+      normalize(value) {
+        return String(value || '')
+          .toLowerCase()
+          .replace(/[–—]/g, '-')
+          .replace(/[^a-z0-9+\-\s/]/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
+
+      compact(value) {
+        return this.normalize(value).replace(/[^a-z0-9]/g, '');
+      }
+
+      parseYears(text) {
+        const value = this.normalize(text);
+        const match = value.match(/\b(19|20)\d{2}\s*[-/]\s*((?:19|20)?\d{2})\b/) || value.match(/\b(19|20)\d{2}\b/);
+        if (!match) return null;
+        const start = Number(match[0].slice(0, 4));
+        let end = start;
+        const endMatch = match[0].match(/[-/]\s*((?:19|20)?\d{2})/);
+        if (endMatch) {
+          const rawEnd = endMatch[1];
+          end = Number(rawEnd.length === 2 ? `${String(start).slice(0, 2)}${rawEnd}` : rawEnd);
+        }
+        return { start, end };
+      }
+
+      yearsOverlap(a, b) {
+        if (!a || !b) return false;
+        return a.start <= b.end && b.start <= a.end;
+      }
+
+      partCategory(product) {
+        const haystack = this.normalize(`${product.title || ''} ${product.type || ''} ${product.tags || ''}`);
+        if (/service\s*kit|cleaning\s*kit|cleaner|filter\s*oil/.test(haystack)) return 'service_intake';
+        if (/air\s*filter|filter/.test(haystack)) return 'filter';
+        if (/decat|mid\s*pipe/.test(haystack)) return 'decat';
+        if (/db\s*killer/.test(haystack)) return 'db_killer';
+        if (/tail\s*tid/.test(haystack)) return 'tail_tidy';
+        if (/racing\s*screen|sport\s*screen|z-?racing/.test(haystack)) return 'racing_screen';
+        if (/touring\s*screen|city\s*touring\s*screen/.test(haystack)) return 'touring_screen';
+        if (/screen|visor|windshield|wind\s*deflector/.test(haystack)) return 'screen';
+        if (/frame\s*slider|crash|engine\s*guard|axle\s*protector|radiator\s*guard|protector|protection|crash\s*bar/.test(haystack)) return 'protection';
+        if (/tank\s*grip/.test(haystack)) return 'tank_grip';
+        if (/gasket|heat\s*shield|exhaust\s*protector/.test(haystack)) return 'exhaust_support';
+        if (/ecu|remap|upmap|tuning/.test(haystack)) return 'tuning';
+        if (/paddock|stand/.test(haystack)) return 'stand';
+        if (/rearset/.test(haystack)) return 'rearsets';
+        if (/rear\s*hugger|hugger/.test(haystack)) return 'hugger';
+        if (/engine\s*part|piston|camshaft|kent\s*cams|wiseco/.test(haystack)) return 'engine_parts';
+        if (/air\s*box|airbox/.test(haystack)) return 'airbox';
+        if (/indicator|lighting|light|auxiliary/.test(haystack)) return 'lighting';
+        if (/spark\s*plug|air\s*box|airbox|velocity|intake/.test(haystack)) return 'service_intake';
+        if (/phone|gps|mount|usb/.test(haystack)) return 'mounts';
+        if (/tank\s*bag|top\s*box|luggage|pannier|soft\s*luggage/.test(haystack)) return 'luggage';
+        if (/hand\s*guard|seat/.test(haystack)) return 'touring';
+        if (/bar\s*end|mirror/.test(haystack)) return 'bar_ends';
+        if (/lever/.test(haystack)) return 'levers';
+        if (/foot\s*peg|footpeg|rearset/.test(haystack)) return 'footpegs';
+        if (/exhaust|silencer|slip\s*on|full\s*system|decat/.test(haystack)) return 'exhaust';
+        return 'other';
+      }
+
+      bikeCategory(modelText) {
+        const model = this.normalize(modelText);
+        if (/(s1000rr|cbr\d*rr|r1\b|r6\b|zx-?6|zx-?10|gsx-?r|panigale|rc8|ninja|daytona)/.test(model)) return 'sport';
+        if (/(gs\b|r1250gs|r1200gs|africa\s*twin|tiger|multistrada|tracer|v-?strom|norden|adventure|himalayan)/.test(model)) return 'adventure';
+        if (/(mt-?\d|cb\d*r|z\d|duke|monster|streetfighter|street\s*triple|speed\s*triple|brutale|tuono|shiver)/.test(model)) return 'naked';
+        if (/(gold\s*wing|fjr|rt\b|k1600|concours|pan\s*america|flh|flt)/.test(model)) return 'touring';
+        if (/(sh\d|forza|pcx|tmax|burgman|integra|x-?adv|medley)/.test(model)) return 'scooter';
+        return 'unknown';
+      }
+
+      parseBike(product) {
+        const title = this.normalize(product.title);
+        const tags = this.normalize(String(product.tags || '').replace(/\|\|/g, ' ')).replace(/\+/g, ' ');
+        const source = `${title} ${tags}`;
+        const brands = [
+          ['cf moto', /(?:cf\s*moto|cfmoto)/],
+          ['mv agusta', /mv\s*agusta/],
+          ['royal enfield', /royal\s*enfield/],
+          ['harley-davidson', /(?:harley[-\s]*davidson|harley)/],
+          ['moto guzzi', /moto\s*guzzi/],
+          ['bmw', /\bbmw\b/],
+          ['honda', /\bhonda\b/],
+          ['ducati', /\bducati\b/],
+          ['kawasaki', /\bkawasaki\b/],
+          ['yamaha', /\byamaha\b/],
+          ['suzuki', /\bsuzuki\b/],
+          ['ktm', /\bktm\b/],
+          ['triumph', /\btriumph\b/],
+          ['aprilia', /\baprilia\b/],
+          ['husqvarna', /\bhusqvarna\b/],
+          ['benelli', /\bbenelli\b/],
+          ['indian', /\bindian\b/],
+          ['norton', /\bnorton\b/],
+          ['buell', /\bbuell\b/],
+          ['zero', /\bzero\b/],
+          ['energica', /\benergica\b/],
+          ['sherco', /\bsherco\b/],
+          ['beta', /\bbeta\b/],
+          ['gasgas', /\bgasgas\b/],
+          ['tm racing', /tm\s*racing/]
+        ];
+        const brandEntry = brands.find(([, pattern]) => pattern.test(source));
+        if (!brandEntry) return null;
+        const brand = brandEntry[0];
+        const brandPattern = brandEntry[1];
+        const titleAfterBrand = title.split(brandPattern).pop() || '';
+        const tagAfterBrand = tags.split(brandPattern).pop() || '';
+        const stopWords = new Set('abs air black carbon cat decat db exhaust filter filters for from full heat link pipe pipes relevance remap service shield silencer slip steel system systems termignoni titanium to with without'.split(' '));
+        const modelTokens = [];
+        `${titleAfterBrand} ${tagAfterBrand}`.split(/\s+/).some((token) => {
+          const clean = token.replace(/[^a-z0-9-]/g, '');
+          if (!clean || /^(19|20)\d{2}/.test(clean)) return true;
+          if (stopWords.has(clean)) return false;
+          if (clean.length >= 2 && (/\d/.test(clean) || modelTokens.length > 0 || /^[a-z]{1,3}$/.test(clean))) {
+            modelTokens.push(clean);
+          }
+          return modelTokens.length >= 3;
+        });
+        const model = modelTokens.join(' ').trim();
+        const modelCompact = this.compact(model);
+        return {
+          brand,
+          brandCompact: this.compact(brand),
+          model,
+          modelCompact,
+          modelTokens: modelTokens.map((token) => this.compact(token)).filter(Boolean),
+          years: this.parseYears(source),
+          category: this.bikeCategory(model)
+        };
+      }
+
+      associationOrder(sourcePart, sourceCategory) {
+        const categoryRules = {
+          adventure: ['touring_screen', 'screen', 'touring', 'luggage', 'filter', 'protection', 'lighting'],
+          sport: ['exhaust', 'tail_tidy', 'tank_grip', 'racing_screen', 'screen', 'rearsets', 'db_killer'],
+          naked: ['exhaust', 'tail_tidy', 'protection', 'filter', 'bar_ends'],
+          touring: ['touring_screen', 'screen', 'luggage', 'mounts', 'lighting']
+        };
+        const productRules = {
+          exhaust: ['filter', 'decat', 'db_killer', 'tail_tidy', 'stand', 'protection', 'exhaust_support'],
+          filter: ['exhaust', 'decat', 'engine_parts', 'airbox', 'service_intake', 'tuning'],
+          racing_screen: ['tail_tidy', 'rearsets', 'protection', 'tank_grip'],
+          screen: ['tail_tidy', 'rearsets', 'protection', 'tank_grip', 'touring', 'mounts', 'luggage'],
+          touring_screen: ['touring', 'mounts', 'luggage'],
+          tail_tidy: ['protection', 'exhaust', 'lighting', 'bar_ends'],
+          protection: ['rearsets', 'tail_tidy', 'protection', 'levers'],
+          hugger: ['rearsets', 'tail_tidy', 'protection', 'levers'],
+          rearsets: ['exhaust', 'racing_screen', 'screen', 'tank_grip', 'protection'],
+          service_intake: ['exhaust', 'decat', 'engine_parts', 'airbox', 'tuning']
+        };
+        return productRules[sourcePart] || categoryRules[sourceCategory] || ['filter', 'exhaust', 'tail_tidy', 'screen', 'protection'];
+      }
+
+      associationRank(sourcePart, candidatePart, sourceCategory) {
+        const order = this.associationOrder(sourcePart, sourceCategory);
+        const index = order.indexOf(candidatePart);
+        return index === -1 ? null : index;
+      }
+
+      searchTerms(fitment, sourcePart) {
+        const roleTerms = {
+          filter: 'air filter',
+          exhaust: 'exhaust',
+          decat: 'decat pipe',
+          db_killer: 'db killer',
+          tail_tidy: 'tail tidy',
+          stand: 'paddock stand',
+          protection: 'frame sliders crash protection',
+          exhaust_support: 'exhaust gasket heat shield',
+          engine_parts: 'engine parts',
+          airbox: 'air box cover',
+          service_intake: 'service kit cleaning kit intake',
+          tuning: 'ecu remap',
+          racing_screen: 'racing screen',
+          touring_screen: 'touring screen',
+          screen: 'screen',
+          rearsets: 'rearsets',
+          tank_grip: 'tank grips',
+          touring: 'hand guards wind deflectors',
+          mounts: 'phone gps mount',
+          luggage: 'top box luggage',
+          lighting: 'led indicators auxiliary lights',
+          bar_ends: 'mirrors bar end',
+          levers: 'lever protectors'
+        };
+        const assoc = this.associationOrder(sourcePart, fitment.category).map((role) => roleTerms[role] || role);
+        const base = `${fitment.brand} ${fitment.model}`.trim();
+        return [...new Set([
+          ...assoc.map((term) => `${base} ${term}`),
+          ...assoc.map((term) => `${fitment.brand} ${term}`),
+          base,
+          fitment.brand
+        ])];
+      }
+
+      async suggest(query) {
+        const url = `/search/suggest.json?q=${encodeURIComponent(query)}&resources[type]=product&resources[limit]=10&resources[options][unavailable_products]=last`;
+        const response = await fetch(url, { credentials: 'same-origin' });
+        if (!response.ok) return [];
+        const data = await response.json();
+        return data?.resources?.results?.products || [];
+      }
+
+      async productJson(result) {
+        const path = new URL(result.url || '', window.location.origin).pathname.replace(/\/$/, '');
+        if (!path) return null;
+        const response = await fetch(`${path}.js`, { credentials: 'same-origin' });
+        if (!response.ok) return null;
+        return response.json();
+      }
+
+      async productByHandle(handle) {
+        const response = await fetch(`/products/${handle}.js`, { credentials: 'same-origin' });
+        if (!response.ok) return null;
+        return response.json();
+      }
+
+      fallbackHandles(sourcePart = 'other') {
+        const universal = [
+          'puig_extender_visor__screwon-_3_sizes-product-15965',
+          'puig_foot_pegs__racing-product-17312',
+          'puig_mirrors_ht4_bar_end_in_black_silver_various_models-product-17691'
+        ];
+        if (sourcePart === 'filter' || sourcePart === 'service_intake') {
+          return ['dna_performance_air_filter_service_kit-product-7361', ...universal];
+        }
+        return universal;
+      }
+
+      async fillFallback(chosen, categories, cartProductIds, sourcePart = 'other', reason = 'Universal fallback because no exact bike match was found') {
+        for (const handle of this.fallbackHandles(sourcePart)) {
+          if (chosen.length >= this.limit) break;
+          const product = await this.productByHandle(handle);
+          if (!product || cartProductIds.has(Number(product.id))) continue;
+          const category = this.partCategory(product);
+          if (categories.has(category)) continue;
+          categories.add(category);
+          chosen.push({
+            product,
+            category,
+            priority: 5,
+            score: 1,
+            reason
+          });
+        }
+      }
+
+      scoreCandidate(candidate, candidateFitment, sourceFitment, sourcePart, sourceCategory) {
+        if (!candidateFitment || candidateFitment.brand !== sourceFitment.brand) return null;
+        if (sourceCategory !== 'unknown' && candidateFitment.category !== 'unknown' && candidateFitment.category !== sourceCategory) return null;
+        const candidatePart = this.partCategory(candidate);
+        const assocRank = this.associationRank(sourcePart, candidatePart, sourceCategory);
+        if (assocRank === null) return null;
+        const candidateTitleCompact = this.compact(candidate.title);
+        const sameModel = sourceFitment.modelCompact && (
+          candidateTitleCompact.includes(sourceFitment.modelCompact) ||
+          sourceFitment.modelTokens.every((token) => candidateTitleCompact.includes(token))
+        );
+        const associationScore = 100 - assocRank * 10;
+        if (sameModel && this.yearsOverlap(sourceFitment.years, candidateFitment.years)) return { priority: 1, score: 4000 + associationScore, reason: `Exact model match: ${sourceFitment.brand.toUpperCase()} ${sourceFitment.model}` };
+        if (sameModel) return { priority: 2, score: 3000 + associationScore, reason: `Model match: ${sourceFitment.brand.toUpperCase()} ${sourceFitment.model}` };
+        if (sourceCategory !== 'unknown' && candidateFitment.category === sourceCategory) return { priority: 3, score: 2000 + associationScore, reason: `Same ${sourceCategory} platform: ${sourceFitment.brand.toUpperCase()}` };
+        return { priority: 4, score: 1000 + associationScore, reason: `Same bike brand: ${sourceFitment.brand.toUpperCase()}` };
+      }
+
+      money(centsOrPrice) {
+        const value = typeof centsOrPrice === 'number' && centsOrPrice > 999 ? centsOrPrice / 100 : Number(centsOrPrice || 0);
+        return new Intl.NumberFormat(this.locale, { style: 'currency', currency: this.currency }).format(value);
+      }
+
+      escapeHTML(value) {
+        return String(value || '').replace(/[&<>"']/g, (char) => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        }[char]));
+      }
+
+      comboBadge(sourcePart, sourceCategory, chosen) {
+        if (chosen.length < 2) return '';
+        const categories = new Set(chosen.map((item) => item.category));
+        if (sourceCategory === 'adventure') return 'Adventure Bundle';
+        if (sourceCategory === 'sport' || categories.has('racing_screen') || categories.has('rearsets')) return 'Track Package';
+        if (categories.has('protection') && (categories.has('levers') || categories.has('bar_ends'))) return 'Protection Bundle';
+        if ((sourcePart === 'exhaust' && categories.has('filter')) || (sourcePart === 'filter' && categories.has('exhaust'))) return 'Performance Package';
+        return 'Popular Combo';
+      }
+
+      render(products) {
+        if (!this.grid || !products.length) return;
+        this.querySelector('.cart-bike-recommendations__badge')?.remove();
+        if (this.currentComboBadge) {
+          const badge = document.createElement('div');
+          badge.className = 'cart-bike-recommendations__badge text-sm font-bold mb-3';
+          badge.textContent = this.currentComboBadge;
+          this.grid.before(badge);
+        }
+        this.grid.innerHTML = products.map(({ product, reason }) => {
+          const variant = product.variants?.find((item) => item.available) || product.variants?.[0];
+          const image = product.featured_image || product.images?.[0] || '';
+          const price = this.money(product.price);
+          const safeTitle = this.escapeHTML(product.title);
+          const safeReason = this.escapeHTML(reason);
+          return `
+            <li class="slider__item">
+              <div class="card card--row card--related relative flex">
+                <div class="card__media">
+                  <a class="media relative block" href="${product.url}" style="padding-top:100%">
+                    ${image ? `<img src="${image}" alt="${safeTitle}" class="img-fit" loading="lazy">` : ''}
+                  </a>
+                </div>
+                <div class="card__info">
+                  <p class="h6 regular-text mt-2 mb-1"><a href="${product.url}" class="card-link text-current">${safeTitle}</a></p>
+                  <div class="price"><div class="price__default"><strong class="price__current">${price}</strong></div></div>
+                  ${variant ? `<form method="post" action="/cart/add" class="js-product-form"><input type="hidden" name="id" value="${variant.id}"><button class="btn btn--secondary btn--sm" name="add" type="submit">Add to cart</button></form>` : ''}
+                  <p class="text-sm mt-2">${safeReason}</p>
+                </div>
+              </div>
+            </li>`;
+        }).join('');
+        this.grid.hidden = false;
+      }
+
+      async run() {
+        const source = this.cartItems.map((item) => ({ item, fitment: this.parseBike(item), part: this.partCategory(item) }))
+          .find((entry) => entry.fitment?.brand && entry.fitment?.model);
+        const cartProductIds = new Set(this.cartItems.map((item) => Number(item.id)));
+        if (!source) {
+          const chosen = [];
+          const categories = new Set();
+          await this.fillFallback(chosen, categories, cartProductIds);
+          this.currentComboBadge = this.comboBadge('other', 'unknown', chosen);
+          if (chosen.length) this.render(chosen);
+          return;
+        }
+        const seen = new Set();
+        const recommendations = [];
+        if (source.part === 'filter') {
+          const serviceKit = await this.productByHandle('dna_performance_air_filter_service_kit-product-7361');
+          if (serviceKit && !cartProductIds.has(Number(serviceKit.id))) {
+            recommendations.push({
+              product: serviceKit,
+              priority: 1,
+              score: 5000,
+              reason: 'DNA filter service kit',
+              category: this.partCategory(serviceKit)
+            });
+          }
+        }
+        for (const query of this.searchTerms(source.fitment, source.part)) {
+          const results = await this.suggest(query);
+          for (const result of results) {
+            const handleKey = this.compact(result.url || result.handle || result.title);
+            if (!handleKey || seen.has(handleKey)) continue;
+            seen.add(handleKey);
+            const product = await this.productJson(result);
+            if (!product || cartProductIds.has(Number(product.id))) continue;
+            const fitment = this.parseBike(product);
+            const score = this.scoreCandidate(product, fitment, source.fitment, source.part, source.fitment.category);
+            if (!score) continue;
+            recommendations.push({ product, ...score, category: this.partCategory(product) });
+          }
+        }
+        recommendations.sort((a, b) => b.score - a.score);
+        const chosen = [];
+        const categories = new Set();
+        for (const rec of recommendations) {
+          if (chosen.length >= this.limit) break;
+          if (categories.has(rec.category)) continue;
+          categories.add(rec.category);
+          chosen.push(rec);
+        }
+        if (chosen.length < this.limit) {
+          await this.fillFallback(
+            chosen,
+            categories,
+            cartProductIds,
+            source.part,
+            `Universal fallback for ${source.fitment.brand.toUpperCase()} ${source.fitment.model}`
+          );
+        }
+        this.currentComboBadge = this.comboBadge(source.part, source.fitment.category, chosen);
+        if (chosen.length) this.render(chosen);
+      }
+    });
+  }
+</script>

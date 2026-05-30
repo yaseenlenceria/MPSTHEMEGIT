@@ -1,0 +1,469 @@
+{%- liquid
+  assign exhaust_vendors = 'termignoni,ixil,ixrace,ironhead,qd,arrow,upmap,mivv,g&g,marving,exan,giannelli' | split: ','
+  assign upsell_limit = max_upsells | default: 99
+  assign upsell_count = 0
+  assign has_exhaust = false
+  assign has_dna_filter = false
+  assign has_dna_service = false
+  assign has_puig_screen = false
+  assign has_extender_visor = false
+  assign has_levers = false
+  assign has_bar_end_mirrors = false
+  assign has_universal = false
+  assign has_universal_footpegs = false
+  assign has_universal_bar_ends = false
+  assign has_universal_levers = false
+
+  for item in cart.items
+    assign item_vendor = item.product.vendor | downcase
+    assign item_type = item.product.type | downcase
+    assign item_title = item.product.title | downcase
+    assign item_tags = item.product.tags | join: ',' | downcase
+    assign item_url = item.product.url | downcase
+
+    if exhaust_vendors contains item_vendor
+      assign has_exhaust = true
+    elsif item_type contains 'exhaust'
+      assign has_exhaust = true
+    elsif item_title contains 'exhaust'
+      assign has_exhaust = true
+    elsif item_title contains 'termignoni'
+      assign has_exhaust = true
+    else
+      for exhaust_vendor in exhaust_vendors
+        if item_title contains exhaust_vendor
+          assign has_exhaust = true
+          break
+        endif
+      endfor
+    endif
+
+    if item_tags contains 'dna-air-filter'
+      assign has_dna_filter = true
+    elsif item_vendor == 'dna' and item_type contains 'air filter' and item_title != 'dna performance air filter - service kit'
+      assign has_dna_filter = true
+    endif
+
+    if item_tags contains 'dna-service-kit'
+      assign has_dna_service = true
+    elsif item_vendor == 'dna' and item_title contains 'service kit'
+      assign has_dna_service = true
+    endif
+
+    if item_vendor == 'puig'
+      if item_type contains 'screen' or item_tags contains 'puig screens'
+        assign has_puig_screen = true
+      endif
+    endif
+
+    if item_title contains 'extender' or item_title contains 'visor' or item_type contains 'visor'
+      assign has_extender_visor = true
+    endif
+
+    if item_type contains 'lever'
+      assign has_levers = true
+    elsif item_title contains 'lever'
+      assign has_levers = true
+    elsif item_url contains 'lever'
+      assign has_levers = true
+    elsif item_tags contains 'adjustable levers'
+      assign has_levers = true
+    elsif item_tags contains 'extendable levers'
+      assign has_levers = true
+    endif
+
+    if item_type contains 'mirror' and item_title contains 'bar end'
+      assign has_bar_end_mirrors = true
+    elsif item_tags contains 'puig mirrors'
+      assign has_bar_end_mirrors = true
+    endif
+
+    if item_tags contains 'universal'
+      assign has_universal = true
+    endif
+
+    if item_tags contains 'puig footpegs'
+      assign has_universal_footpegs = true
+    elsif item_type contains 'foot peg'
+      assign has_universal_footpegs = true
+    endif
+
+    if item_type contains 'mirror' and item_title contains 'bar end'
+      assign has_universal_bar_ends = true
+    elsif item_tags contains 'puig mirrors'
+      assign has_universal_bar_ends = true
+    endif
+
+    if item_type contains 'lever'
+      assign has_universal_levers = true
+    elsif item_title contains 'lever'
+      assign has_universal_levers = true
+    endif
+  endfor
+-%}
+
+{%- liquid
+  assign show_exhaust_dna = false
+  assign show_dna_service = false
+  assign show_puig_visor = false
+  assign show_bar_end_mirrors = false
+  assign show_universal_footpegs = false
+  assign show_universal_bar_ends = false
+  assign show_universal_levers = false
+  assign show_universal_any = false
+
+  if has_exhaust and has_dna_filter == false
+    assign show_exhaust_dna = true
+  endif
+
+  if has_dna_filter and has_dna_service == false
+    assign show_dna_service = true
+  endif
+
+  if has_puig_screen and has_extender_visor == false
+    assign show_puig_visor = true
+  endif
+
+  if has_levers and has_bar_end_mirrors == false
+    assign show_bar_end_mirrors = true
+  endif
+
+  if has_universal and has_universal_footpegs == false
+    assign show_universal_footpegs = true
+  endif
+  if has_universal and has_universal_footpegs and has_universal_bar_ends == false
+    assign show_universal_bar_ends = true
+  endif
+  if has_universal and has_universal_footpegs and has_universal_bar_ends and has_universal_levers == false
+    assign show_universal_levers = true
+  endif
+
+  if show_universal_footpegs
+    assign show_universal_any = true
+  endif
+  if show_universal_any == false and show_universal_bar_ends
+    assign show_universal_any = true
+  endif
+  if show_universal_any == false and show_universal_levers
+    assign show_universal_any = true
+  endif
+-%}
+
+{%- if show_exhaust_dna -%}
+  {%- if upsell_count < upsell_limit -%}
+  {%- liquid
+    assign upsell_product = all_products['dna_performance_air_filter_honda_sh_300i_snoopy_200719-product-7357']
+    if upsell_product == blank
+      assign upsell_product = all_products['dna_performance_oval_air_filter_set_kawasaki_zephyr_zr1100_199299-product-6997']
+    endif
+
+    if upsell_product == blank
+      assign upsell_product = blank
+    endif
+    assign dna_collection = collections['DNA Performance Air Filters']
+    if dna_collection == nil or dna_collection.products == blank
+      assign dna_collection = collections['dna-performance-air-filters']
+    endif
+
+    if upsell_product == blank and dna_collection and dna_collection.products != blank
+      for product in dna_collection.products limit: 12
+        assign product_title = product.title | downcase
+        unless product_title contains 'service kit'
+          assign upsell_product = product
+          break
+        endunless
+      endfor
+    endif
+
+    if upsell_product == blank
+      assign catalog = collections.all
+      if catalog == nil or catalog.products == blank
+        assign catalog = collections['all']
+      endif
+
+      if catalog and catalog.products != blank
+        for candidate in catalog.products
+          assign candidate_vendor = candidate.vendor | downcase
+          assign candidate_type = candidate.type | downcase
+          assign candidate_title = candidate.title | downcase
+
+          if candidate_vendor == 'dna' and candidate_type contains 'air filter'
+            if candidate_title contains 'service kit'
+            else
+              assign upsell_product = candidate
+              break
+            endif
+          endif
+        endfor
+      endif
+    endif
+  -%}
+
+  {%- if upsell_product and upsell_product != blank -%}
+    {%- assign upsell_count = upsell_count | plus: 1 -%}
+    {%- assign upsell_alt = upsell_product.title | escape -%}
+    <div class="cart-upsell panel mt-6">
+      <h3 class="h6 mb-3">Complete your performance upgrade with a DNA High-Flow Air Filter</h3>
+      <div class="cart-upsell__content flex items-center gap-x-theme">
+        <a class="cart-upsell__media block" href="{{ upsell_product.url }}">
+          {%- if upsell_product.featured_image -%}
+            {{ upsell_product.featured_image | image_url: width: 160 | image_tag: loading: 'lazy', alt: upsell_alt }}
+          {%- endif -%}
+        </a>
+        <div class="cart-upsell__details">
+          <a class="link block mb-1" href="{{ upsell_product.url }}">{{ upsell_product.title | escape }}</a>
+          <p class="text-sm mb-2">{{ upsell_product.price | money }}</p>
+          <product-form class="block">
+            <form method="post" action="{{ routes.cart_add_url }}">
+              <input type="hidden" name="id" value="{{ upsell_product.selected_or_first_available_variant.id }}">
+              <button type="submit" class="btn btn--secondary btn--small">Add DNA Filter</button>
+            </form>
+          </product-form>
+        </div>
+      </div>
+    </div>
+  {%- endif -%}
+  {%- endif -%}
+{%- endif -%}
+
+{%- if show_dna_service -%}
+  {%- if upsell_count < upsell_limit -%}
+  {%- liquid
+    assign upsell_product = all_products['dna_performance_air_filter_service_kit-product-7361']
+
+    if upsell_product == blank
+      assign catalog = collections.all
+      if catalog == nil or catalog.products == blank
+        assign catalog = collections['all']
+      endif
+
+      if catalog and catalog.products != blank
+        for candidate in catalog.products
+          assign candidate_tags = candidate.tags | join: ',' | downcase
+          assign candidate_vendor = candidate.vendor | downcase
+          assign candidate_title = candidate.title | downcase
+          assign candidate_sku = ''
+
+          if candidate.variants.size > 0
+            assign candidate_sku = candidate.variants.first.sku | downcase
+          endif
+
+          if candidate_sku == 'dsk-3001'
+            assign upsell_product = candidate
+            break
+          endif
+
+          if candidate_tags contains 'dna-service-kit'
+            assign upsell_product = candidate
+            break
+          endif
+          if candidate_tags contains 'maintenance'
+            assign upsell_product = candidate
+            break
+          endif
+          if candidate_vendor == 'dna' and candidate_title contains 'service kit'
+            assign upsell_product = candidate
+            break
+          endif
+        endfor
+      endif
+    endif
+  -%}
+
+  {%- if upsell_product and upsell_product != blank -%}
+    {%- assign upsell_count = upsell_count | plus: 1 -%}
+    {%- assign upsell_alt = upsell_product.title | escape -%}
+    <div class="cart-upsell panel mt-6">
+      <h3 class="h6 mb-3">Keep your DNA filter performing at its best with the Service Kit</h3>
+      <div class="cart-upsell__content flex items-center gap-x-theme">
+        <a class="cart-upsell__media block" href="{{ upsell_product.url }}">
+          {%- if upsell_product.featured_image -%}
+            {{ upsell_product.featured_image | image_url: width: 160 | image_tag: loading: 'lazy', alt: upsell_alt }}
+          {%- endif -%}
+        </a>
+        <div class="cart-upsell__details">
+          <a class="link block mb-1" href="{{ upsell_product.url }}">{{ upsell_product.title | escape }}</a>
+          <p class="text-sm mb-2">{{ upsell_product.price | money }}</p>
+          <product-form class="block">
+            <form method="post" action="{{ routes.cart_add_url }}">
+              <input type="hidden" name="id" value="{{ upsell_product.selected_or_first_available_variant.id }}">
+              <button type="submit" class="btn btn--secondary btn--small">Add Service Kit</button>
+            </form>
+          </product-form>
+        </div>
+      </div>
+    </div>
+  {%- endif -%}
+  {%- endif -%}
+{%- endif -%}
+
+{%- if show_puig_visor -%}
+  {%- if upsell_count < upsell_limit -%}
+  {%- liquid
+    assign upsell_product = all_products['puig_extender_visor__screwon-_3_sizes-product-15965']
+
+    if upsell_product == blank
+      assign upsell_product = all_products['puig_extender_visor_clampon-_3_sizes-product-15966']
+    endif
+
+    if upsell_product == blank
+      assign catalog = collections.all
+      if catalog == nil or catalog.products == blank
+        assign catalog = collections['all']
+      endif
+
+      if catalog and catalog.products != blank
+        for candidate in catalog.products
+          assign candidate_vendor = candidate.vendor | downcase
+          assign candidate_title = candidate.title | downcase
+          assign candidate_tags = candidate.tags | join: ',' | downcase
+
+          if candidate_vendor == 'puig' and candidate_title contains 'extender' and candidate_tags contains 'universal'
+            assign upsell_product = candidate
+            break
+          endif
+        endfor
+      endif
+    endif
+  -%}
+
+  {%- if upsell_product and upsell_product != blank -%}
+    {%- assign upsell_count = upsell_count | plus: 1 -%}
+    {%- assign upsell_alt = upsell_product.title | escape -%}
+    <div class="cart-upsell panel mt-6">
+      <h3 class="h6 mb-3">Enhance your screen with a Puig Extender Visor</h3>
+      <div class="cart-upsell__content flex items-center gap-x-theme">
+        <a class="cart-upsell__media block" href="{{ upsell_product.url }}">
+          {%- if upsell_product.featured_image -%}
+            {{ upsell_product.featured_image | image_url: width: 160 | image_tag: loading: 'lazy', alt: upsell_alt }}
+          {%- endif -%}
+        </a>
+        <div class="cart-upsell__details">
+          <a class="link block mb-1" href="{{ upsell_product.url }}">{{ upsell_product.title | escape }}</a>
+          <p class="text-sm mb-2">{{ upsell_product.price | money }}</p>
+          <product-form class="block">
+            <form method="post" action="{{ routes.cart_add_url }}">
+              <input type="hidden" name="id" value="{{ upsell_product.selected_or_first_available_variant.id }}">
+              <button type="submit" class="btn btn--secondary btn--small">Add Extender Visor</button>
+            </form>
+          </product-form>
+        </div>
+      </div>
+    </div>
+  {%- endif -%}
+  {%- endif -%}
+{%- endif -%}
+
+{%- if show_bar_end_mirrors -%}
+  {%- if upsell_count < upsell_limit -%}
+  {%- liquid
+    assign upsell_product = all_products['puig_mirrors_ht4_bar_end_in_black_silver_various_models-product-17691']
+    if upsell_product == blank
+      assign upsell_product = all_products['puig_mirrors_tracker_bar_end_mirrors_in_black_silver_various_models-product-19232']
+    endif
+
+    if upsell_product == blank
+      assign catalog = collections.all
+      if catalog == nil or catalog.products == blank
+        assign catalog = collections['all']
+      endif
+
+      if catalog and catalog.products != blank
+        for candidate in catalog.products
+          assign candidate_vendor = candidate.vendor | downcase
+          assign candidate_tags = candidate.tags | join: ',' | downcase
+          assign candidate_title = candidate.title | downcase
+          assign candidate_type = candidate.type | downcase
+
+          if candidate_vendor == 'puig' and candidate_type contains 'mirror' and candidate_title contains 'bar end' and candidate_tags contains 'universal'
+            assign upsell_product = candidate
+            break
+          endif
+        endfor
+      endif
+    endif
+  -%}
+
+  {%- if upsell_product and upsell_product != blank -%}
+    {%- assign upsell_count = upsell_count | plus: 1 -%}
+    {%- assign upsell_alt = upsell_product.title | escape -%}
+    <div class="cart-upsell panel mt-6">
+      <h3 class="h6 mb-3">Complete your control upgrade with Puig Bar End Mirrors</h3>
+      <div class="cart-upsell__content flex items-center gap-x-theme">
+        <a class="cart-upsell__media block" href="{{ upsell_product.url }}">
+          {%- if upsell_product.featured_image -%}
+            {{ upsell_product.featured_image | image_url: width: 160 | image_tag: loading: 'lazy', alt: upsell_alt }}
+          {%- endif -%}
+        </a>
+        <div class="cart-upsell__details">
+          <a class="link block mb-1" href="{{ upsell_product.url }}">{{ upsell_product.title | escape }}</a>
+          <p class="text-sm mb-2">{{ upsell_product.price | money }}</p>
+          <product-form class="block">
+            <form method="post" action="{{ routes.cart_add_url }}">
+              <input type="hidden" name="id" value="{{ upsell_product.selected_or_first_available_variant.id }}">
+              <button type="submit" class="btn btn--secondary btn--small">Add Bar End Mirrors</button>
+            </form>
+          </product-form>
+        </div>
+      </div>
+    </div>
+  {%- endif -%}
+  {%- endif -%}
+{%- endif -%}
+
+{%- if upsell_count < upsell_limit -%}
+  {%- if show_universal_any -%}
+  {%- liquid
+    assign upsell_product = blank
+
+    if show_universal_footpegs
+      assign upsell_product = all_products['puig_foot_pegs__racing-product-17312']
+    endif
+
+    if show_universal_bar_ends and upsell_product == blank
+      assign upsell_product = all_products['puig_mirrors_ht4_bar_end_in_black_silver_various_models-product-17691']
+    endif
+
+    if show_universal_levers and upsell_product == blank
+      assign upsell_product = all_products['puig_gen_3_racing_lever_adjusters']
+    endif
+  -%}
+
+  {%- if upsell_product and upsell_product != blank -%}
+    {%- assign upsell_count = upsell_count | plus: 1 -%}
+    {%- assign upsell_alt = upsell_product.title | escape -%}
+    <div class="cart-upsell panel mt-6">
+      {%- if show_universal_footpegs -%}
+        <h3 class="h6 mb-3">Upgrade your ride with PUIG Racing Footpegs</h3>
+      {%- elsif show_universal_bar_ends -%}
+        <h3 class="h6 mb-3">Complete your setup with PUIG Bar End Mirrors</h3>
+      {%- else -%}
+        <h3 class="h6 mb-3">Enhance control with PUIG Racing Lever Adjusters</h3>
+      {%- endif -%}
+      <div class="cart-upsell__content flex items-center gap-x-theme">
+        <a class="cart-upsell__media block" href="{{ upsell_product.url }}">
+          {%- if upsell_product.featured_image -%}
+            {{ upsell_product.featured_image | image_url: width: 160 | image_tag: loading: 'lazy', alt: upsell_alt }}
+          {%- endif -%}
+        </a>
+        <div class="cart-upsell__details">
+          <a class="link block mb-1" href="{{ upsell_product.url }}">{{ upsell_product.title | escape }}</a>
+          <p class="text-sm mb-2">{{ upsell_product.price | money }}</p>
+          <product-form class="block">
+            <form method="post" action="{{ routes.cart_add_url }}">
+              <input type="hidden" name="id" value="{{ upsell_product.selected_or_first_available_variant.id }}">
+              {%- if show_universal_footpegs -%}
+                <button type="submit" class="btn btn--secondary btn--small">Add Racing Footpegs</button>
+              {%- elsif show_universal_bar_ends -%}
+                <button type="submit" class="btn btn--secondary btn--small">Add Bar End Mirrors</button>
+              {%- else -%}
+                <button type="submit" class="btn btn--secondary btn--small">Add Lever Adjusters</button>
+              {%- endif -%}
+            </form>
+          </product-form>
+        </div>
+      </div>
+    </div>
+  {%- endif -%}
+  {%- endif -%}
+{%- endif -%}

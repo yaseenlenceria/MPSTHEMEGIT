@@ -1,0 +1,287 @@
+{% comment %}
+  Simple Language Selector - Works Without Shopify Markets
+  Visible and functional language switcher using Google Translate
+{% endcomment %}
+
+<div class="simple-language-selector">
+  <div class="language-selector-button">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="2" y1="12" x2="22" y2="12"></line>
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+    </svg>
+    <span class="current-lang">EN</span>
+    <svg class="arrow-down" width="12" height="12" viewBox="0 0 12 12">
+      <path d="M6 9L1 4h10z" fill="currentColor"/>
+    </svg>
+  </div>
+  
+  <div class="language-dropdown">
+    <a href="#" class="lang-option" data-lang="en" data-lang-name="English">🇬🇧 English</a>
+    <a href="#" class="lang-option" data-lang="fr" data-lang-name="Français">🇫🇷 Français</a>
+    <a href="#" class="lang-option" data-lang="de" data-lang-name="Deutsch">🇩🇪 Deutsch</a>
+    <a href="#" class="lang-option" data-lang="es" data-lang-name="Español">🇪🇸 Español</a>
+    <a href="#" class="lang-option" data-lang="it" data-lang-name="Italiano">🇮🇹 Italiano</a>
+    <a href="#" class="lang-option" data-lang="ar" data-lang-name="العربية">🇸🇦 العربية</a>
+    <a href="#" class="lang-option" data-lang="hi" data-lang-name="हिन्दी">🇮🇳 हिन्दी</a>
+    <a href="#" class="lang-option" data-lang="ja" data-lang-name="日本語">🇯🇵 日本語</a>
+    <a href="#" class="lang-option" data-lang="zh-CN" data-lang-name="中文">🇨🇳 中文</a>
+    <a href="#" class="lang-option" data-lang="pt" data-lang-name="Português">🇵🇹 Português</a>
+    <a href="#" class="lang-option" data-lang="nl" data-lang-name="Nederlands">🇳🇱 Nederlands</a>
+    <a href="#" class="lang-option" data-lang="tr" data-lang-name="Türkçe">🇹🇷 Türkçe</a>
+    <a href="#" class="lang-option" data-lang="cs" data-lang-name="Čeština">🇨🇿 Čeština</a>
+  </div>
+</div>
+
+<style>
+.simple-language-selector {
+  position: relative;
+  display: inline-block;
+  margin-right: 15px;
+}
+
+.language-selector-button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.language-selector-button:hover {
+  border-color: #999;
+  background: #f9f9f9;
+}
+
+.current-lang {
+  font-weight: 600;
+  color: #333;
+}
+
+.arrow-down {
+  transition: transform 0.3s ease;
+}
+
+.simple-language-selector.active .arrow-down {
+  transform: rotate(180deg);
+}
+
+.language-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 5px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  min-width: 180px;
+  max-height: 400px;
+  overflow-y: auto;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.simple-language-selector.active .language-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.lang-option {
+  display: block;
+  padding: 10px 15px;
+  color: #333;
+  text-decoration: none;
+  transition: background 0.2s ease;
+  font-size: 14px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.lang-option:last-child {
+  border-bottom: none;
+}
+
+.lang-option:hover {
+  background: #f5f5f5;
+}
+
+.lang-option.active {
+  background: #e3f2fd;
+  color: #1976d2;
+  font-weight: 600;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .simple-language-selector {
+    margin-right: 10px;
+  }
+  
+  .language-selector-button {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+  
+  .language-dropdown {
+    right: auto;
+    left: 0;
+  }
+}
+
+/* Hide on very small screens, show in mobile menu instead */
+@media (max-width: 480px) {
+  .site-header-right .simple-language-selector {
+    display: none;
+  }
+}
+</style>
+
+<script>
+(function() {
+  // Wait for DOM to be ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLanguageSelector);
+  } else {
+    initLanguageSelector();
+  }
+  
+  function initLanguageSelector() {
+    const selector = document.querySelector('.simple-language-selector');
+    if (!selector) return;
+    
+    const button = selector.querySelector('.language-selector-button');
+    const dropdown = selector.querySelector('.language-dropdown');
+    const currentLangSpan = selector.querySelector('.current-lang');
+    const langOptions = selector.querySelectorAll('.lang-option');
+    
+    // Toggle dropdown
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      selector.classList.toggle('active');
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!selector.contains(e.target)) {
+        selector.classList.remove('active');
+      }
+    });
+    
+    // Handle language selection
+    langOptions.forEach(function(option) {
+      option.addEventListener('click', function(e) {
+        e.preventDefault();
+        const langCode = this.getAttribute('data-lang');
+        const langName = this.getAttribute('data-lang-name');
+        
+        // Update current language display
+        currentLangSpan.textContent = langCode.toUpperCase();
+        
+        // Update active state
+        langOptions.forEach(opt => opt.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Close dropdown
+        selector.classList.remove('active');
+        
+        // Trigger Google Translate
+        translatePage(langCode);
+        
+        // Save preference
+        localStorage.setItem('preferredLanguage', langCode);
+      });
+    });
+    
+    // Load Google Translate
+    loadGoogleTranslate();
+    
+    // Check for saved language preference
+    const savedLang = localStorage.getItem('preferredLanguage');
+    if (savedLang && savedLang !== 'en') {
+      setTimeout(function() {
+        translatePage(savedLang);
+        currentLangSpan.textContent = savedLang.toUpperCase();
+        langOptions.forEach(function(opt) {
+          if (opt.getAttribute('data-lang') === savedLang) {
+            opt.classList.add('active');
+          }
+        });
+      }, 1000);
+    }
+  }
+  
+  function loadGoogleTranslate() {
+    if (window.googleTranslateLoaded) return;
+    
+    window.googleTranslateElementInit = function() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'en',
+        includedLanguages: 'en,fr,de,es,it,ar,hi,ja,zh-CN,pt,nl,tr,cs',
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+        autoDisplay: false
+      }, 'google_translate_element_hidden');
+      
+      window.googleTranslateLoaded = true;
+    };
+    
+    if (!document.querySelector('script[src*="translate.google.com"]')) {
+      const script = document.createElement('script');
+      script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+      document.head.appendChild(script);
+    }
+  }
+  
+  function translatePage(langCode) {
+    // Wait for Google Translate to load
+    const checkGoogleTranslate = setInterval(function() {
+      const selectElement = document.querySelector('.goog-te-combo');
+      if (selectElement) {
+        clearInterval(checkGoogleTranslate);
+        
+        // Set the language
+        selectElement.value = langCode;
+        selectElement.dispatchEvent(new Event('change'));
+        
+        console.log('Page translated to:', langCode);
+      }
+    }, 100);
+    
+    // Stop checking after 5 seconds
+    setTimeout(function() {
+      clearInterval(checkGoogleTranslate);
+    }, 5000);
+  }
+})();
+</script>
+
+<!-- Hidden Google Translate element -->
+<div id="google_translate_element_hidden" style="display: none;"></div>
+
+<!-- Hide Google Translate banner -->
+<style>
+.goog-te-banner-frame {
+  display: none !important;
+}
+
+body {
+  top: 0 !important;
+}
+
+.skiptranslate {
+  display: none !important;
+}
+
+body.translated-ltr {
+  top: 0 !important;
+}
+</style>

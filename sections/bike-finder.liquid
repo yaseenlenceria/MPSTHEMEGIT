@@ -1,0 +1,102 @@
+{{ 'bike-finder-collection.css' | asset_url | stylesheet_tag }}
+
+<div class="container">
+  <div class="bike-finder-toolbar-wrapper">
+    {% render 'filter-bike-selector',
+      card_title_font_size: section.settings.bike_card_title_font_size,
+      card_label_font_size: section.settings.bike_card_label_font_size,
+      card_select_font_size: section.settings.bike_card_select_font_size,
+      card_button_font_size: section.settings.bike_card_button_font_size,
+      card_primary_color: section.settings.bike_card_primary_color,
+      card_primary_dark: section.settings.bike_card_primary_dark,
+      card_bg_color: section.settings.bike_card_bg_color,
+      card_text_color: section.settings.bike_card_text_color,
+      card_border_color: section.settings.bike_card_border_color
+    %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Bike parts finder",
+  "class": "section-bike-finder",
+  "settings": [
+    {
+      "type": "range",
+      "id": "bike_card_title_font_size",
+      "label": "Title font size",
+      "min": 16,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "bike_card_label_font_size",
+      "label": "Label font size",
+      "min": 11,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "bike_card_select_font_size",
+      "label": "Dropdown font size",
+      "min": 13,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "bike_card_button_font_size",
+      "label": "Button font size",
+      "min": 13,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "color",
+      "id": "bike_card_primary_color",
+      "label": "Primary color (accents & button)",
+      "default": "#FF9F1C"
+    },
+    {
+      "type": "color",
+      "id": "bike_card_primary_dark",
+      "label": "Primary dark color (gradients)",
+      "default": "#B40C1C"
+    },
+    {
+      "type": "color",
+      "id": "bike_card_bg_color",
+      "label": "Card background color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "bike_card_text_color",
+      "label": "Card text color",
+      "default": "#1A1A1A"
+    },
+    {
+      "type": "color",
+      "id": "bike_card_border_color",
+      "label": "Card border color",
+      "default": "#E5E7EB"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Bike parts finder",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}

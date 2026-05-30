@@ -1,0 +1,545 @@
+{%- if section.settings.heading != blank or section.blocks.size > 0 -%}
+  {%- liquid
+    # constants
+    assign breakpoint_sm = 600
+    assign breakpoint_md = 769
+
+    assign color_scheme = section.settings.color_scheme
+    assign bg_color = false
+
+    if color_scheme == '1'
+      assign bg_color = settings.color_scheme_1_bg
+    elsif color_scheme == '2'
+      assign bg_color = settings.color_scheme_2_bg
+    elsif color_scheme == '3'
+      assign bg_color = settings.color_scheme_3_bg
+    endif
+
+    if bg_color and bg_color != settings.bg_color
+      assign bg_alpha = bg_color | color_extract: 'alpha'
+      if bg_alpha == 0
+        assign bg_color = false
+      endif
+    else
+      assign bg_color = false
+    endif
+
+    assign image_height = 0
+    for block in section.blocks
+      if block.settings.image != blank
+        assign h = section.settings.icon_size | divided_by: block.settings.image.aspect_ratio | round
+        if h > image_height
+          assign image_height = h
+        endif
+      else
+        if section.settings.icon_size > image_height
+          assign image_height = section.settings.icon_size
+        endif
+      endif
+    endfor
+  -%}
+
+  {%- style -%}
+    #section-{{ section.id }} .logo-list { column-gap: {{ section.settings.spacing }}px; }
+    @media (max-width: {{ breakpoint_md }}px) {
+      #section-{{ section.id }} .logo-list { column-gap: {{ section.settings.spacing | times: 0.66 }}px; }
+    }
+    @media (max-width: {{ breakpoint_sm }}px) {
+      #section-{{ section.id }} .logo-list { column-gap: {{ section.settings.spacing | times: 0.33 }}px; }
+    }
+    {% for block in section.blocks %}
+      #block-{{ block.id }} { width: {{ block.settings.logo_width }}px; }
+    {% endfor %}
+    {%- if section.settings.layout == 'carousel' -%}
+      {%- assign carousel = true -%}
+      #section-{{ section.id }} .logo-list { grid-template-columns: {% for block in section.blocks %} {{ block.settings.logo_width }}px {% endfor %}; }
+    {%- else -%}
+      {%- assign carousel = false -%}
+    {%- endif -%}
+
+    {%- if section.settings.layout == 'scrolling' -%}
+      {%- assign scrolling = true -%}
+      {%- assign scroll_speed = section.settings.scroll_speed | default: 30 -%}
+
+      /* Scrolling Logo Animation */
+      @keyframes scroll-logos-{{ section.id }} {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
+        }
+      }
+
+      #section-{{ section.id }} .logo-scroll-wrapper {
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+        mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+      }
+
+      #section-{{ section.id }} .logo-scroll-track {
+        display: flex;
+        width: fit-content;
+        will-change: transform;
+      }
+
+      #section-{{ section.id }} .logo-scroll-track.is-ready {
+        animation: scroll-logos-{{ section.id }} {{ scroll_speed }}s linear infinite;
+      }
+
+      #section-{{ section.id }} .logo-scroll-track:hover {
+        animation-play-state: {{ section.settings.pause_on_hover | default: true }};
+      }
+
+      #section-{{ section.id }} .logo-scroll-group {
+        display: flex;
+        gap: {{ section.settings.spacing }}px;
+        flex-shrink: 0;
+        align-items: center;
+      }
+
+      @media (max-width: {{ breakpoint_md }}px) {
+        #section-{{ section.id }} .logo-scroll-group {
+          gap: {{ section.settings.spacing | times: 0.66 }}px;
+        }
+        #section-{{ section.id }} .logo-scroll-track {
+          animation-duration: {{ scroll_speed | times: 0.75 }}s;
+        }
+      }
+
+      @media (max-width: {{ breakpoint_sm }}px) {
+        #section-{{ section.id }} .logo-scroll-group {
+          gap: {{ section.settings.spacing | times: 0.33 }}px;
+        }
+        #section-{{ section.id }} .logo-scroll-track {
+          animation-duration: {{ scroll_speed | times: 0.5 }}s;
+        }
+      }
+
+      #section-{{ section.id }} .logo-scroll-item {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    {%- else -%}
+      {%- assign scrolling = false -%}
+    {%- endif -%}
+  {%- endstyle -%}
+
+  {%- unless section.settings.full_width -%}
+    <div class="container">
+  {%- endunless -%}
+
+  <div class="section section--padded{% if section.settings.full_width %} section--full-width{% endif %}{% unless color_scheme == 'none' %} color-scheme color-scheme--no-btns color-scheme--{{ color_scheme }}{% endunless %}" id="section-{{ section.id }}">
+    {%- if section.settings.title != blank or section.settings.button_label != blank -%}
+      <div class="container">
+        <div class="section__header items-center flex{% if section.settings.heading_align == 'text-center' %} flex-col text-center{% elsif section.settings.heading_align == 'text-end' %} flex-row-reverse flex-wrap{% else %} flex-row flex-wrap{% endif %} gap-x-theme"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+          {%- if section.settings.title != blank -%}
+            <h2 class="h4 section__heading mb-0 flex-auto {{ section.settings.heading_align }}">
+              {{- section.settings.title | escape -}}
+            </h2>
+          {%- endif -%}
+
+          {%- if section.settings.button_label != blank -%}
+            <a href="{{ section.settings.button_link }}" class="link">{{ section.settings.button_label | escape }}</a>
+          {%- endif -%}
+        </div>
+      </div>
+     {%- endif -%}
+
+      {%- if scrolling -%}
+        {%- comment -%} Scrolling Layout {%- endcomment -%}
+        <div class="container">
+          <div class="logo-scroll-wrapper" data-scroll-logos>
+            <div class="logo-scroll-track" data-logo-scroll-track>
+              {%- comment -%} Single set - JS will clone for seamless loop {%- endcomment -%}
+              <div class="logo-scroll-group">
+                {%- for block in section.blocks -%}
+                  <div class="logo-scroll-item" {{ block.shopify_attributes }}>
+                    <div class="logo-list__logo text-center" id="block-{{ block.id }}">
+                      {%- if block.settings.image != blank -%}
+                        {%- if block.settings.url != blank -%}
+                          <a class="block" href="{{ block.settings.url }}">
+                        {%- endif -%}
+
+                        {% render 'image',
+                          image: block.settings.image,
+                          src_width: block.settings.logo_width,
+                          srcset_2x: true,
+                          section_index: section.index,
+                          class: 'w-auto'
+                        %}
+
+                        {%- if block.settings.text != blank -%}
+                          <p class="pt-4 pb-0">{{ block.settings.text }}</p>
+                        {%- endif -%}
+
+                        {%- if block.settings.url != blank -%}
+                          </a>
+                        {%- endif -%}
+                      {%- else -%}
+                        <div class="media relative" style="padding-top: 100%;">
+                          {{ 'image' | placeholder_svg_tag: 'media__placeholder img-fit' }}
+                        </div>
+                      {%- endif -%}
+                    </div>
+                  </div>
+                {%- endfor -%}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          (function() {
+            var track = document.querySelector('#section-{{ section.id }} [data-logo-scroll-track]');
+            if (!track) return;
+            var group = track.querySelector('.logo-scroll-group');
+            if (!group) return;
+            var clone = group.cloneNode(true);
+            clone.setAttribute('aria-hidden', 'true');
+            var links = clone.querySelectorAll('a');
+            for (var i = 0; i < links.length; i++) { links[i].setAttribute('tabindex', '-1'); }
+            track.appendChild(clone);
+            track.classList.add('is-ready');
+          })();
+        </script>
+      {%- elsif carousel -%}
+        {%- comment -%} Carousel Layout {%- endcomment -%}
+        <carousel-slider class="carousel block lg:overflow-hidden" inactive>
+          <div class="relative container">
+            <div class="slider" id="slider-{{ section.id }}">
+              <div class="container">
+                <ul class="logo-list slider__grid grid gap-x-theme gap-y-theme" role="list"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+                  {%- for block in section.blocks -%}
+                    <li class="slider__item flex items-center justify-center" {{ block.shopify_attributes }}>
+                      <div class="logo-list__logo w-full text-center" id="block-{{ block.id }}">
+                        {%- if block.settings.image != blank -%}
+                          {%- if block.settings.url != blank -%}
+                            <a class="block" href="{{ block.settings.url }}">
+                          {%- endif -%}
+
+                          {% render 'image',
+                            image: block.settings.image,
+                            src_width: block.settings.logo_width,
+                            srcset_2x: true,
+                            section_index: section.index,
+                            class: 'w-auto'
+                          %}
+
+                          {%- if block.settings.text != blank -%}
+                            <p class="pt-4 pb-0">{{ block.settings.text }}</p>
+                          {%- endif -%}
+
+                          {%- if block.settings.url != blank -%}
+                            </a>
+                          {%- endif -%}
+                        {%- else -%}
+                          <div class="media relative" style="padding-top: 100%;">
+                            {{ 'image' | placeholder_svg_tag: 'media__placeholder img-fit' }}
+                          </div>
+                        {%- endif -%}
+                      </div>
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              </div>
+            </div>
+            {%- if settings.slider_show_arrows != 'never' -%}
+              <div class="slider-nav absolute top-middle end {% if settings.slider_show_arrows == 'hover' %}slider-nav--show-on-hover no-hover-hidden {% endif %}hidden md:block no-js-hidden">
+                <button type="button" class="slider-nav__btn tap-target btn {{ settings.slider_button_style }} has-ltr-icon" name="next" aria-controls="slider-{{ section.id }}">
+                  <span class="visually-hidden">{{ 'general.slider.next' | t }}</span>
+                  {% render 'icon-chevron-right' %}
+                </button>
+                <button type="button" class="slider-nav__btn tap-target btn {{ settings.slider_button_style }} has-ltr-icon" name="prev" aria-controls="slider-{{ section.id }}">
+                  <span class="visually-hidden">{{ 'general.slider.previous' | t }}</span>
+                  {% render 'icon-chevron-left' %}
+                </button>
+              </div>
+            {%- endif -%}
+          </div>
+        </carousel-slider>
+      {%- else -%}
+        {%- comment -%} Grid Layout {%- endcomment -%}
+        <div class="container">
+          <ul class="logo-list grid grid-cols-2 sm:flex sm:flex-wrap {{ section.settings.logo_grid_align }} gap-x-theme gap-y-theme" role="list"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+            {%- for block in section.blocks -%}
+              <li class="flex items-center justify-center" {{ block.shopify_attributes }}>
+                <div class="logo-list__logo text-center" id="block-{{ block.id }}">
+                  {%- if block.settings.image != blank -%}
+                    {%- if block.settings.url != blank -%}
+                      <a class="block" href="{{ block.settings.url }}">
+                    {%- endif -%}
+
+                    {% render 'image',
+                      image: block.settings.image,
+                      src_width: block.settings.logo_width,
+                      srcset_2x: true,
+                      section_index: section.index,
+                      class: 'w-auto'
+                    %}
+
+                    {%- if block.settings.text != blank -%}
+                      <p class="pt-4 pb-0">{{ block.settings.text }}</p>
+                    {%- endif -%}
+
+                    {%- if block.settings.url != blank -%}
+                      </a>
+                    {%- endif -%}
+                  {%- else -%}
+                    <div class="media relative" style="padding-top: 100%;">
+                      {{ 'image' | placeholder_svg_tag: 'media__placeholder img-fit' }}
+                    </div>
+                  {%- endif -%}
+                </div>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+
+  {%- unless section.settings.full_width -%}
+    </div>
+  {%- endunless -%}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Logo list",
+  "tag": "section",
+  "class": "cc-logo-list",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section header"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Logo list"
+    },
+    {
+      "type": "select",
+      "id": "heading_align",
+      "label": "Heading alignment",
+      "options": [
+        {
+          "value": "text-start",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Center"
+        },
+        {
+          "value": "text-end",
+          "label": "Right"
+        }
+      ],
+      "default": "text-start"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "View more label",
+      "default": "Optional link"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "View more link"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "scrolling",
+          "label": "Auto-scrolling"
+        },
+        {
+          "value": "carousel",
+          "label": "Carousel"
+        },
+        {
+          "value": "grid",
+          "label": "Grid"
+        }
+      ],
+      "default": "scrolling",
+      "info": "Auto-scrolling creates an infinite smooth loop"
+    },
+    {
+      "type": "range",
+      "id": "spacing",
+      "min": 32,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "label": "Maximum space between logos",
+      "default": 40
+    },
+    {
+      "type": "select",
+      "id": "logo_grid_align",
+      "label": "Grid alignment",
+      "options": [
+        {
+          "value": "justify-start",
+          "label": "Left"
+        },
+        {
+          "value": "justify-center",
+          "label": "Center"
+        },
+        {
+          "value": "justify-end",
+          "label": "Right"
+        }
+      ],
+      "default": "justify-center"
+    },
+    {
+      "type": "header",
+      "content": "Auto-scrolling settings"
+    },
+    {
+      "type": "range",
+      "id": "scroll_speed",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "s",
+      "label": "Scroll speed",
+      "default": 30,
+      "info": "Lower number = faster scrolling"
+    },
+    {
+      "type": "checkbox",
+      "id": "pause_on_hover",
+      "label": "Pause animation on hover",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "options": [
+        {
+          "value": "none",
+          "label": "Default"
+        },
+        {
+          "value": "1",
+          "label": "Scheme 1"
+        },
+        {
+          "value": "2",
+          "label": "Scheme 2"
+        },
+        {
+          "value": "3",
+          "label": "Scheme 3"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Make section background full width",
+      "default": true
+    }
+  ],
+  "max_blocks": 50,
+  "blocks": [
+    {
+      "type": "logo",
+      "name": "Logo",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "Link (optional)"
+        },
+        {
+          "type": "range",
+          "id": "logo_width",
+          "min": 50,
+          "max": 260,
+          "step": 5,
+          "unit": "px",
+          "label": "Maximum logo width",
+          "default": 120
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text (optional)"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Logo list",
+      "blocks": [
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer",
+      "aside"
+    ]
+  }
+}
+{% endschema %}

@@ -1,0 +1,667 @@
+{%- comment -%}
+  Vehicle finder panel shown inside the Navigation slideshow.
+  Uses the bikes dataset (all-bikes.liquid) to provide Make > Model > Year filtering.
+{%- endcomment -%}
+
+{%- assign component = component_id | default: section.id | default: 'quick-nav' -%}
+{%- assign form_id = 'vehicle-search-' | append: component -%}
+{%- assign make_id = 'vehicle-make-' | append: component -%}
+{%- assign model_id = 'vehicle-model-' | append: component -%}
+{%- assign year_id = 'vehicle-year-' | append: component -%}
+{%- assign button_id = 'vehicle-button-' | append: component -%}
+
+{%- assign title_size = card_title_font_size | default: 24 -%}
+{%- assign label_size = card_label_font_size | default: 13 -%}
+{%- assign select_size = card_select_font_size | default: 16 -%}
+{%- assign button_size = card_button_font_size | default: 16 -%}
+{%- assign primary = card_primary_color | default: '#2ecc71' -%}
+{%- assign primary_dark = card_primary_dark | default: '#27ae60' -%}
+{%- assign bg = card_bg_color | default: '#ffffff' -%}
+{%- assign text = card_text_color | default: '#1a1a1a' -%}
+{%- assign border = card_border_color | default: '#e5e7eb' -%}
+
+{%- render 'all-bikes' -%}
+
+<div class="quick-nav quick-nav--vehicle no-js-hidden{% if color_scheme == 'default' %} panel{% else %} color-scheme color-scheme--{{ color_scheme }}{% endif %}" id="{{ form_id }}" {% if animate %}data-cc-animate{% endif %}>
+  <div class="quick-nav__header">
+    <svg class="quick-nav__icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M5 17h14v-5l-1.5-1.5L16 9h-4.5L10 10.5 8.5 12H5v5z"/>
+      <circle cx="7" cy="17" r="2"/>
+      <circle cx="17" cy="17" r="2"/>
+    </svg>
+    <h3 class="quick-nav__heading">Find Your Parts</h3>
+  </div>
+
+  <div class="quick-nav__steps">
+    <div class="quick-nav__step" data-step="1" id="step-1-{{ component }}">
+      <span class="quick-nav__step-indicator">1</span>
+      <span class="quick-nav__step-label">Make</span>
+    </div>
+    <div class="quick-nav__step-divider"></div>
+    <div class="quick-nav__step" data-step="2" id="step-2-{{ component }}">
+      <span class="quick-nav__step-indicator">2</span>
+      <span class="quick-nav__step-label">Model</span>
+    </div>
+    <div class="quick-nav__step-divider"></div>
+    <div class="quick-nav__step" data-step="3" id="step-3-{{ component }}">
+      <span class="quick-nav__step-indicator">3</span>
+      <span class="quick-nav__step-label">Year</span>
+    </div>
+  </div>
+
+  <div class="quick-nav__form">
+    <div class="quick-nav__field-wrapper">
+      <label class="quick-nav__label" for="{{ make_id }}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M5 20v-2a7 7 0 0114 0v2"/>
+        </svg>
+        Select Make
+      </label>
+      <select id="{{ make_id }}" class="quick-nav__select" aria-label="Select Vehicle Make">
+        <option value="">Choose make...</option>
+      </select>
+    </div>
+
+    <div class="quick-nav__field-wrapper">
+      <label class="quick-nav__label" for="{{ model_id }}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <path d="M9 3v18M15 3v18"/>
+        </svg>
+        Select Model
+      </label>
+      <select id="{{ model_id }}" class="quick-nav__select" aria-label="Select Vehicle Model" disabled>
+        <option value="">Choose model...</option>
+      </select>
+    </div>
+
+    <div class="quick-nav__field-wrapper">
+      <label class="quick-nav__label" for="{{ year_id }}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <path d="M16 2v4M8 2v4M3 10h18"/>
+        </svg>
+        Select Year
+      </label>
+      <select id="{{ year_id }}" class="quick-nav__select" aria-label="Select Vehicle Year" disabled>
+        <option value="">Choose year...</option>
+      </select>
+    </div>
+
+    <button class="quick-nav__submit" id="{{ button_id }}" type="button" disabled>
+      <span>Find Parts</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<style>
+  #{{ form_id }} {
+    --vehicle-primary: {{ primary }};
+    --vehicle-primary-dark: {{ primary_dark }};
+    --vehicle-surface: linear-gradient(135deg, {{ bg }} 0%, {{ bg | color_darken: 2 }} 100%);
+    --vehicle-text: {{ text }};
+    --vehicle-text-light: {{ text | color_lighten: 30 }};
+    --vehicle-border: {{ border }};
+    --vehicle-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
+
+    background: var(--vehicle-surface);
+    border-radius: 20px;
+    box-shadow: var(--vehicle-shadow);
+    border: 1px solid rgba(46, 204, 113, 0.1);
+    padding: 2rem;
+    width: 100%;
+    max-width: 100%;
+    backdrop-filter: blur(10px);
+    box-sizing: border-box;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: var(--font-body-family, 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #{{ form_id }}:hover {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15), 0 6px 12px rgba(0, 0, 0, 0.1);
+    border-color: rgba(46, 204, 113, 0.2);
+  }
+
+  #{{ form_id }} .quick-nav__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 2px solid rgba(46, 204, 113, 0.15);
+    background: linear-gradient(90deg, rgba(46, 204, 113, 0.05) 0%, transparent 100%);
+    margin: -2rem -2rem 1.5rem -2rem;
+    padding: 1.5rem 2rem;
+    border-radius: 20px 20px 0 0;
+    width: auto;
+  }
+
+  #{{ form_id }} .quick-nav__icon {
+    color: var(--vehicle-primary);
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 4px rgba(46, 204, 113, 0.3));
+  }
+
+  #{{ form_id }} .quick-nav__heading {
+    margin: 0;
+    font-size: {{ title_size }}px;
+    font-weight: 700;
+    color: var(--vehicle-text);
+    letter-spacing: -0.015em;
+    font-family: var(--font-heading-family, 'DM Sans', sans-serif);
+    text-transform: uppercase;
+  }
+
+  #{{ form_id }} .quick-nav__steps {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding: 1rem 0;
+  }
+
+  #{{ form_id }} .quick-nav__step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    flex: 1;
+    transition: all 0.3s ease;
+  }
+
+  #{{ form_id }} .quick-nav__step-indicator {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 3px solid var(--vehicle-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--vehicle-text-light);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  #{{ form_id }} .quick-nav__step-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--vehicle-text-light);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  #{{ form_id }} .quick-nav__step-divider {
+    flex: 0 1 auto;
+    height: 3px;
+    background: linear-gradient(90deg, var(--vehicle-border), rgba(229, 231, 235, 0.5));
+    margin: 0 0.5rem;
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+  }
+
+  #{{ form_id }} .quick-nav__step.active .quick-nav__step-indicator {
+    background: linear-gradient(135deg, var(--vehicle-primary) 0%, var(--vehicle-primary-dark) 100%);
+    border-color: var(--vehicle-primary);
+    color: white;
+    box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.2), 0 4px 12px rgba(46, 204, 113, 0.3);
+  }
+
+  #{{ form_id }} .quick-nav__step.active .quick-nav__step-label {
+    color: var(--vehicle-primary);
+    font-weight: 700;
+  }
+
+  #{{ form_id }} .quick-nav__step.completed .quick-nav__step-indicator {
+    background: linear-gradient(135deg, var(--vehicle-primary) 0%, var(--vehicle-primary-dark) 100%);
+    border-color: var(--vehicle-primary);
+    color: white;
+    box-shadow: 0 2px 8px rgba(46, 204, 113, 0.25);
+  }
+
+  #{{ form_id }} .quick-nav__step.completed .quick-nav__step-indicator::before {
+    content: '✓';
+    position: absolute;
+    font-size: 1.3rem;
+    font-weight: 900;
+  }
+
+  #{{ form_id }} .quick-nav__step.completed .quick-nav__step-label {
+    color: var(--vehicle-primary);
+    font-weight: 700;
+  }
+
+  #{{ form_id }} .quick-nav__step-divider.completed {
+    background: linear-gradient(90deg, var(--vehicle-primary) 0%, var(--vehicle-primary-dark) 100%);
+    box-shadow: 0 2px 8px rgba(46, 204, 113, 0.25);
+  }
+
+  #{{ form_id }} .quick-nav__form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  #{{ form_id }} .quick-nav__field-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  #{{ form_id }} .quick-nav__label {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: {{ label_size }}px;
+    font-weight: 600;
+    color: var(--vehicle-text);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  #{{ form_id }} .quick-nav__label svg {
+    color: var(--vehicle-primary);
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+  }
+
+  #{{ form_id }} .quick-nav__select {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border: 2px solid var(--vehicle-border);
+    border-radius: 12px;
+    font-size: {{ select_size }}px;
+    font-weight: 500;
+    color: var(--vehicle-text);
+    background: white;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='14' height='9' viewBox='0 0 14 9' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L7 7.5L13 1.5' stroke='%232ecc71' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1.25rem center;
+    padding-right: 3rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  }
+
+  #{{ form_id }} .quick-nav__select:hover:not(:disabled) {
+    border-color: var(--vehicle-primary);
+    box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1), 0 4px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  #{{ form_id }} .quick-nav__select:focus {
+    outline: none;
+    border-color: var(--vehicle-primary);
+    box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  #{{ form_id }} .quick-nav__select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #f9fafb;
+    background-image: url("data:image/svg+xml,%3Csvg width='14' height='9' viewBox='0 0 14 9' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L7 7.5L13 1.5' stroke='%23d1d5db' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  }
+
+  #{{ form_id }} .quick-nav__submit {
+    margin-top: 0.75rem;
+    width: 100%;
+    padding: 1.15rem 2rem;
+    background: linear-gradient(135deg, var(--vehicle-primary) 0%, var(--vehicle-primary-dark) 100%);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: {{ button_size }}px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 6px 16px rgba(46, 204, 113, 0.35), 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #{{ form_id }} .quick-nav__submit::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+  }
+
+  #{{ form_id }} .quick-nav__submit:hover:not(:disabled)::before {
+    left: 100%;
+  }
+
+  #{{ form_id }} .quick-nav__submit:hover:not(:disabled) {
+    box-shadow: 0 12px 24px rgba(46, 204, 113, 0.45), 0 4px 8px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(135deg, #32d77a 0%, #2ecc71 100%);
+  }
+
+  #{{ form_id }} .quick-nav__submit:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  #{{ form_id }} .quick-nav__submit svg {
+    transition: transform 0.3s ease;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+  }
+
+  #{{ form_id }} .quick-nav__submit:hover:not(:disabled) svg {
+    transform: translateX(4px);
+  }
+
+  @media (max-width: 768px) {
+    #{{ form_id }} {
+      max-width: 100%;
+      padding: 2rem 1.75rem;
+    }
+
+    #{{ form_id }} .quick-nav__header {
+      margin: 0;
+      padding: 1rem 0;
+      border-bottom: 2px solid rgba(46, 204, 113, 0.15);
+      margin-bottom: 1.5rem;
+      width: 100%;
+    }
+
+    #{{ form_id }} .quick-nav__heading {
+      font-size: {{ title_size | minus: 2 }}px;
+    }
+
+    #{{ form_id }} .quick-nav__select {
+      padding: 1.1rem 1.3rem;
+      font-size: {{ select_size | plus: 1 }}px;
+      padding-right: 3.25rem;
+    }
+
+    #{{ form_id }} .quick-nav__submit {
+      padding: 1.2rem 2rem;
+      font-size: {{ button_size | plus: 1 }}px;
+    }
+  }
+</style>
+
+<script>
+(function() {
+  function initQuickNav() {
+    if (typeof window.bikes === 'undefined' || window.bikes.length === 0) {
+      return;
+    }
+
+    const makeSelect = document.getElementById('{{ make_id }}');
+    const modelSelect = document.getElementById('{{ model_id }}');
+    const yearSelect = document.getElementById('{{ year_id }}');
+    const button = document.getElementById('{{ button_id }}');
+    const steps = [
+      document.getElementById('step-1-{{ component }}'),
+      document.getElementById('step-2-{{ component }}'),
+      document.getElementById('step-3-{{ component }}')
+    ];
+    const dividers = document.querySelectorAll('#{{ form_id }} .quick-nav__step-divider');
+
+    function normalizeHandle(value) {
+      return value.toLowerCase().replace(/\s+/g, '-').replace(/\//g, '-');
+    }
+
+    function buildHandle(make, model, year) {
+      var parts = [];
+      if (make) parts.push(normalizeHandle(make));
+      if (model) parts.push(normalizeHandle(model));
+      if (year) parts.push(year.toString());
+      return parts.filter(Boolean).join('-');
+    }
+
+    function getSlugFromUrl() {
+      var pathSegments = window.location.pathname.split('/').filter(Boolean);
+      if (pathSegments.length === 0) return null;
+      return pathSegments[pathSegments.length - 1].toLowerCase();
+    }
+
+    function findSelectionFromSlug(slug) {
+      if (!slug) return null;
+
+      for (var i = 0; i < window.bikes.length; i++) {
+        var makeEntry = window.bikes[i];
+        var makeHandle = buildHandle(makeEntry.make);
+
+        if (slug !== makeHandle && slug.indexOf(makeHandle + '-') !== 0) continue;
+        if (slug === makeHandle) return { make: makeEntry.make, model: '', year: '' };
+
+        var models = makeEntry.models || [];
+        for (var j = 0; j < models.length; j++) {
+          var modelEntry = models[j];
+          var modelHandle = buildHandle(makeEntry.make, modelEntry.model);
+
+          if (slug === modelHandle) {
+            return { make: makeEntry.make, model: modelEntry.model, year: '' };
+          }
+
+          var years = modelEntry.years || [];
+          for (var k = 0; k < years.length; k++) {
+            var candidate = buildHandle(makeEntry.make, modelEntry.model, years[k]);
+            if (candidate === slug) {
+              return { make: makeEntry.make, model: modelEntry.model, year: years[k].toString() };
+            }
+          }
+        }
+      }
+
+      return null;
+    }
+
+    function optionExists(select, value) {
+      if (!value) return false;
+      return Array.prototype.some.call(select.options || [], function(opt) {
+        return opt.value === value;
+      });
+    }
+
+    function updateSteps(currentStep) {
+      steps.forEach(function(step, index) {
+        if (!step) return;
+        step.classList.remove('active', 'completed');
+        if (index + 1 < currentStep) {
+          step.classList.add('completed');
+        } else if (index + 1 === currentStep) {
+          step.classList.add('active');
+        }
+      });
+
+      dividers.forEach(function(divider, index) {
+        divider.classList.remove('completed');
+        if (index + 1 < currentStep) {
+          divider.classList.add('completed');
+        }
+      });
+
+      button.disabled = currentStep < 4;
+    }
+
+    function resetSelect(select, placeholder) {
+      select.innerHTML = '<option value="">' + placeholder + '</option>';
+      select.disabled = true;
+    }
+
+    function sjSortByKey(array, key) {
+      return array.sort(function(a, b) {
+        var x = a[key];
+        var y = b[key];
+        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+      });
+    }
+
+    function populateMakes() {
+      resetSelect(makeSelect, 'Choose make...');
+      resetSelect(modelSelect, 'Choose model...');
+      resetSelect(yearSelect, 'Choose year...');
+
+      makeSelect.disabled = false;
+      sjSortByKey(window.bikes, "make");
+
+      var seen = {};
+      window.bikes.forEach(function(item) {
+        if (item.make && !seen[item.make]) {
+          seen[item.make] = true;
+          var opt = document.createElement('option');
+          opt.value = item.make;
+          opt.textContent = item.make;
+          makeSelect.appendChild(opt);
+        }
+      });
+
+      updateSteps(1);
+    }
+
+    function populateModels(make) {
+      resetSelect(modelSelect, 'Choose model...');
+      resetSelect(yearSelect, 'Choose year...');
+
+      if (!make) {
+        updateSteps(1);
+        return;
+      }
+
+      var makeObj = window.bikes.find(function(entry) { return entry.make === make; });
+      if (!makeObj || !Array.isArray(makeObj.models)) return;
+
+      modelSelect.disabled = false;
+      var current_models = makeObj.models;
+      sjSortByKey(current_models, "model");
+
+      current_models.forEach(function(item) {
+        if (item.model) {
+          var opt = document.createElement('option');
+          opt.value = item.model;
+          opt.textContent = item.model;
+          modelSelect.appendChild(opt);
+        }
+      });
+
+      updateSteps(2);
+    }
+
+    function populateYears(make, model) {
+      resetSelect(yearSelect, 'Choose year...');
+
+      if (!make || !model) {
+        updateSteps(make ? 2 : 1);
+        return;
+      }
+
+      var makeObj = window.bikes.find(function(entry) { return entry.make === make; });
+      if (!makeObj) return;
+
+      var modelObj = makeObj.models.find(function(entry) { return entry.model === model; });
+      if (!modelObj || !Array.isArray(modelObj.years)) return;
+
+      yearSelect.disabled = false;
+      var current_years = modelObj.years.slice().sort();
+
+      current_years.forEach(function(year) {
+        if (year) {
+          var opt = document.createElement('option');
+          opt.value = year;
+          opt.textContent = year;
+          yearSelect.appendChild(opt);
+        }
+      });
+
+      updateSteps(3);
+    }
+
+    function applySlugSelection() {
+      var selection = findSelectionFromSlug(getSlugFromUrl());
+      if (!selection || !selection.make || !optionExists(makeSelect, selection.make)) {
+        updateSteps(1);
+        return;
+      }
+
+      makeSelect.value = selection.make;
+      populateModels(selection.make);
+
+      if (selection.model && optionExists(modelSelect, selection.model)) {
+        modelSelect.value = selection.model;
+        populateYears(selection.make, selection.model);
+
+        if (selection.year && optionExists(yearSelect, selection.year)) {
+          yearSelect.value = selection.year;
+          updateSteps(4);
+        }
+      }
+
+      button.disabled = !yearSelect.value;
+    }
+
+    makeSelect.addEventListener('change', function(evt) {
+      populateModels(evt.target.value);
+    });
+
+    modelSelect.addEventListener('change', function(evt) {
+      populateYears(makeSelect.value, evt.target.value);
+    });
+
+    yearSelect.addEventListener('change', function(evt) {
+      updateSteps(evt.target.value ? 4 : 3);
+    });
+
+    button.addEventListener('click', function() {
+      var make = makeSelect.value;
+      var model = modelSelect.value;
+      var year = yearSelect.value;
+
+      if (!make) {
+        alert('Please select a make.');
+        return;
+      }
+
+      var site_url = "{{ shop.url }}/collections/all/";
+      var make_handle = make.toLowerCase().replace(/\s/g, "-").replace(/\//g, "-");
+      var model_handle = model ? model.toLowerCase().replace(/\s/g, "-").replace(/\//g, "-") : "";
+      var year_handle = year || "";
+
+      if (model_handle && model_handle !== "") {
+        model_handle = "-" + model_handle;
+      }
+      if (year_handle && year_handle !== "") {
+        year_handle = "-" + year_handle;
+      }
+
+      var tag_handle = site_url + make_handle + model_handle + year_handle;
+      console.log('Redirecting to:', tag_handle);
+      window.location.href = tag_handle;
+    });
+
+    populateMakes();
+    applySlugSelection();
+  }
+
+  if (window.bikes && window.bikes.length > 0) {
+    initQuickNav();
+  } else {
+    document.addEventListener('bikes:loaded', initQuickNav);
+  }
+})();
+</script>

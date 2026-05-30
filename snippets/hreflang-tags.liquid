@@ -1,0 +1,38 @@
+{% comment %}
+  Dynamic hreflang tags using active locales.
+{% endcomment %}
+
+{% liquid
+  assign base_url = shop.url
+  assign current_root = localization.language.root_url | default: '/'
+  assign clean_path = request.path
+
+  if current_root != '/'
+    assign clean_path = request.path | remove_first: current_root
+  endif
+
+  if clean_path != blank and clean_path != '/' and clean_path[0] != '/'
+    assign clean_path = '/' | append: clean_path
+  endif
+
+  assign primary_root = '/'
+  for language in localization.available_languages
+    if language.primary
+      assign primary_root = language.root_url
+      break
+    endif
+  endfor
+-%}
+
+<link rel="alternate" hreflang="x-default" href="{{ base_url }}{{ primary_root }}{{ clean_path }}" />
+
+{%- for language in localization.available_languages -%}
+  <link rel="alternate" hreflang="{{ language.iso_code }}" href="{{ base_url }}{{ language.root_url }}{{ clean_path }}" />
+{%- endfor -%}
+
+<meta property="og:locale" content="{{ request.locale.iso_code | replace: '-', '_' }}" />
+{%- for language in localization.available_languages -%}
+  {%- unless language.iso_code == request.locale.iso_code -%}
+    <meta property="og:locale:alternate" content="{{ language.iso_code | replace: '-', '_' }}" />
+  {%- endunless -%}
+{%- endfor -%}

@@ -1,0 +1,912 @@
+{
+  "sections": {
+    "1764346925868b36bf": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_9db798c_QCpfJU": {
+          "type": "ai_gen_block_9db798c",
+          "disabled": true,
+          "settings": {
+            "audio_file": "",
+            "title": "",
+            "description": "",
+            "title_size": 24,
+            "description_size": 14,
+            "show_volume_control": true,
+            "default_volume": 80,
+            "background_color": "#f4f4f4",
+            "text_color": "#2a2b2a",
+            "button_color": "#ff580d",
+            "button_hover_color": "#ea4900",
+            "button_icon_color": "#ffffff",
+            "progress_bg_color": "#e0e0e0",
+            "progress_fill_color": "#ff580d",
+            "border_radius": 16
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_9db798c_QCpfJU"
+      ],
+      "settings": {}
+    },
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "judge_me_reviews_preview_badge_QNeikh": {
+          "type": "shopify://apps/judge-me-reviews/blocks/preview_badge/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+          "settings": {}
+        },
+        "vendor-sku": {
+          "type": "vendor-sku",
+          "settings": {
+            "show_vendor": true,
+            "show_sku": true,
+            "show_barcode": false
+          }
+        },
+        "product-labels": {
+          "type": "product-labels",
+          "settings": {
+            "show_variant_icon": true
+          }
+        },
+        "title": {
+          "type": "title",
+          "settings": {
+            "show_weight": false
+          }
+        },
+        "price": {
+          "type": "price",
+          "settings": {
+            "show_tax_and_shipping": true
+          }
+        },
+        "divider-0": {
+          "type": "divider",
+          "settings": {
+            "show_line": true,
+            "spacing": "mt-8 mb-8"
+          }
+        },
+        "variant-picker": {
+          "type": "variant-picker",
+          "settings": {
+            "selector_style": "buttons",
+            "enable_dynamic_availability": true,
+            "dynamic_availability_downwards": false,
+            "show_backorder_text": true,
+            "enable_size_chart": false,
+            "size_chart_variant": "Size",
+            "size_chart_page": ""
+          }
+        },
+        "buy-buttons": {
+          "type": "buy-buttons",
+          "settings": {
+            "show_qty_selector": true,
+            "enable_dynamic_checkout": true,
+            "show_pickup_availability": true,
+            "show_gift_card_recipient": false
+          }
+        },
+        "message-1": {
+          "type": "message",
+          "disabled": true,
+          "settings": {
+            "icon": "clock",
+            "title": "<p><strong>Popular right now<br/></strong>Lots of people have looked at this recently</p>",
+            "close": "once",
+            "show_over_media": true,
+            "visibility_duration": 4,
+            "bg_color": "#e4edfa",
+            "text_color": "#1a66d2"
+          }
+        },
+        "description_VgtBRG": {
+          "type": "description",
+          "settings": {
+            "show_as_collapsible_content": true,
+            "icon": "none",
+            "open": false
+          }
+        },
+        "collapsible-content-2": {
+          "type": "collapsible-content",
+          "settings": {
+            "heading": "Delivery and Shipping",
+            "icon": "truck",
+            "text": "<p><strong>UK Stock Items:</strong> Orders for items held in UK stock are normally dispatched within 24 hours.</p><p><strong>Supplier Items:</strong> Items sourced from suppliers are usually dispatched within 5–10 working days once they arrive with us.</p><p><strong>Order Cut-Off:</strong> Orders placed before 2PM (Monday to Friday) are typically dispatched the same working day, subject to stock availability.</p><p><strong>International Delivery:</strong> We ship worldwide. Most international orders arrive within 7 working days from dispatch, though delivery times can vary depending on destination and customs processing.</p><p><strong>Courier Responsibility:</strong> Once an order has been dispatched, delivery timescales are determined by the courier. Tracking information will be provided where available.</p><p><strong>Customer Responsibility:</strong> Customers must ensure safe receipt of their order. Additional charges may apply if repeated delivery attempts fail due to no one being available, or if incorrect delivery information has been supplied.</p>",
+            "page": "",
+            "open": false
+          }
+        },
+        "message-2": {
+          "type": "message",
+          "disabled": true,
+          "settings": {
+            "icon": "price_tag",
+            "title": "<p><strong>Selling fast!<br/></strong>Grab yours while you can</p>",
+            "close": "once",
+            "show_over_media": true,
+            "visibility_duration": 5,
+            "bg_color": "#e4edfa",
+            "text_color": "#1a66d2"
+          }
+        },
+        "custom_liquid_iBr9UV": {
+          "type": "custom-liquid",
+          "settings": {
+            "custom_liquid": "<!-- Motorcycle Performance Store - Contact Buttons -->\n<div style=\"text-align: left; margin: 30px 0;\">\n\n  <p style=\"font-size: 18px; margin-bottom: 15px;\">\n    If you need expert advice or simply want to provide valuable feedback, message our team on WhatsApp or email. We're here to help:\n  </p>\n\n  <div style=\"display: flex; flex-wrap: wrap; gap: 15px;\">\n\n    <!-- WhatsApp Button -->\n    <a id=\"whatsapp-contact-button\"\n       href=\"https://api.whatsapp.com/send?phone=447483404279&text={{canonical_url}}%20Hi,%20I'm%20interested%20in%20this%20product%20from%20Motorcycle%20Performance%20Store.%20Can%20you%20help%20me%20with%20more%20details?\"\n       style=\"\n          display: inline-flex;\n          align-items: center;\n          gap: 10px;\n          background-color: #25D366;\n          color: white;\n          padding: 12px 24px;\n          border-radius: 50px;\n          font-size: 16px;\n          font-weight: bold;\n          text-decoration: none;\n          box-shadow: 0 4px 10px rgba(0,0,0,0.15);\n          transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;\n       \"\n       onmouseover=\"this.style.transform='scale(1.07)'; this.style.boxShadow='0 8px 20px rgba(37,211,102,0.5)'\"\n       onmouseout=\"this.style.transform='scale(1)'; this.style.boxShadow='0 4px 10px rgba(0,0,0,0.15)'\">\n\n      <img src=\"https://cdn-icons-png.flaticon.com/512/733/733585.png\"\n           alt=\"WhatsApp\"\n           width=\"20\"\n           height=\"20\"\n           style=\"display:inline;\">\n      WhatsApp\n    </a>\n\n    <!-- Email Button -->\n    <a id=\"email-contact-button\"\n       href=\"mailto:info@motorcycleperformancestore.co.uk\"\n       style=\"\n          display: inline-flex;\n          align-items: center;\n          gap: 10px;\n          background-color: #0073e6;\n          color: white;\n          padding: 12px 24px;\n          border-radius: 50px;\n          font-size: 16px;\n          font-weight: bold;\n          text-decoration: none;\n          box-shadow: 0 4px 10px rgba(0,0,0,0.15);\n          transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;\n       \"\n       onmouseover=\"this.style.transform='scale(1.07)'; this.style.boxShadow='0 8px 20px rgba(0,115,230,0.5)'\"\n       onmouseout=\"this.style.transform='scale(1)'; this.style.boxShadow='0 4px 10px rgba(0,0,0,0.15)'\">\n\n      <img src=\"https://cdn-icons-png.flaticon.com/512/732/732200.png\"\n           alt=\"Email\"\n           width=\"20\"\n           height=\"20\"\n           style=\"display:inline;\">\n      Email Us\n    </a>\n\n  </div>\n</div>\n\n<!-- GA4 Event Tracking Script -->\n<script>\n  document.addEventListener('DOMContentLoaded', function () {\n    const whatsappBtn = document.getElementById('whatsapp-contact-button');\n    const emailBtn = document.getElementById('email-contact-button');\n\n    if (whatsappBtn) {\n      whatsappBtn.addEventListener('click', function () {\n        if (typeof gtag === 'function') {\n          gtag('event', 'whatsapp_click', {\n            event_category: 'Product Page',\n            event_label: '{{ product.title | escape }} - ' + window.location.href\n          });\n        }\n      });\n    }\n\n    if (emailBtn) {\n      emailBtn.addEventListener('click', function () {\n        if (typeof gtag === 'function') {\n          gtag('event', 'email_click', {\n            event_category: 'Product Page',\n            event_label: '{{ product.title | escape }} - ' + window.location.href\n          });\n        }\n      });\n    }\n  });\n</script>"
+          }
+        },
+        "collapsible-content-1": {
+          "type": "collapsible-content",
+          "disabled": true,
+          "settings": {
+            "heading": "Care information",
+            "icon": "heart",
+            "text": "<p>Display general product information or specific product information using metafields.</p>",
+            "page": "",
+            "open": false
+          }
+        },
+        "message-3": {
+          "type": "message",
+          "disabled": true,
+          "settings": {
+            "icon": "none",
+            "title": "<p>Add a stand out message for your customers</p>",
+            "close": "once",
+            "show_over_media": false,
+            "visibility_duration": 7,
+            "bg_color": "#e4edfa",
+            "text_color": "#1a66d2"
+          }
+        }
+      },
+      "block_order": [
+        "judge_me_reviews_preview_badge_QNeikh",
+        "vendor-sku",
+        "product-labels",
+        "title",
+        "price",
+        "divider-0",
+        "variant-picker",
+        "buy-buttons",
+        "message-1",
+        "description_VgtBRG",
+        "collapsible-content-2",
+        "message-2",
+        "custom_liquid_iBr9UV",
+        "collapsible-content-1",
+        "message-3"
+      ],
+      "custom_css": [
+        "h1 {font-size: 28px !important; line-height: 1.2 !important;}",
+        "h2 {font-size: 24px !important; line-height: 1.25 !important;}",
+        "h3 {font-size: 20px !important; line-height: 1.3 !important;}"
+      ],
+      "settings": {
+        "stick_on_scroll": true,
+        "select_first_variant": true,
+        "sticky_atc_panel": true,
+        "sticky_atc_position": "end",
+        "sticky_atc_mobile": true,
+        "enable_bike_finder": true,
+        "bike_card_title_font_size": 20,
+        "bike_card_label_font_size": 12,
+        "bike_card_select_font_size": 14,
+        "bike_card_button_font_size": 14,
+        "bike_card_primary_color": "#a73e10",
+        "bike_card_primary_dark": "#ff580d",
+        "bike_card_bg_color": "#f9dacc",
+        "bike_card_text_color": "#1a1a1a",
+        "bike_card_border_color": "#ff580d",
+        "media_layout": "slider",
+        "media_size": "default",
+        "media_ratio": "1",
+        "media_crop": "none",
+        "enable_video_looping": false,
+        "enable_zoom": true,
+        "zoom_mode": "hover",
+        "enable_lightbox_mobile": false,
+        "hover_zoom": "large",
+        "stacked_scroll": "always",
+        "underline_active": true,
+        "media_arrows": "desktop",
+        "show_slide_count": true,
+        "media_thumbs": "desktop",
+        "lightbox_thumbnails": true,
+        "thumb_ratio": "1",
+        "thumb_crop": "none",
+        "border_color": "#eeeeee",
+        "bg_color": "#f4f4f4",
+        "enable_media_grouping": false,
+        "media_grouping_option": "Color,Colour,Couleur,Farbe"
+      }
+    },
+    "details": {
+      "type": "product-details",
+      "blocks": {
+        "tabs": {
+          "type": "tabs",
+          "disabled": true,
+          "settings": {
+            "style": "collapsible",
+            "open_first": true,
+            "show_description": true,
+            "show_reviews": false,
+            "custom_reviews": "",
+            "show_specification": false,
+            "spec_metafields": "",
+            "spec_right_align": false,
+            "spec_show_empty_metafields": true,
+            "spec_empty_field_text": "-",
+            "tab_1_title": "",
+            "tab_1_text": "",
+            "tab_1_page": "",
+            "tab_2_title": "",
+            "tab_2_text": "",
+            "tab_2_page": "",
+            "tab_3_title": "",
+            "tab_3_text": "",
+            "tab_3_page": ""
+          }
+        },
+        "payment-methods": {
+          "type": "payment-methods",
+          "settings": {
+            "title": "Payment & Security",
+            "title1": "Payment methods",
+            "show_payment_icons": true,
+            "text1": "<p>Your payment information is processed securely. We do not store credit card details nor have access to your credit card information.</p>",
+            "title2": "",
+            "text2": ""
+          }
+        }
+      },
+      "block_order": [
+        "tabs",
+        "payment-methods"
+      ],
+      "settings": {}
+    },
+    "media_with_text_D39JTJ": {
+      "type": "media-with-text",
+      "blocks": {
+        "heading_FFYHEF": {
+          "type": "heading",
+          "settings": {
+            "heading": "IXIL Motorcycle Exhausts",
+            "heading_size": "h0",
+            "heading_h1": true
+          }
+        },
+        "text_g7GtYE": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Your largest exhaust collection with 100+ options. IXIL Hexoval Xtrem, Hyperlow dual exit, and sport scooter silencers in inox and titanium. Complete with decat pipes and baffle replacements for Honda, Yamaha, Suzuki, Kawasaki, Triumph, BMW, Ducati, and KTM.</p>",
+            "enlarge_text": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_FFYHEF",
+        "text_g7GtYE"
+      ],
+      "name": "Media with text",
+      "settings": {
+        "image": "",
+        "video_external": "",
+        "video_description": "",
+        "video_autoplay": false,
+        "layout": "left",
+        "image_fit": "contain",
+        "media_width": 44,
+        "media_scale": 81,
+        "text_align": "text-start",
+        "color_scheme": "none",
+        "only_content_color_scheme": false
+      }
+    },
+    "media_with_text_HdRhCH": {
+      "type": "media-with-text",
+      "blocks": {
+        "heading_RqJNPp": {
+          "type": "heading",
+          "settings": {
+            "heading": "IXIL Motorcycle Exhausts",
+            "heading_size": "h0",
+            "heading_h1": true
+          }
+        },
+        "text_tHafYh": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Your largest exhaust collection with 100+ options. IXIL Hexoval Xtrem, Hyperlow dual exit, and sport scooter silencers in inox and titanium. Complete with decat pipes and baffle replacements for Honda, Yamaha, Suzuki, Kawasaki, Triumph, BMW, Ducati, and KTM.</p>",
+            "enlarge_text": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_RqJNPp",
+        "text_tHafYh"
+      ],
+      "name": "Media with text",
+      "settings": {
+        "image": "",
+        "video_external": "",
+        "video_description": "",
+        "video_autoplay": false,
+        "layout": "right",
+        "image_fit": "contain",
+        "media_width": 46,
+        "media_scale": 94,
+        "text_align": "text-start",
+        "color_scheme": "none",
+        "only_content_color_scheme": false
+      }
+    },
+    "media_with_text_eKzQKm": {
+      "type": "media-with-text",
+      "blocks": {
+        "heading_VpbyiK": {
+          "type": "heading",
+          "settings": {
+            "heading": "IXIL Motorcycle Exhausts",
+            "heading_size": "h0",
+            "heading_h1": true
+          }
+        },
+        "text_ktKPx6": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Your largest exhaust collection with 100+ options. IXIL Hexoval Xtrem, Hyperlow dual exit, and sport scooter silencers in inox and titanium. Complete with decat pipes and baffle replacements for Honda, Yamaha, Suzuki, Kawasaki, Triumph, BMW, Ducati, and KTM.</p>",
+            "enlarge_text": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_VpbyiK",
+        "text_ktKPx6"
+      ],
+      "name": "Media with text",
+      "settings": {
+        "image": "",
+        "video_external": "",
+        "video_description": "",
+        "video_autoplay": false,
+        "layout": "left",
+        "image_fit": "contain",
+        "media_width": 46,
+        "media_scale": 94,
+        "text_align": "text-start",
+        "color_scheme": "none",
+        "only_content_color_scheme": false
+      }
+    },
+    "media_with_text_pyjWfR": {
+      "type": "media-with-text",
+      "blocks": {
+        "heading_EaPRXe": {
+          "type": "heading",
+          "settings": {
+            "heading": "IXIL Motorcycle Exhausts",
+            "heading_size": "h0",
+            "heading_h1": true
+          }
+        },
+        "text_MmCwAp": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Your largest exhaust collection with 100+ options. IXIL Hexoval Xtrem, Hyperlow dual exit, and sport scooter silencers in inox and titanium. Complete with decat pipes and baffle replacements for Honda, Yamaha, Suzuki, Kawasaki, Triumph, BMW, Ducati, and KTM.</p>",
+            "enlarge_text": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_EaPRXe",
+        "text_MmCwAp"
+      ],
+      "name": "Media with text",
+      "settings": {
+        "image": "",
+        "video_external": "",
+        "video_description": "",
+        "video_autoplay": false,
+        "layout": "left",
+        "image_fit": "contain",
+        "media_width": 46,
+        "media_scale": 94,
+        "text_align": "text-start",
+        "color_scheme": "none",
+        "only_content_color_scheme": false
+      }
+    },
+    "media_with_text_MFF9V7": {
+      "type": "media-with-text",
+      "blocks": {
+        "heading_rn4tXU": {
+          "type": "heading",
+          "settings": {
+            "heading": "Buy Together",
+            "heading_size": "h0",
+            "heading_h1": true
+          }
+        },
+        "text_KWaHrw": {
+          "type": "text",
+          "settings": {
+            "text": "<p>DNA Air Filter Service Kit - £26.32</p>",
+            "enlarge_text": false
+          }
+        },
+        "button_3fJUqK": {
+          "type": "button",
+          "settings": {
+            "button_label": "Add to Cart",
+            "button_link": "shopify://collections/performance-air-filters",
+            "button_style": "btn btn--primary"
+          }
+        }
+      },
+      "block_order": [
+        "heading_rn4tXU",
+        "text_KWaHrw",
+        "button_3fJUqK"
+      ],
+      "disabled": true,
+      "name": "Media with text",
+      "settings": {
+        "image": "",
+        "video_external": "",
+        "video_description": "",
+        "video_autoplay": false,
+        "layout": "left",
+        "image_fit": "contain",
+        "media_width": 60,
+        "media_scale": 100,
+        "text_align": "text-start",
+        "color_scheme": "none",
+        "only_content_color_scheme": false
+      }
+    },
+    "faq_3wYWXg": {
+      "type": "faq",
+      "blocks": {
+        "category_JtniU7": {
+          "type": "category",
+          "disabled": true,
+          "settings": {
+            "text": "Shipping"
+          }
+        },
+        "question_G8ppUF": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "Does the DNA filter provide the same level of protection as the OEM filter?",
+            "text": "<p>DNA filters are designed to offer very high filtration without choking airflow. In independent testing, they achieve a minimum filtration rate of <strong>98%</strong>, which means fine dust and debris are effectively trapped before they can reach your engine.</p><p>To put that into context, most quality paper filters typically sit between 97–99%, while foam filters usually average somewhere between 92–97%. DNA filters strike a great balance — strong engine protection without sacrificing the performance you’d expect from an upgraded filter.</p>"
+          }
+        },
+        "question_qnLJjL": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "What is filtering efficiency?",
+            "text": "<p>Filtration efficiency simply means how much dirt a filter can stop before it reaches your engine. With DNA filters, the efficiency is typically <strong>98–99%</strong>, which means that for every 100 grams of dirt that enters the filter, around 98 to 99 grams are trapped before they can do any harm.</p><p>This doesn’t just apply to large particles either — DNA filters are designed to capture very fine dust too, including particles as small as <strong>5 microns</strong>. The result is better protection for your engine, even in dirty or dusty riding conditions.</p>"
+          }
+        },
+        "question_dQ6XgD": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "What is ISO 5011 filtering efficiency test?",
+            "text": "<p>This figure refers to how much dust the filter catches during independent laboratory testing, carried out in line with the ISO 5011 standard.</p><p>In simple terms, it shows how effective the filter is at stopping dirt and dust before it can reach your engine.</p>"
+          }
+        },
+        "question_Mn7DKG": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "How does DNA measure the airflow and why is this data useful for me, the end user?",
+            "text": "<p>DNA uses one of the most advanced computer-controlled Rotronics flow benches available to measure filter performance. The entire testing process is automated, which removes the risk of human error and keeps results consistent.</p><p>To make the comparison fair, DNA tests each filter back-to-back with the original equipment (OEM) filter from the bike, on the same day and under the same conditions. The results are published so you can clearly see the difference in airflow between the standard filter and the DNA upgrade — and know exactly what to expect when you fit one.</p>"
+          }
+        },
+        "question_XpRPcB": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "Other performance filter manufacturers, claim air flow data much higher than DNA for the same model, is it possible?",
+            "text": "<p>When conflicting performance claims appeared, DNA purchased competitor filters and tested them back-to-back against both stock OEM filters and DNA filters under identical pressure and conditions.</p><p>The results did not match the published claims. Although airflow was higher than the stock filter, it was significantly lower than DNA’s figures. This is why DNA always tests against the original equipment filter and publishes both results — so customers can see a fair, like-for-like comparison.</p><p>Airflow testing must be done side by side under the same conditions to be meaningful. Testing at different times or pressures produces misleading figures, which is why DNA only presents data measured on the same equipment, on the same day.</p>"
+          }
+        },
+        "question_DrLV8T": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "Can I change my OEM filter with a DNA without changing fuelling?",
+            "text": "<p>In cases like this, where airflow through a DNA filter is especially high, clear fitting and maintenance instructions are included in the box. This ensures the filter performs exactly as intended and helps protect your engine under all riding conditions.</p>"
+          }
+        },
+        "question_LtyUaT": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "I have heard that only the foam filters are good for Off-Road use and not the cotton ones. Can I use the DNA filter for Off-Road use?",
+            "text": "<p>DNA has developed a specialist filter material that works exceptionally well in harsh, off-road conditions. A good example comes from the Dakar Rally in 2011, one of the toughest endurance events in the world.</p><p>One of the factory Aprilia 450 Rally bikes ran a DNA filter, while other team bikes used traditional foam filters. At the end of each day, the filters were checked and compared. The DNA-equipped bike showed no signs of dust passing through, and the engine remained in excellent condition. In contrast, the foam filters had already required replacement — often two or three per day.</p><p>What stood out even more was that the DNA filter lasted the entire day, while the foam setups needed frequent changes. This real-world test highlighted just how durable and effective DNA’s filter design can be when riding in extreme environments.</p>"
+          }
+        },
+        "question_kfJpBi": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "Can I use the DNA filter un-oiled? Must I always apply oil after cleaning it?",
+            "text": "<p>A DNA filter must <strong>never</strong> be used dry. The filter oil is a vital part of how the filter works, as it helps trap fine dust and dirt before it reaches your engine.</p><p>After cleaning, you should always apply the official DNA filter oil — not just any oil. Using the correct oil ensures the filter performs properly and continues to protect your engine as designed.</p><p>Ignoring this step can reduce filtering performance and increase the risk of dirt entering the engine.</p>"
+          }
+        },
+        "question_ANYdz6": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "I have seen, in many other cotton filters, the rubber material the filter is made of, has leaked all over the filtering media severely reducing the filtering area. Can this happen to the DNA filters?",
+            "text": "<p>DNA uses a specialist <strong>thixotropic polyurethane</strong> when producing round filters. This material is designed not to run or spread into the filter fibres, so the active filtering area is not reduced over time.</p><p>For panel filters, DNA allows a tightly controlled seal tolerance of just <strong>3–5 mm</strong>, which is far smaller than the uneven gaps commonly seen in other filters. This ensures a consistent seal while maintaining performance.</p><p>DNA’s <strong>FCd (Full Contour design)</strong> is a key innovation. It allows the pleated filter material to follow the exact shape of the airbox, no matter how complex the design. By using the full available footprint, DNA removes “dead areas” where air movement is restricted and performance is lost.</p><p>The result is a much larger working filter surface — typically at least <strong>20% more</strong>, and in some cases up to <strong>80% more filtration area</strong> compared to conventional designs. More usable surface area means better airflow and more consistent filtration.</p>"
+          }
+        },
+        "question_MLjTkh": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "I have a race bike. Do I need to use a filter and if yes why DNA?",
+            "text": "<p>Race engines live a hard life and need proper protection. On track, engines are exposed to dust, debris, rubber thrown up by other bikes and even insects — all of which can cause serious damage if they get inside the intake.</p><p>DNA filters are designed to deliver high airflow <strong>without sacrificing protection</strong>. Rather than increasing flow by thinning the filter or reducing filtration, DNA uses its FCd design to improve airflow while keeping its proven four-layer filter construction intact.</p><p>The result is a filter that offers excellent engine protection alongside strong airflow. With filtration efficiency rated at up to <strong>98%</strong>, DNA filters are built for riders who want dependable performance in demanding conditions.</p>"
+          }
+        },
+        "question_PU4yrk": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "What is DNA FCd design?",
+            "text": "<p>DNA’s FCd design allows the filter material to follow the exact shape of the airbox, even when the airbox has a complex layout. Instead of forcing the filter into a flat shape, the pleated fabric is formed to use the full available space inside the intake.</p><p>By covering the complete footprint of the airbox, “dead areas” where airflow is restricted are removed. This improves airflow while ensuring the entire surface of the filter is working effectively.</p><p>In real terms, this design typically provides at least <strong>20% more usable filter area</strong>, and in some cases up to <strong>80% more</strong>, compared with conventional flat filter designs.</p>"
+          }
+        },
+        "question_QXQXJP": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "How often do I have to clean my DNA filter?",
+            "text": "<p>How often you clean your DNA filter depends on where and how you ride. For normal road use, servicing is usually recommended <strong>once a year</strong> or every <strong>15,000–30,000 km</strong> to keep the filter performing properly.</p><p>A simple way to check is to look at the wire mesh on the dirty side of the filter.<br/><br/>If you can still see the mesh, the filter is fine to keep using.<br/><br/>If the mesh is completely covered in dirt and debris, it’s time to clean the filter.</p><p>Riders who spend time on dusty roads, off-road or in heavy traffic may need to clean the filter more often.</p>"
+          }
+        },
+        "question_FbLdA3": {
+          "type": "question",
+          "settings": {
+            "icon": "none",
+            "heading": "Can I use gasoline, thinners or compressed air to clean my DNA filter?",
+            "text": "<p>Your DNA filter should be treated like a delicate fabric, not a rough workshop part. Think of it like caring for an expensive garment — you wouldn’t throw it around or use harsh cleaners, and the same care applies here.</p><p>Every DNA filter and service kit comes with clear, step-by-step cleaning instructions. Follow them closely and you’ll find the process is straightforward and easy to do at home.</p><p>Looking after the filter properly helps it last longer and perform as it should.</p>"
+          }
+        },
+        "category_GhBdM4": {
+          "type": "category",
+          "disabled": true,
+          "settings": {
+            "text": "Returns and Refunds"
+          }
+        }
+      },
+      "block_order": [
+        "category_JtniU7",
+        "question_G8ppUF",
+        "question_qnLJjL",
+        "question_dQ6XgD",
+        "question_Mn7DKG",
+        "question_XpRPcB",
+        "question_DrLV8T",
+        "question_LtyUaT",
+        "question_kfJpBi",
+        "question_ANYdz6",
+        "question_MLjTkh",
+        "question_PU4yrk",
+        "question_QXQXJP",
+        "question_FbLdA3",
+        "category_GhBdM4"
+      ],
+      "disabled": true,
+      "custom_css": [
+        "h2 {margin-top: 40px;}"
+      ],
+      "name": "Collapsible content",
+      "settings": {
+        "heading": "FAQs About IXIL Motorcycle Exhausts",
+        "heading_align": "text-center",
+        "color_scheme": "1",
+        "full_width": true
+      }
+    },
+    "video_pqKLhC": {
+      "type": "video",
+      "name": "Video",
+      "settings": {
+        "video_external": "",
+        "video_description": "IXIL Motorcycle Exhausts video coming soon.",
+        "video_size": "lg",
+        "video_autoplay": true,
+        "text_align": "text-center",
+        "color_scheme": "2"
+      }
+    },
+    "blocks_kUAKPQ": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_8274a68_3BbYar": {
+          "type": "ai_gen_block_8274a68",
+          "settings": {
+            "heading": "What Our Customers Say",
+            "blog": "testimonials",
+            "articles_to_show": 6,
+            "show_title": true,
+            "show_rating": true,
+            "rating_value": 5,
+            "show_excerpt": true,
+            "excerpt_length": 150,
+            "columns_desktop": 3,
+            "columns_tablet": 2,
+            "columns_mobile": "1",
+            "container_width": 1800,
+            "heading_alignment": "center",
+            "card_width": 320,
+            "card_background": "#ffffff",
+            "card_border_radius": 12,
+            "card_padding": 20,
+            "card_spacing": 24,
+            "show_card_shadow": true,
+            "show_card_border": false,
+            "card_border_color": "#e5e5e5",
+            "enable_hover_effect": true,
+            "enable_scroll_animation": true,
+            "animation_duration": 30,
+            "image_aspect_ratio": "1 / 1",
+            "image_border_radius": 8,
+            "heading_size": 36,
+            "heading_spacing": 40,
+            "title_size": 20,
+            "excerpt_size": 15,
+            "content_spacing": 16,
+            "text_spacing": 12,
+            "background_color": "#f8fafb",
+            "heading_color": "#111111",
+            "title_color": "#111111",
+            "excerpt_color": "#666666",
+            "section_padding_top": 60,
+            "section_padding_bottom": 60
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_8274a68_3BbYar"
+      ],
+      "name": "Blog testimonials",
+      "settings": {}
+    },
+    "1763904119f7f5ad2a": {
+      "type": "apps",
+      "blocks": {
+        "judge_me_reviews_featured_carousel_MPJ4ik": {
+          "type": "shopify://apps/judge-me-reviews/blocks/featured_carousel/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+          "settings": {
+            "maxwidth": 1080
+          }
+        }
+      },
+      "block_order": [
+        "judge_me_reviews_featured_carousel_MPJ4ik"
+      ],
+      "disabled": true,
+      "settings": {
+        "full_width": false,
+        "show_space": true
+      }
+    },
+    "product-features": {
+      "type": "product-features",
+      "blocks": {
+        "product-features-feature-0": {
+          "type": "feature",
+          "settings": {
+            "heading": "Feature name",
+            "text": "<p>Add some text describing the product feature.</p>",
+            "content_align": "text-start",
+            "hotspot_x": 28,
+            "hotspot_y": 38
+          }
+        },
+        "product-features-feature-1": {
+          "type": "feature",
+          "settings": {
+            "heading": "Feature name",
+            "text": "<p>Add some text describing the product feature.</p>",
+            "content_align": "text-start",
+            "hotspot_x": 60,
+            "hotspot_y": 29
+          }
+        },
+        "product-features-feature-2": {
+          "type": "feature",
+          "settings": {
+            "heading": "Feature name",
+            "text": "<p>Add some text describing the product feature.</p>",
+            "content_align": "text-start",
+            "hotspot_x": 73,
+            "hotspot_y": 54
+          }
+        },
+        "product-features-feature-3": {
+          "type": "feature",
+          "settings": {
+            "heading": "Feature name",
+            "text": "<p>Add some text describing the product feature.</p>",
+            "content_align": "text-start",
+            "hotspot_x": 50,
+            "hotspot_y": 66
+          }
+        }
+      },
+      "block_order": [
+        "product-features-feature-0",
+        "product-features-feature-1",
+        "product-features-feature-2",
+        "product-features-feature-3"
+      ],
+      "disabled": true,
+      "settings": {
+        "product": "",
+        "show_content": true,
+        "layout": "text_first",
+        "text_align": "text-center",
+        "mob_center_text": false,
+        "heading_size": "h1",
+        "enlarge_text": false,
+        "title": "Product features",
+        "description": "<p>Use this section to highlight specific product features to your customers.</p>",
+        "button_label": "",
+        "button_link": "",
+        "hotspot_color": "#070707",
+        "color_scheme": "none",
+        "button_style": "btn btn--primary"
+      }
+    },
+    "product-comparison-grid": {
+      "type": "product-comparison-grid",
+      "blocks": {
+        "comparison-product-1": {
+          "type": "product",
+          "settings": {
+            "show_image": true,
+            "show_title": true,
+            "show_button": true
+          }
+        },
+        "comparison-vendor-2": {
+          "type": "vendor",
+          "settings": {}
+        },
+        "comparison-price-3": {
+          "type": "price",
+          "settings": {}
+        },
+        "comparison-description-4": {
+          "type": "description",
+          "settings": {
+            "truncate_description": false,
+            "words_to_show": 20
+          }
+        }
+      },
+      "block_order": [
+        "comparison-product-1",
+        "comparison-vendor-2",
+        "comparison-price-3",
+        "comparison-description-4"
+      ],
+      "disabled": true,
+      "settings": {
+        "heading": "Product comparison grid",
+        "text": "<p>Add content here to explain a bit about the range of products on offer and which ones may be most suitable for your customers.</p>",
+        "heading_align": "text-center",
+        "view_more_label": "View more",
+        "view_more_link": "",
+        "product_list": [],
+        "empty_field_text": "-",
+        "image_ratio": "shortest",
+        "image_crop": "center",
+        "num_rows": 0,
+        "color_scheme": "none",
+        "highlight_row": false
+      }
+    },
+    "recommendations": {
+      "type": "product-recommendations",
+      "settings": {
+        "heading": "You may also like",
+        "heading_align": "text-center",
+        "layout": "carousel",
+        "card_size_mobile": "large",
+        "card_size": "small",
+        "products_to_show": 8
+      }
+    },
+    "icons_with_text_R9ipfR": {
+      "type": "icons-with-text",
+      "blocks": {
+        "item_Qg8R43": {
+          "type": "item",
+          "settings": {
+            "icon": "star",
+            "heading": "Look",
+            "text": "<p>Your bike should look the way you feel as a rider. Whether you choose the right screen, levers, huggers or footpegs, the bike begins to reflect your own personality the way you like things to look, the pride you take in your machine, and the image you carry on the road. Cleaner lines, a shape that suits your taste, and a stance that matches the way you see yourself as a biker.<br/><br/></p>",
+            "link": ""
+          }
+        },
+        "item_WLGqm8": {
+          "type": "item",
+          "settings": {
+            "icon": "star",
+            "heading": "Sound",
+            "text": "<p>The sound is the essence of your bike — and how it makes you feel when you ride it. The right silencer doesn’t just change the noise; it gives the bike a voice that matches its owners character. That deeper tone, the smoother pulse, the way it settles into a rhythm when you roll off… it all adds to the connection you feel with the machine.<br/><br/></p>",
+            "link": ""
+          }
+        },
+        "item_nnTeGa": {
+          "type": "item",
+          "settings": {
+            "icon": "star",
+            "heading": "Perform",
+            "text": "<p>Performance is that feeling of being at one with your bike the moment you open the throttle. The last purchase made that connection sharper — cleaner pull, quicker reaction and a more willing surge as the revs build. It’s the confidence you feel when the bike flows with you through the S-bends, matching every input and settling exactly where you want it. <br/><br/></p>",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "item_Qg8R43",
+        "item_WLGqm8",
+        "item_nnTeGa"
+      ],
+      "name": "Icons with text",
+      "settings": {
+        "heading": "",
+        "heading_align": "text-center",
+        "icon_size": 24,
+        "title_type_scale": "large",
+        "text_type_scale": "medium",
+        "icon_position": "above",
+        "mobile_stack": false,
+        "section_height": "xsmall",
+        "color_scheme": "1",
+        "full_width": true,
+        "dividers": "border-top border-bottom",
+        "prevent_animation": true
+      }
+    }
+  },
+  "order": [
+    "1764346925868b36bf",
+    "main",
+    "details",
+    "media_with_text_D39JTJ",
+    "media_with_text_HdRhCH",
+    "media_with_text_eKzQKm",
+    "media_with_text_pyjWfR",
+    "media_with_text_MFF9V7",
+    "faq_3wYWXg",
+    "video_pqKLhC",
+    "blocks_kUAKPQ",
+    "1763904119f7f5ad2a",
+    "product-features",
+    "product-comparison-grid",
+    "recommendations",
+    "icons_with_text_R9ipfR"
+  ]
+}

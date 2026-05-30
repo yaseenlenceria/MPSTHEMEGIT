@@ -1,0 +1,324 @@
+{%- comment -%}
+  Dynamic YMM Landing Header Snippet
+  Renders YMM landing page details from the matching Bike Data Metaobject.
+{%- endcomment -%}
+
+<div class="ymm-landing-header container section" id="ymm-landing-{{ bike_handle }}">
+  
+  {%- if bike_metaobject.banner_image.value != blank -%}
+    <div class="ymm-banner-wrapper">
+      <img class="ymm-banner-image" 
+           src="{{ bike_metaobject.banner_image.value | image_url: width: 1400 }}" 
+           alt="{{ bike_make }} {{ bike_model }} ({{ bike_year }}) Parts" 
+           loading="eager" 
+           width="1400" 
+           height="450">
+      <div class="ymm-banner-overlay">
+        <div class="ymm-banner-text-box">
+          <h1 class="ymm-page-title">{{ bike_make }} {{ bike_model }} ({{ bike_year }}) Parts</h1>
+          <p class="ymm-page-subtitle">Premium accessories & performance parts compatibility confirmed</p>
+        </div>
+      </div>
+    </div>
+  {%- else -%}
+    <div class="ymm-no-banner-header">
+      <h1 class="ymm-page-title no-banner">{{ bike_make }} {{ bike_model }} ({{ bike_year }}) Parts</h1>
+    </div>
+  {%- endif -%}
+
+  <div class="ymm-content-grid">
+    {%- if bike_metaobject.description.value != blank -%}
+      <div class="ymm-description-card rte">
+        <h2 class="ymm-section-heading">Model Information</h2>
+        {{ bike_metaobject.description.value }}
+      </div>
+    {%- endif -%}
+
+    <!-- Compatible Collections / Category Shortcuts -->
+    {%- if bike_metaobject.compatible_collections.value != blank -%}
+      <div class="ymm-categories-card">
+        <h2 class="ymm-section-heading">Browse Categories</h2>
+        <div class="ymm-categories-list">
+          {%- for category in bike_metaobject.compatible_collections.value -%}
+            <a href="{{ category.url }}/{{ bike_make | handle }}-{{ bike_model | handle }}-{{ bike_year }}" class="ymm-cat-link">
+              {%- if category.featured_image != blank -%}
+                <img src="{{ category.featured_image | image_url: width: 60, height: 60, crop: 'center' }}" alt="{{ category.title }}" width="60" height="60" loading="lazy">
+              {%- endif -%}
+              <span class="ymm-cat-title">{{ category.title }}</span>
+            </a>
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+
+  <!-- Featured Top Picks / Products -->
+  {%- if bike_metaobject.featured_products.value != blank -%}
+    <div class="ymm-featured-products-section">
+      <h2 class="ymm-section-heading">Top Compatibility Picks</h2>
+      <div class="ymm-products-grid">
+        {%- for f_product in bike_metaobject.featured_products.value -%}
+          <div class="ymm-product-card">
+            <a href="{{ f_product.url }}" class="ymm-product-image-link">
+              {%- if f_product.featured_media != blank -%}
+                <img src="{{ f_product.featured_media | image_url: width: 240, height: 240, crop: 'center' }}" alt="{{ f_product.title }}" width="240" height="240" loading="lazy">
+              {%- else -%}
+                {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+              {%- endif -%}
+            </a>
+            <div class="ymm-product-meta">
+              <span class="ymm-product-vendor">{{ f_product.vendor }}</span>
+              <a href="{{ f_product.url }}" class="ymm-product-title">{{ f_product.title }}</a>
+              <div class="ymm-product-price">
+                {{ f_product.price | money }}
+              </div>
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- endif -%}
+
+</div>
+
+<style>
+  .ymm-landing-header {
+    margin-bottom: 2.5rem;
+    font-family: var(--font-body-family, 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  }
+
+  .ymm-banner-wrapper {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    aspect-ratio: 16/5;
+  }
+
+  @media (max-width: 768px) {
+    .ymm-banner-wrapper {
+      aspect-ratio: 16/9;
+    }
+  }
+
+  .ymm-banner-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .ymm-banner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%);
+    display: flex;
+    align-items: flex-end;
+    padding: 2.5rem;
+  }
+
+  @media (max-width: 576px) {
+    .ymm-banner-overlay {
+      padding: 1.25rem;
+    }
+  }
+
+  .ymm-banner-text-box {
+    color: white;
+  }
+
+  .ymm-page-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 0 0 0.5rem 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    font-family: var(--font-heading-family, 'Outfit', sans-serif);
+    text-transform: uppercase;
+  }
+
+  .ymm-page-title.no-banner {
+    font-size: 2rem;
+    color: #1a1a1a;
+    border-bottom: 3px solid #ff9f1c;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .ymm-page-subtitle {
+    font-size: 1.1rem;
+    margin: 0;
+    opacity: 0.95;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+
+  @media (max-width: 576px) {
+    .ymm-page-title { font-size: 1.75rem; }
+    .ymm-page-subtitle { font-size: 0.9rem; }
+  }
+
+  .ymm-content-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+  }
+
+  @media (max-width: 992px) {
+    .ymm-content-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .ymm-section-heading {
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0;
+    margin-bottom: 1.25rem;
+    color: #1a1a1a;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 0.5rem;
+  }
+
+  .ymm-description-card {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  }
+
+  .ymm-categories-card {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  }
+
+  .ymm-categories-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .ymm-cat-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #495057;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .ymm-cat-link:hover {
+    border-color: #ff9f1c;
+    background: rgba(255, 159, 28, 0.02);
+    color: #ff9f1c;
+  }
+
+  .ymm-cat-link img {
+    border-radius: 6px;
+    object-fit: cover;
+    background: #f8f9fa;
+  }
+
+  /* Product Picks Grid */
+  .ymm-products-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 992px) {
+    .ymm-products-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 576px) {
+    .ymm-products-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .ymm-product-card {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    transition: all 0.2s ease;
+  }
+
+  .ymm-product-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    border-color: #ff9f1c;
+  }
+
+  .ymm-product-image-link {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1/1;
+    overflow: hidden;
+    background: #f8f9fa;
+  }
+
+  .ymm-product-image-link img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ymm-product-meta {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .ymm-product-vendor {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #868e96;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .ymm-product-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: #343a40;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .ymm-product-title:hover {
+    color: #ff9f1c;
+  }
+
+  .ymm-product-price {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #ff9f1c;
+    margin-top: auto;
+  }
+</style>

@@ -1,0 +1,493 @@
+{% doc %}
+  @prompt
+    Make seo optomized H1 section for SEO 
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-seo-h1-section-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+    padding: {{ block.settings.padding_top }}px {{ block.settings.padding_horizontal }}px {{ block.settings.padding_bottom }}px;
+    background-color: {{ block.settings.background_color }};
+    text-align: {{ block.settings.text_alignment }};
+  }
+
+  @media screen and (min-width: 750px) {
+    .ai-seo-h1-section-{{ ai_gen_id }} {
+      width: {{ block.settings.desktop_width_percent }}%;
+      margin: 0 auto;
+    }
+  }
+
+  .ai-seo-h1-container-{{ ai_gen_id }} {
+    max-width: {{ block.settings.max_content_width }}px;
+    margin: 0 auto;
+  }
+
+  .ai-seo-h1-eyebrow-{{ ai_gen_id }} {
+    font-size: {{ block.settings.eyebrow_size }}px;
+    color: {{ block.settings.eyebrow_color }};
+    margin-bottom: {{ block.settings.eyebrow_spacing }}px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    {% if block.settings.eyebrow_uppercase %}
+      text-transform: uppercase;
+    {% endif %}
+  }
+
+  .ai-seo-h1-heading-{{ ai_gen_id }} {
+    font-size: {{ block.settings.heading_size_mobile }}px;
+    color: {{ block.settings.heading_color }};
+    margin: 0 0 {{ block.settings.heading_spacing }}px;
+    line-height: 1.2;
+    font-weight: 700;
+    font-family: {{ block.settings.heading_font.family }}, {{ block.settings.heading_font.fallback_families }};
+    font-style: {{ block.settings.heading_font.style }};
+    font-weight: {{ block.settings.heading_font.weight }};
+  }
+
+  @media screen and (min-width: 750px) {
+    .ai-seo-h1-heading-{{ ai_gen_id }} {
+      font-size: {{ block.settings.heading_size_desktop }}px;
+    }
+  }
+
+  .ai-seo-h1-subheading-{{ ai_gen_id }} {
+    font-size: {{ block.settings.subheading_size }}px;
+    color: {{ block.settings.subheading_color }};
+    margin: 0 0 {{ block.settings.subheading_spacing }}px;
+    line-height: 1.6;
+    max-width: {{ block.settings.subheading_max_width }}px;
+    {% if block.settings.text_alignment == 'center' %}
+      margin-left: auto;
+      margin-right: auto;
+    {% elsif block.settings.text_alignment == 'right' %}
+      margin-left: auto;
+    {% endif %}
+  }
+
+  .ai-seo-h1-breadcrumb-{{ ai_gen_id }} {
+    font-size: {{ block.settings.breadcrumb_size }}px;
+    color: {{ block.settings.breadcrumb_color }};
+    margin-bottom: {{ block.settings.breadcrumb_spacing }}px;
+  }
+
+  .ai-seo-h1-breadcrumb-{{ ai_gen_id }} a {
+    color: {{ block.settings.breadcrumb_link_color }};
+    text-decoration: none;
+  }
+
+  .ai-seo-h1-breadcrumb-{{ ai_gen_id }} a:hover {
+    text-decoration: underline;
+  }
+
+  .ai-seo-h1-breadcrumb-{{ ai_gen_id }} span {
+    margin: 0 8px;
+    opacity: 0.5;
+  }
+
+  .ai-seo-h1-schema-{{ ai_gen_id }} {
+    display: none;
+  }
+{% endstyle %}
+
+<seo-h1-section-{{ ai_gen_id }}
+  class="ai-seo-h1-section-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-seo-h1-container-{{ ai_gen_id }}">
+    {% if block.settings.show_breadcrumb %}
+      <nav class="ai-seo-h1-breadcrumb-{{ ai_gen_id }}" aria-label="Breadcrumb">
+        {% if block.settings.breadcrumb_home_text != blank %}
+          <a href="/">{{ block.settings.breadcrumb_home_text }}</a>
+          <span>›</span>
+        {% endif %}
+        {% if block.settings.breadcrumb_parent_text != blank and block.settings.breadcrumb_parent_url != blank %}
+          <a href="{{ block.settings.breadcrumb_parent_url }}">{{ block.settings.breadcrumb_parent_text }}</a>
+          <span>›</span>
+        {% endif %}
+        {% if block.settings.breadcrumb_current_text != blank %}
+          <span>{{ block.settings.breadcrumb_current_text }}</span>
+        {% endif %}
+      </nav>
+    {% endif %}
+
+    {% if block.settings.eyebrow_text != blank %}
+      <div class="ai-seo-h1-eyebrow-{{ ai_gen_id }}">
+        {{ block.settings.eyebrow_text }}
+      </div>
+    {% endif %}
+
+    {% if block.settings.heading_text != blank %}
+      <h1 class="ai-seo-h1-heading-{{ ai_gen_id }}">
+        {{ block.settings.heading_text }}
+      </h1>
+    {% else %}
+      <h1 class="ai-seo-h1-heading-{{ ai_gen_id }}">
+        {% if collection %}
+          {{ collection.title }}
+        {% elsif product %}
+          {{ product.title }}
+        {% elsif page %}
+          {{ page.title }}
+        {% elsif blog %}
+          {{ blog.title }}
+        {% elsif article %}
+          {{ article.title }}
+        {% else %}
+          {{ page_title }}
+        {% endif %}
+      </h1>
+    {% endif %}
+
+    {% if block.settings.subheading_text != blank %}
+      <div class="ai-seo-h1-subheading-{{ ai_gen_id }}">
+        {{ block.settings.subheading_text }}
+      </div>
+    {% endif %}
+
+    {% if block.settings.enable_schema %}
+      <script type="application/ld+json" class="ai-seo-h1-schema-{{ ai_gen_id }}">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "{{ block.settings.heading_text | default: page_title | escape }}",
+        "description": "{{ block.settings.subheading_text | strip_html | escape }}",
+        "url": "{{ canonical_url }}"
+      }
+      </script>
+    {% endif %}
+  </div>
+</seo-h1-section-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class SeoH1Section{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.checkH1Uniqueness();
+      }
+
+      checkH1Uniqueness() {
+        const h1Elements = document.querySelectorAll('h1');
+        if (h1Elements.length > 1) {
+          console.warn('Multiple H1 tags detected on page. For optimal SEO, ensure only one H1 tag exists per page.');
+        }
+      }
+    }
+
+    customElements.define('seo-h1-section-{{ ai_gen_id }}', SeoH1Section{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "SEO H1 heading",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "heading_text",
+      "label": "H1 heading text",
+      "info": "Leave blank to use the page title automatically"
+    },
+    {
+      "type": "font_picker",
+      "id": "heading_font",
+      "label": "Heading font",
+      "default": "dm_sans_n7"
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "min": 20,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile size",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "heading_size_desktop",
+      "min": 24,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop size",
+      "default": 48
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Color",
+      "default": "#2a2b2a"
+    },
+    {
+      "type": "range",
+      "id": "heading_spacing",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Bottom spacing",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Eyebrow text"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow_text",
+      "label": "Eyebrow text",
+      "info": "Small text above the heading"
+    },
+    {
+      "type": "range",
+      "id": "eyebrow_size",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Size",
+      "default": 14
+    },
+    {
+      "type": "color",
+      "id": "eyebrow_color",
+      "label": "Color",
+      "default": "#ff580d"
+    },
+    {
+      "type": "checkbox",
+      "id": "eyebrow_uppercase",
+      "label": "Uppercase",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "eyebrow_spacing",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Bottom spacing",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Subheading"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading_text",
+      "label": "Subheading text",
+      "info": "Descriptive text below the heading"
+    },
+    {
+      "type": "range",
+      "id": "subheading_size",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "label": "Size",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Color",
+      "default": "#2a2b2a"
+    },
+    {
+      "type": "range",
+      "id": "subheading_max_width",
+      "min": 400,
+      "max": 1000,
+      "step": 50,
+      "unit": "px",
+      "label": "Maximum width",
+      "default": 700
+    },
+    {
+      "type": "range",
+      "id": "subheading_spacing",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Bottom spacing",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Breadcrumb"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumb",
+      "label": "Show breadcrumb",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "breadcrumb_home_text",
+      "label": "Home text",
+      "default": "Home"
+    },
+    {
+      "type": "text",
+      "id": "breadcrumb_parent_text",
+      "label": "Parent page text"
+    },
+    {
+      "type": "url",
+      "id": "breadcrumb_parent_url",
+      "label": "Parent page URL"
+    },
+    {
+      "type": "text",
+      "id": "breadcrumb_current_text",
+      "label": "Current page text"
+    },
+    {
+      "type": "range",
+      "id": "breadcrumb_size",
+      "min": 10,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Size",
+      "default": 14
+    },
+    {
+      "type": "color",
+      "id": "breadcrumb_color",
+      "label": "Text color",
+      "default": "#2a2b2a"
+    },
+    {
+      "type": "color",
+      "id": "breadcrumb_link_color",
+      "label": "Link color",
+      "default": "#ff580d"
+    },
+    {
+      "type": "range",
+      "id": "breadcrumb_spacing",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Bottom spacing",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "max_content_width",
+      "min": 600,
+      "max": 1400,
+      "step": 50,
+      "unit": "px",
+      "label": "Maximum content width",
+      "default": 1000
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal",
+      "min": 0,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "label": "Horizontal padding",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "SEO"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_schema",
+      "label": "Enable schema markup",
+      "info": "Adds structured data for search engines",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "SEO H1 heading"
+    }
+  ]
+}
+{% endschema %}

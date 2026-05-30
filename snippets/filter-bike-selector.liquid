@@ -1,0 +1,556 @@
+{%- comment -%}
+  Bike selector for filter sidebar - responsive (horizontal mobile, vertical desktop)
+  Parameters from section settings:
+  - card_title_font_size
+  - card_label_font_size
+  - card_select_font_size
+  - card_button_font_size
+  - card_primary_color
+  - card_primary_dark
+  - card_bg_color
+  - card_text_color
+  - card_border_color
+{%- endcomment -%}
+
+{%- assign component = 'filter-bike-selector' -%}
+{%- assign form_id = 'vehicle-search-filter' -%}
+{%- assign make_id = 'vehicle-make-filter' -%}
+{%- assign model_id = 'vehicle-model-filter' -%}
+{%- assign year_id = 'vehicle-year-filter' -%}
+{%- assign button_id = 'vehicle-button-filter' -%}
+
+{%- assign title_size = section.settings.bike_card_title_font_size | default: 24 -%}
+{%- assign label_size = section.settings.bike_card_label_font_size | default: 13 -%}
+{%- assign select_size = section.settings.bike_card_select_font_size | default: 16 -%}
+{%- assign button_size = section.settings.bike_card_button_font_size | default: 16 -%}
+{%- assign primary = section.settings.bike_card_primary_color | default: '#FF9F1C' -%}
+{%- assign primary_dark = section.settings.bike_card_primary_dark | default: '#B40C1C' -%}
+{%- assign bg = section.settings.bike_card_bg_color | default: '#FFFFFF' -%}
+{%- assign text = section.settings.bike_card_text_color | default: '#1A1A1A' -%}
+{%- assign border = section.settings.bike_card_border_color | default: '#E5E7EB' -%}
+
+{%- render 'all-bikes' -%}
+
+<div class="filter-bike-selector" id="{{ form_id }}">
+  <div class="filter-bike-selector__header">
+    <svg class="filter-bike-selector__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M5 17h14v-5l-1.5-1.5L16 9h-4.5L10 10.5 8.5 12H5v5z"/>
+      <circle cx="7" cy="17" r="2"/>
+      <circle cx="17" cy="17" r="2"/>
+    </svg>
+    <h3 class="filter-bike-selector__heading">Find Parts</h3>
+  </div>
+
+  <div class="filter-bike-selector__form">
+    <div class="filter-bike-selector__field">
+      <label class="filter-bike-selector__label" for="{{ make_id }}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M5 20v-2a7 7 0 0114 0v2"/>
+        </svg>
+        Make
+      </label>
+      <select id="{{ make_id }}" class="filter-bike-selector__select" aria-label="Select Vehicle Make">
+        <option value="">Choose...</option>
+      </select>
+    </div>
+
+    <div class="filter-bike-selector__field">
+      <label class="filter-bike-selector__label" for="{{ model_id }}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <path d="M9 3v18M15 3v18"/>
+        </svg>
+        Model
+      </label>
+      <select id="{{ model_id }}" class="filter-bike-selector__select" aria-label="Select Vehicle Model" disabled>
+        <option value="">Choose...</option>
+      </select>
+    </div>
+
+    <div class="filter-bike-selector__field">
+      <label class="filter-bike-selector__label" for="{{ year_id }}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <path d="M16 2v4M8 2v4M3 10h18"/>
+        </svg>
+        Year
+      </label>
+      <select id="{{ year_id }}" class="filter-bike-selector__select" aria-label="Select Vehicle Year" disabled>
+        <option value="">Choose...</option>
+      </select>
+    </div>
+
+    <button class="filter-bike-selector__submit" id="{{ button_id }}" type="button" disabled>
+      <span>Find Parts</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<style>
+  .filter-bike-selector {
+    --bike-primary: {{ primary }};
+    --bike-primary-dark: {{ primary_dark }};
+    --bike-bg: {{ bg }};
+    --bike-text: {{ text }};
+    --bike-border: {{ border }};
+
+    background: var(--bike-bg);
+    border: 1px solid var(--bike-border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+  }
+
+  .filter-bike-selector:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .filter-bike-selector__header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(var(--bike-primary-rgb, 255, 159, 28), 0.15);
+  }
+
+  .filter-bike-selector__icon {
+    color: var(--bike-primary);
+    flex-shrink: 0;
+  }
+
+  .filter-bike-selector__heading {
+    margin: 0;
+    font-size: {{ title_size }}px;
+    font-weight: 600;
+    color: var(--bike-text);
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+  }
+
+  /* Desktop: Horizontal Layout (when used in toolbar) */
+  @media (min-width: 1024px) {
+    /* This will be overridden by bike-finder-collection.css when in toolbar area */
+    .filter-bike-selector__form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .filter-bike-selector__field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  }
+
+  /* Tablet: Horizontal Layout */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .filter-bike-selector {
+      padding: 1rem;
+    }
+
+    .filter-bike-selector__form {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+
+    .filter-bike-selector__field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .filter-bike-selector__submit {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* Mobile: Separate boxes stacked vertically */
+  @media (max-width: 767px) {
+    .filter-bike-selector {
+      padding: 1rem;
+    }
+
+    .filter-bike-selector__form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .filter-bike-selector__field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 1rem;
+      background: rgba(255, 159, 28, 0.05);
+      border: 2px solid rgba(255, 159, 28, 0.15);
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .filter-bike-selector__field:hover {
+      background: rgba(255, 159, 28, 0.08);
+      border-color: rgba(255, 159, 28, 0.25);
+    }
+
+    .filter-bike-selector__field:focus-within {
+      background: rgba(255, 159, 28, 0.08);
+      border-color: var(--bike-primary);
+      box-shadow: 0 0 0 3px rgba(255, 159, 28, 0.1);
+    }
+
+    .filter-bike-selector__select {
+      background: white;
+      margin: 0;
+    }
+
+    .filter-bike-selector__heading {
+      font-size: {{ title_size | minus: 2 }}px;
+    }
+  }
+
+  /* Extra small mobile */
+  @media (max-width: 480px) {
+    .filter-bike-selector {
+      padding: 0.75rem;
+    }
+
+    .filter-bike-selector__form {
+      gap: 0.75rem;
+    }
+
+    .filter-bike-selector__field {
+      padding: 0.875rem;
+    }
+
+    .filter-bike-selector__heading {
+      font-size: {{ title_size | minus: 4 }}px;
+    }
+
+    .filter-bike-selector__select {
+      font-size: {{ select_size | minus: 1 }}px;
+    }
+  }
+
+  .filter-bike-selector__label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: {{ label_size }}px;
+    font-weight: 600;
+    color: var(--bike-text);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .filter-bike-selector__label svg {
+    color: var(--bike-primary);
+    flex-shrink: 0;
+  }
+
+  .filter-bike-selector__select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--bike-border);
+    border-radius: 8px;
+    font-size: {{ select_size }}px;
+    font-weight: 500;
+    color: var(--bike-text);
+    background: white;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 1L6 7L1 1' stroke='%23252525' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2.5rem;
+  }
+
+  .filter-bike-selector__select:hover:not(:disabled) {
+    border-color: var(--bike-primary);
+  }
+
+  .filter-bike-selector__select:focus {
+    outline: none;
+    border-color: var(--bike-primary);
+    box-shadow: 0 0 0 3px rgba(255, 159, 28, 0.15);
+  }
+
+  .filter-bike-selector__select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #f9fafb;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 1L6 7L1 1' stroke='%23d1d5db' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  }
+
+  .filter-bike-selector__submit {
+    width: 100%;
+    padding: 0.9rem 1.5rem;
+    background: linear-gradient(135deg, var(--bike-primary) 0%, var(--bike-primary-dark) 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: {{ button_size }}px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(255, 159, 28, 0.3);
+  }
+
+  .filter-bike-selector__submit:hover:not(:disabled) {
+    box-shadow: 0 6px 16px rgba(255, 159, 28, 0.4);
+    transform: translateY(-1px);
+  }
+
+  .filter-bike-selector__submit:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .filter-bike-selector__submit svg {
+    transition: transform 0.3s ease;
+  }
+
+  .filter-bike-selector__submit:hover:not(:disabled) svg {
+    transform: translateX(3px);
+  }
+</style>
+
+<script>
+(function() {
+  function initFilterBikeSelector() {
+    if (typeof window.bikes === 'undefined' || window.bikes.length === 0) {
+      return;
+    }
+
+    const makeSelect = document.getElementById('{{ make_id }}');
+    const modelSelect = document.getElementById('{{ model_id }}');
+    const yearSelect = document.getElementById('{{ year_id }}');
+    const button = document.getElementById('{{ button_id }}');
+
+    function normalizeHandle(value) {
+      return value.toLowerCase().replace(/\s+/g, '-').replace(/\//g, '-');
+    }
+
+    function buildHandle(make, model, year) {
+      var parts = [];
+      if (make) parts.push(normalizeHandle(make));
+      if (model) parts.push(normalizeHandle(model));
+      if (year) parts.push(year.toString());
+      return parts.filter(Boolean).join('-');
+    }
+
+    function getSlugFromUrl() {
+      var pathSegments = window.location.pathname.split('/').filter(Boolean);
+      if (pathSegments.length === 0) return null;
+      return pathSegments[pathSegments.length - 1].toLowerCase();
+    }
+
+    function findSelectionFromSlug(slug) {
+      if (!slug) return null;
+      for (var i = 0; i < window.bikes.length; i++) {
+        var makeEntry = window.bikes[i];
+        var makeHandle = buildHandle(makeEntry.make);
+
+        if (slug !== makeHandle && slug.indexOf(makeHandle + '-') !== 0) continue;
+        if (slug === makeHandle) return { make: makeEntry.make, model: '', year: '' };
+
+        var models = makeEntry.models || [];
+        for (var j = 0; j < models.length; j++) {
+          var modelEntry = models[j];
+          var modelHandle = buildHandle(makeEntry.make, modelEntry.model);
+
+          if (slug === modelHandle) {
+            return { make: makeEntry.make, model: modelEntry.model, year: '' };
+          }
+
+          var years = modelEntry.years || [];
+          for (var k = 0; k < years.length; k++) {
+            var candidate = buildHandle(makeEntry.make, modelEntry.model, years[k]);
+            if (candidate === slug) {
+              return { make: makeEntry.make, model: modelEntry.model, year: years[k].toString() };
+            }
+          }
+        }
+      }
+      return null;
+    }
+
+    function optionExists(select, value) {
+      if (!value) return false;
+      return Array.prototype.some.call(select.options || [], function(opt) {
+        return opt.value === value;
+      });
+    }
+
+    function resetSelect(select, placeholder) {
+      select.innerHTML = '<option value="">' + placeholder + '</option>';
+      select.disabled = true;
+    }
+
+    function sjSortByKey(array, key) {
+      return array.sort(function(a, b) {
+        var x = a[key];
+        var y = b[key];
+        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+      });
+    }
+
+    function populateMakes() {
+      resetSelect(makeSelect, 'Choose...');
+      resetSelect(modelSelect, 'Choose...');
+      resetSelect(yearSelect, 'Choose...');
+
+      makeSelect.disabled = false;
+      sjSortByKey(window.bikes, "make");
+
+      var seen = {};
+      window.bikes.forEach(function(item) {
+        if (item.make && !seen[item.make]) {
+          seen[item.make] = true;
+          var opt = document.createElement('option');
+          opt.value = item.make;
+          opt.textContent = item.make;
+          makeSelect.appendChild(opt);
+        }
+      });
+    }
+
+    function populateModels(make) {
+      resetSelect(modelSelect, 'Choose...');
+      resetSelect(yearSelect, 'Choose...');
+
+      if (!make) {
+        button.disabled = true;
+        return;
+      }
+
+      var makeObj = window.bikes.find(function(entry) { return entry.make === make; });
+      if (!makeObj || !Array.isArray(makeObj.models)) return;
+
+      modelSelect.disabled = false;
+      var current_models = makeObj.models;
+      sjSortByKey(current_models, "model");
+
+      current_models.forEach(function(item) {
+        if (item.model) {
+          var opt = document.createElement('option');
+          opt.value = item.model;
+          opt.textContent = item.model;
+          modelSelect.appendChild(opt);
+        }
+      });
+    }
+
+    function populateYears(make, model) {
+      resetSelect(yearSelect, 'Choose...');
+
+      if (!make || !model) {
+        button.disabled = true;
+        return;
+      }
+
+      var makeObj = window.bikes.find(function(entry) { return entry.make === make; });
+      if (!makeObj) return;
+
+      var modelObj = makeObj.models.find(function(entry) { return entry.model === model; });
+      if (!modelObj || !Array.isArray(modelObj.years)) return;
+
+      yearSelect.disabled = false;
+      var current_years = modelObj.years.slice().sort();
+
+      current_years.forEach(function(year) {
+        if (year) {
+          var opt = document.createElement('option');
+          opt.value = year;
+          opt.textContent = year;
+          yearSelect.appendChild(opt);
+        }
+      });
+    }
+
+    function applySlugSelection() {
+      var selection = findSelectionFromSlug(getSlugFromUrl());
+      if (!selection || !selection.make || !optionExists(makeSelect, selection.make)) return;
+
+      makeSelect.value = selection.make;
+      populateModels(selection.make);
+
+      if (selection.model && optionExists(modelSelect, selection.model)) {
+        modelSelect.value = selection.model;
+        populateYears(selection.make, selection.model);
+
+        if (selection.year && optionExists(yearSelect, selection.year)) {
+          yearSelect.value = selection.year;
+        }
+      }
+
+      button.disabled = !yearSelect.value;
+    }
+
+    makeSelect.addEventListener('change', function(evt) {
+      populateModels(evt.target.value);
+    });
+
+    modelSelect.addEventListener('change', function(evt) {
+      populateYears(makeSelect.value, evt.target.value);
+    });
+
+    yearSelect.addEventListener('change', function(evt) {
+      button.disabled = !evt.target.value;
+    });
+
+    button.addEventListener('click', function() {
+      var make = makeSelect.value;
+      var model = modelSelect.value;
+      var year = yearSelect.value;
+
+      if (!make) {
+        alert('Please select a make.');
+        return;
+      }
+
+      var site_url = "{{ shop.url }}/collections/all/";
+      var make_handle = make.toLowerCase().replace(/\s/g, "-").replace(/\//g, "-");
+      var model_handle = model ? model.toLowerCase().replace(/\s/g, "-").replace(/\//g, "-") : "";
+      var year_handle = year || "";
+
+      if (model_handle && model_handle !== "") {
+        model_handle = "-" + model_handle;
+      }
+      if (year_handle && year_handle !== "") {
+        year_handle = "-" + year_handle;
+      }
+
+      var tag_handle = site_url + make_handle + model_handle + year_handle;
+      console.log('Redirecting to:', tag_handle);
+      window.location.href = tag_handle;
+    });
+
+    populateMakes();
+    applySlugSelection();
+  }
+
+  if (window.bikes && window.bikes.length > 0) {
+    initFilterBikeSelector();
+  } else {
+    document.addEventListener('bikes:loaded', initFilterBikeSelector);
+  }
+})();
+</script>

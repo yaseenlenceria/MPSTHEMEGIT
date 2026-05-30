@@ -1,0 +1,40 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-search",
+      "settings": {
+        "show_search_title": true,
+        "show_search_input": true,
+        "heading_align": "text-center",
+        "card_size": "medium",
+        "show_layout_toggle": true,
+        "enable_bike_finder": true,
+        "bike_card_title_font_size": 20,
+        "bike_card_label_font_size": 12,
+        "bike_card_select_font_size": 14,
+        "bike_card_button_font_size": 14,
+        "bike_card_primary_color": "#a73e10",
+        "bike_card_primary_dark": "#ff580d",
+        "bike_card_bg_color": "#f9dacc",
+        "bike_card_text_color": "#1a1a1a",
+        "bike_card_border_color": "#ff580d",
+        "enable_filtering": true,
+        "filters_open_lg": true,
+        "stick_on_scroll": true,
+        "show_filter_counts": true,
+        "expand_filters": true,
+        "max_filter_options": 50,
+        "enable_sorting": true,
+        "sort_first": true,
+        "show_article_featured_image": true,
+        "show_article_tags": false,
+        "show_article_excerpt": false,
+        "show_article_author": false,
+        "show_article_date": false,
+        "show_page_date": false,
+        "show_page_excerpt": false
+      }
+    }
+  },
+  "order": ["main"]
+}

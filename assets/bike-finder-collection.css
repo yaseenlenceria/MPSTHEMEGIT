@@ -1,0 +1,134 @@
+/* Bike finder styling for toolbar area */
+.bike-finder-toolbar-wrapper {
+  width: 100%;
+  max-width: none;
+  margin-bottom: 2rem;
+}
+
+.bike-finder-toolbar-wrapper .filter-bike-selector {
+  margin: 0;
+  background: var(--bike-bg);
+  border: 1px solid var(--bike-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Desktop: Full width bike finder */
+@media (min-width: 1024px) {
+  .bike-finder-toolbar-wrapper .filter-bike-selector {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+  }
+
+  .bike-finder-toolbar-wrapper .filter-bike-selector__header {
+    flex: 0 0 auto;
+    margin-right: 1.5rem;
+    margin-bottom: 0;
+    padding-right: 1.5rem;
+    border-right: 1px solid rgba(var(--bike-primary-rgb, 255, 159, 28), 0.15);
+    border-bottom: none;
+  }
+
+  .bike-finder-toolbar-wrapper .filter-bike-selector__heading {
+    font-size: calc({{ section.settings.bike_card_title_font_size | default: 20 }}px - 2px);
+  }
+
+  .bike-finder-toolbar-wrapper .filter-bike-selector__form {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) auto;
+    gap: 1rem;
+    align-items: end;
+  }
+
+  .bike-finder-toolbar-wrapper .filter-bike-selector__field {
+    margin-bottom: 0;
+  }
+
+  .bike-finder-toolbar-wrapper .filter-bike-selector__submit {
+    margin-bottom: 0;
+  }
+}
+
+/* Tablet: Horizontal layout */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .bike-finder-toolbar-wrapper .filter-bike-selector__form {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) auto;
+    gap: 0.75rem;
+  }
+
+  .bike-finder-toolbar-wrapper .filter-bike-selector__submit {
+    grid-column: 4;
+  }
+}
+
+/* Mobile: Horizontal layout */
+@media (max-width: 767px) {
+  .bike-finder-toolbar-wrapper {
+    margin-bottom: 1.5rem;
+  }
+
+  .bike-finder-toolbar-wrapper .filter-bike-selector {
+    padding: 1rem;
+  }
+
+  .bike-finder-toolbar-wrapper .filter-bike-selector__form {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+
+  .bike-finder-toolbar-wrapper .filter-bike-selector__submit {
+    grid-column: 1 / -1;
+    margin-top: 0.75rem;
+  }
+
+  .bike-finder-toolbar-wrapper .filter-bike-selector__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.875rem;
+    background: rgba(var(--bike-primary-rgb, 255, 159, 28), 0.05);
+    border: 1px solid rgba(var(--bike-primary-rgb, 255, 159, 28), 0.15);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .bike-finder-toolbar-wrapper .filter-bike-selector__field:hover {
+    background: rgba(var(--bike-primary-rgb, 255, 159, 28), 0.08);
+    border-color: rgba(var(--bike-primary-rgb, 255, 159, 28), 0.25);
+  }
+
+  .bike-finder-toolbar-wrapper .filter-bike-selector__field:focus-within {
+    background: rgba(var(--bike-primary-rgb, 255, 159, 28), 0.08);
+    border-color: var(--bike-primary);
+    box-shadow: 0 0 0 3px rgba(var(--bike-primary-rgb, 255, 159, 28), 0.1);
+  }
+
+  .bike-finder-toolbar-wrapper .filter-bike-selector__select {
+    background: white;
+    margin: 0;
+  }
+}
+
+/* Extra small mobile */
+@media (max-width: 480px) {
+  .bike-finder-toolbar-wrapper .filter-bike-selector {
+    padding: 0.75rem;
+  }
+
+  .bike-finder-toolbar-wrapper .filter-bike-selector__form {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+
+  .bike-finder-toolbar-wrapper .filter-bike-selector__field {
+    padding: 0.75rem;
+  }
+
+  .bike-finder-toolbar-wrapper .filter-bike-selector__heading {
+    font-size: {{ section.settings.bike_card_title_font_size | default: 20 | minus: 4 }}px;
+  }
+}

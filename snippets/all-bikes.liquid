@@ -1,0 +1,116 @@
+{%- comment -%}
+  Dynamically loads the bike YMM database from Shopify Metaobjects via Storefront API.
+  Uses localStorage caching to prevent unnecessary network requests and load instantly.
+{%- endcomment -%}
+<script id="sj-bikes-data">
+(function() {
+  const CACHE_KEY = 'sj_bikes_database';
+  const CACHE_TIME_KEY = 'sj_bikes_database_time';
+  const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours caching
+
+  window.bikes = [];
+
+  function emitLoaded(data) {
+    window.bikes = data;
+    document.dispatchEvent(new CustomEvent('bikes:loaded', { detail: data }));
+  }
+
+  const cached = localStorage.getItem(CACHE_KEY);
+  const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
+
+  if (cached && cachedTime && (Date.now() - cachedTime < CACHE_EXPIRY)) {
+    try {
+      const data = JSON.parse(cached);
+      if (data && data.length > 0) {
+        emitLoaded(data);
+        return;
+      }
+    } catch(e) {
+      console.warn("Failed to parse cached YMM data", e);
+    }
+  }
+
+  // Fallback to fetch from Storefront API
+  async function fetchBikesPage(cursor) {
+    const query = `
+      query GetBikes($cursor: String) {
+        metaobjects(type: "bike_data", first: 250, after: $cursor) {
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+          nodes {
+            fields {
+              key
+              value
+            }
+          }
+        }
+      }
+    `;
+
+    const response = await fetch('/api/2024-04/graphql.json', {
+      method: 'POST',
+      headers: {
+        'X-Shopify-Storefront-Access-Token': '7d15e178e4589fd98eb948a822f96e31',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ query, variables: { cursor } })
+    });
+    return response.json();
+  }
+
+  async function loadAllBikes() {
+    let allBikes = [];
+    let hasNextPage = true;
+    let cursor = null;
+
+    try {
+      while (hasNextPage) {
+        const res = await fetchBikesPage(cursor);
+        if (res.data && res.data.metaobjects) {
+          const nodes = res.data.metaobjects.nodes;
+          nodes.forEach(node => {
+            const makeField = node.fields.find(f => f.key === 'make');
+            const modelField = node.fields.find(f => f.key === 'model');
+            const yearsField = node.fields.find(f => f.key === 'years');
+            
+            if (makeField && modelField) {
+              let years = [];
+              try {
+                years = JSON.parse(yearsField.value);
+              } catch(e) {
+                years = [];
+              }
+              
+              let makeObj = allBikes.find(b => b.make === makeField.value);
+              if (!makeObj) {
+                makeObj = { make: makeField.value, models: [] };
+                allBikes.push(makeObj);
+              }
+              makeObj.models.push({
+                model: modelField.value,
+                years: years
+              });
+            }
+          });
+          hasNextPage = res.data.metaobjects.pageInfo.hasNextPage;
+          cursor = res.data.metaobjects.pageInfo.endCursor;
+        } else {
+          hasNextPage = false;
+        }
+      }
+
+      if (allBikes.length > 0) {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(allBikes));
+        localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+        emitLoaded(allBikes);
+      }
+    } catch(e) {
+      console.error("Failed to load bikes from Shopify API", e);
+    }
+  }
+
+  loadAllBikes();
+})();
+</script>

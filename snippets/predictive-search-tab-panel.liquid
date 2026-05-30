@@ -1,0 +1,90 @@
+{%- liquid
+  assign list_class = 'predictive-search__list'
+  assign item_limit = items.size
+  if type == 'products'
+    assign list_class = list_class | append: ' predictive-search__list--products'
+    assign item_limit = 10
+  endif
+-%}
+<div class="predictive-search__tabpanel focus-inset" id="psearch-{{ type }}" role="tabpanel" tabindex="0" aria-labelledby="psearch-{{ type }}-tab"{% unless forloop.first %} hidden{% endunless %}>
+  <ul class="{{ list_class }}" role="list">
+    {%- for item in items limit: item_limit -%}
+      <li class="predictive-search__item" role="option">
+        {%- liquid
+          assign result_class = 'predictive-result flex items-start focus-inset js-search-link'
+          assign media_width = 112
+          assign media_class = 'predictive-result__media'
+
+          if type == 'products'
+            assign result_class = 'predictive-result predictive-result--product-card flex flex-col items-start focus-inset js-search-link'
+            assign media_width = 240
+            assign media_class = 'predictive-result__media predictive-result__media--product'
+          endif
+        -%}
+        <a class="{{ result_class }}" href="{{ item.url }}"{% if settings.preload_links %} data-instant{% endif %}>
+          {%- if type == 'products' or type == 'collections' -%}
+            {%- liquid
+              if type == 'products'
+                assign img = item.featured_media.preview_image
+              else
+                assign img = item.featured_image
+              endif
+            -%}
+            {%- if img != blank -%}
+              <div class="{{ media_class }} media relative{% if settings.blend_product_images and type == 'products' %} image-blend{% elsif settings.blend_collection_images and type == 'collections' %} image-blend{% endif %}">
+                {{ img | image_url: width: media_width | image_tag: loading: 'eager', class: 'predictive-result__media-image' }}
+              </div>
+            {%- else -%}
+              <div class="{{ media_class }} media relative">
+                {{ 'image' | placeholder_svg_tag: 'media__placeholder' }}
+              </div>
+            {%- endif -%}
+          {%- elsif group_articles_pages or type == 'articles' -%}
+            {%- if item.image != blank -%}
+              {{ item.image | image_url: width: media_width | image_tag: loading: 'eager', class: 'predictive-result__media-image' }}
+            {%- else -%}
+              <div class="{{ media_class }}"></div>
+            {%- endif -%}
+          {%- endif -%}
+
+          <div class="predictive-result__info flex-auto">
+            <h3 class="predictive-result__title h6">{{ item.title }}</h3>
+            {%- if type == 'products' -%}
+              {%- if settings.predictive_search_show_price -%}
+                {% comment %} Check if this is SC Project product - hide price in search dropdown {% endcomment %}
+                {% assign is_sc_project_search = false %}
+                {% if item.vendor == 'SC Project' or item.vendor contains 'SC Project' or item.vendor contains 'SC-Project' or item.vendor contains 'SCProject' %}
+                  {% assign is_sc_project_search = true %}
+                {% endif %}
+
+                {% unless is_sc_project_search %}
+                  {% render 'price', product: item %}
+                {% endunless %}
+              {%- endif -%}
+              {%- if settings.predictive_search_show_vendor -%}
+                <div class="predictive-result__sub-title text-sm">{{ item.vendor }}</div>
+              {%- endif -%}
+            {%- elsif type == 'collections' and item.metafields.theme.label != empty -%}
+              <div class="predictive-result__sub-title text-sm">
+                {{ item.metafields.theme.label }}
+              </div>
+            {%- elsif item.url contains "/blogs/" -%}
+              <div class="predictive-result__sub-title text-sm">
+                {{ item.author }} | {{ item.published_at | time_tag: format: 'date' }}
+              </div>
+            {%- elsif item.url contains "/pages/" and group_articles_pages -%}
+              <div class="predictive-result__sub-title">
+                {{ 'templates.search.page' | t }}
+              </div>
+            {%- endif -%}
+          </div>
+        </a>
+      </li>
+    {%- endfor -%}
+    <li class="predictive-search__item predictive-search__item--view-all js-submit" role="option">
+      <button class="predictive-search__view-all link w-full text-start focus-inset has-ltr-icon js-search-link">
+        {{- 'general.search.view_all' | t -}} {% render 'icon-arrow-right' %}
+      </button>
+    </li>
+  </ul>
+</div>

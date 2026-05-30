@@ -1,0 +1,116 @@
+{%- comment -%}
+  Header tags (meta charset, viewport, title, description, canonical link, favicon).
+  Includes custom YMM Metaobject overrides for dynamic page titles and descriptions.
+{%- endcomment -%}
+
+{%- liquid
+  assign bike_metaobject = blank
+  assign bike_year = blank
+  assign bike_make = blank
+  assign bike_model = blank
+
+  if request.page_type == 'collection' and current_tags
+    for tag in current_tags
+      if tag contains '+'
+        assign parts = tag | split: '+'
+        assign make = parts[0]
+        assign model = parts[1]
+        assign year = parts[2]
+        
+        assign make_handle = make | handle
+        assign model_handle = model | handle
+        assign bike_handle = make_handle | append: '-' | append: model_handle
+        
+        assign candidate = shop.metaobjects.bike_data[bike_handle]
+        if candidate != blank
+          if candidate.years.value contains year
+            assign bike_metaobject = candidate
+            assign bike_year = year
+            assign bike_make = make
+            assign bike_model = model
+            break
+          endif
+        endif
+      endif
+    endfor
+  endif
+-%}
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>
+  {%- if request.page_type == 'password' -%}
+    {{- shop.name -}}
+  {%- elsif bike_metaobject != blank -%}
+    {{ bike_make }} {{ bike_model }} ({{ bike_year }}) Parts & Accessories &ndash; {{ shop.name }}
+  {%- elsif request.page_type == 'collection' and collection.handle == 'vendors' and collection.current_vendor != blank -%}
+    {{- collection.current_vendor -}} | Best UK Vendor | 100% Original Products &ndash; Fast UK Delivery
+  {%- else -%}
+    {{- page_title -}}
+    {%- if current_tags %}{% assign meta_tags = current_tags | join: ', ' %} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags }}{% endif -%}
+    {%- if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif -%}
+    {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
+  {%- endif -%}
+</title>
+
+{%- liquid
+  assign canonical_href = canonical_url
+  assign vendor_collection = false
+  assign vendor_noindex = false
+
+  if request.page_type == 'collection' and collection.handle == 'vendors' and collection.current_vendor != blank
+    assign vendor_collection = true
+    assign canonical_href = routes.collections_url | append: '/vendors?q=' | append: collection.current_vendor | url_encode
+    if canonical_url contains '?' 
+      assign query_string = canonical_url | split: '?' | last
+      if query_string contains '&'
+        assign vendor_noindex = true
+      elsif query_string contains 'page='
+        assign vendor_noindex = true
+      elsif query_string contains 'sort_by='
+        assign vendor_noindex = true
+      elsif query_string contains 'filter.'
+        assign vendor_noindex = true
+      elsif query_string contains 'constraint='
+        assign vendor_noindex = true
+      elsif query_string contains 'view='
+        assign vendor_noindex = true
+      endif
+    endif
+  endif
+-%}
+
+{%- if canonical_href != blank -%}
+  <link rel="canonical" href="{{ canonical_href }}">
+{%- endif -%}
+
+{%- if vendor_noindex -%}
+  <meta name="robots" content="noindex, follow">
+{%- endif -%}
+
+{%- if settings.favicon != blank -%}
+  {%- liquid
+    assign image_type = settings.favicon | split: '?' | first | split: '.' | last | downcase
+    if image_type == 'svg'
+      assign image_type = 'svg+xml'
+    endif
+  -%}
+  <link rel="icon" href="{{ settings.favicon | image_url: width: 48, height: 48 }}" type="image/{{ image_type }}">
+  <link rel="apple-touch-icon" href="{{ settings.favicon | image_url: width: 180, height: 180 }}">
+{%- endif -%}
+
+{%- liquid
+  if bike_metaobject != blank
+    if bike_metaobject.description.value != blank
+      assign meta_description = bike_metaobject.description.value | strip_html | strip
+    else
+      assign meta_description = "Find high performance parts and accessories compatible with your " | append: bike_make | append: " " | append: bike_model | append: " (" | append: bike_year | append: "). Shop premium exhausts, carbon parts, and more."
+    endif
+  else
+    assign meta_description = page_description | default: shop.description | default: shop.name
+    assign meta_description = meta_description | strip_html | strip
+  endif
+-%}
+{%- if meta_description != blank -%}
+  <meta name="description" content="{{ meta_description | escape }}">
+{%- endif -%}

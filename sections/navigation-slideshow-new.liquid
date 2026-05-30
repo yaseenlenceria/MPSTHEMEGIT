@@ -1,0 +1,546 @@
+{%- if section.index > 2 -%}
+  <link rel="stylesheet" href="{{ 'quick-nav.css' | asset_url }}" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="{{ 'quick-nav-large.css' | asset_url }}" media="print" onload="this.media='all'">
+{%- else -%}
+  {{ 'quick-nav.css' | asset_url | stylesheet_tag }}
+  {{ 'quick-nav-large.css' | asset_url | stylesheet_tag }}
+{%- endif -%}
+
+{%- if section.settings.quick_nav_show_price -%}
+  <link rel="stylesheet" href="{{ 'quick-nav-price.css' | asset_url }}" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="{{ 'price-range.css' | asset_url }}" media="print" onload="this.media='all'">
+  <script src="{{ 'price-range.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{%- liquid
+  assign breakpoint_sm = 600
+  assign tint_alpha = section.settings.tint_opacity | divided_by: 100.0
+  assign hero_lazy_load = true
+  assign hero_fetchpriority = nil
+  if section.index == 1
+    assign hero_lazy_load = false
+    assign hero_fetchpriority = 'high'
+  endif
+-%}
+
+{%- style -%}
+  #{{ section.id }} {
+    background: none;
+    --nav-hero-gap: 0px;
+    --nav-hero-panel-offset: 15%;
+  }
+
+  #{{ section.id }} .nav-hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--nav-hero-gap);
+  }
+
+  #{{ section.id }} .nav-hero__media {
+    position: relative;
+    min-height: {{ section.settings.fixed_height_mobile }}px;
+    overflow: hidden;
+  }
+
+  #{{ section.id }} .nav-hero__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, {{ tint_alpha }});
+    pointer-events: none;
+  }
+
+  #{{ section.id }} .nav-hero__image {
+    position: absolute;
+    inset: 0;
+  }
+
+  #{{ section.id }} .nav-hero__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  #{{ section.id }} .nav-hero__selector {
+    position: absolute;
+    right: var(--nav-hero-panel-offset);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  #{{ section.id }} .quick-nav--vehicle {
+    pointer-events: all;
+    width: clamp(300px, 36vw, 420px);
+    max-width: min(420px, 90vw);
+  }
+
+  @media (min-width: {{ breakpoint_sm }}px) {
+    #{{ section.id }} .nav-hero__media {
+      min-height: {{ section.settings.fixed_height_desktop }}px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    #{{ section.id }}.nav-hero-section {
+      padding: 0 !important;
+      margin: 0 !important;
+      max-width: 100vw !important;
+      overflow-x: hidden !important;
+    }
+
+    #{{ section.id }} .nav-hero {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 0 !important;
+      position: relative !important;
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    #{{ section.id }} .nav-hero__selector {
+      position: relative !important;
+      order: 1 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0 !important;
+      padding: 25px 0 !important;
+      box-sizing: border-box !important;
+      background: #f8f9fa !important;
+      z-index: 10 !important;
+      transform: none !important;
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+      left: 0 !important;
+      right: 0 !important;
+    }
+
+    #{{ section.id }} .nav-hero__media {
+      order: 2 !important;
+      position: relative !important;
+      width: 100% !important;
+      min-height: {{ section.settings.fixed_height_mobile }}px !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+      transform: none !important;
+    }
+
+    #{{ section.id }} .quick-nav.quick-nav--vehicle {
+      width: 90% !important;
+      max-width: 420px !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      padding: 30px 20px !important;
+      position: relative !important;
+      left: 0 !important;
+      right: 0 !important;
+      top: 0 !important;
+      display: block !important;
+      background: #ffffff !important;
+      border-radius: 20px !important;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12) !important;
+      box-sizing: border-box !important;
+      transform: none !important;
+    }
+
+    #{{ section.id }} .quick-nav--vehicle .quick-nav__btn {
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+    }
+
+    #{{ section.id }} .quick-nav--vehicle .quick-nav__listbox {
+      width: 100% !important;
+      max-width: 100% !important;
+      left: 0 !important;
+      right: 0 !important;
+      box-sizing: border-box !important;
+    }
+
+    #{{ section.id }} .nav-hero__image img {
+      object-position: center bottom !important;
+    }
+  }
+{%- endstyle -%}
+
+{%- if section.index == 1 and section.settings.image_desktop != blank -%}
+  {%- assign preload_mobile = section.settings.image_mobile | default: section.settings.image_desktop -%}
+  <link rel="preload" as="image" href="{{ preload_mobile | image_url: width: 980 }}" media="(max-width: 767px)" fetchpriority="high">
+  <link rel="preload" as="image" href="{{ section.settings.image_desktop | image_url: width: 1600 }}" media="(min-width: 768px)" fetchpriority="high">
+{%- endif -%}
+
+<div class="nav-hero-section section relative {% if section.settings.full_width %}section--full-width{% else %}container{% endif %}" id="{{ section.id }}">
+  <div class="nav-hero">
+    <div class="nav-hero__media">
+      <div class="nav-hero__image media media--has-overlay">
+        {%- if section.settings.image_desktop != blank -%}
+          {%- liquid
+            if section.settings.full_width
+              assign sizes = '100vw'
+            else
+              capture sizes
+                render 'sizes-attribute'
+              endcapture
+            endif
+          -%}
+          {%- render 'image-desktop-and-mobile',
+            class: 'img-fit',
+            desktop_image: section.settings.image_desktop,
+            mobile_image: section.settings.image_mobile,
+            src_width_mobile: 980,
+            widths_mobile: '480, 980, 1200, 1400',
+            src_width_desktop: 1400,
+            widths_desktop: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
+            lazy_load: hero_lazy_load,
+            fetchpriority: hero_fetchpriority,
+            sizes: sizes
+          -%}
+        {%- else -%}
+          {{ 'lifestyle-2' | placeholder_svg_tag: 'media__placeholder dark img-fit' }}
+        {%- endif -%}
+      </div>
+    </div>
+
+    <div class="nav-hero__selector">
+      {%- liquid
+        if section.settings.menu_1_display contains 'small'
+          assign menu_1_boxed = false
+        else
+          assign menu_1_boxed = true
+        endif
+        assign menu_1_display = section.settings.menu_1_display | replace: 'small_', '' | replace: 'large_', ''
+
+        if section.settings.menu_2_display contains 'small'
+          assign menu_2_boxed = false
+        else
+          assign menu_2_boxed = true
+        endif
+        assign menu_2_display = section.settings.menu_2_display | replace: 'small_', '' | replace: 'large_', ''
+
+        if section.settings.menu_3_display contains 'small'
+          assign menu_3_boxed = false
+        else
+          assign menu_3_boxed = true
+        endif
+        assign menu_3_display = section.settings.menu_3_display | replace: 'small_', '' | replace: 'large_', ''
+
+        if settings.animations_enabled != 'disabled'
+          assign animate = true
+        else
+          assign animate = false
+        endif
+      -%}
+
+      {%- render 'quick-nav',
+        component_id: section.id,
+        menu: section.settings.quick_nav_menu,
+        image_ratio: section.settings.quick_nav_image_ratio,
+        image_fit: section.settings.quick_nav_image_fit,
+        use_product_image: section.settings.quick_nav_use_product_image,
+        color_scheme: section.settings.quick_nav_color_scheme,
+        show_price: section.settings.quick_nav_show_price,
+        animate: animate,
+        title: section.settings.quick_nav_title,
+        menu_1_display: menu_1_display,
+        menu_1_boxed: menu_1_boxed,
+        menu_1_text: section.settings.menu_1_text,
+        menu_2_display: menu_2_display,
+        menu_2_boxed: menu_2_boxed,
+        menu_2_text: section.settings.menu_2_text,
+        menu_3_display: menu_3_display,
+        menu_3_boxed: menu_3_boxed,
+        menu_3_text: section.settings.menu_3_text,
+        card_title_font_size: section.settings.card_title_font_size,
+        card_label_font_size: section.settings.card_label_font_size,
+        card_select_font_size: section.settings.card_select_font_size,
+        card_button_font_size: section.settings.card_button_font_size,
+        card_primary_color: section.settings.card_primary_color,
+        card_primary_dark: section.settings.card_primary_dark,
+        card_bg_color: section.settings.card_bg_color,
+        card_text_color: section.settings.card_text_color,
+        card_border_color: section.settings.card_border_color
+      -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Nav slideshow simple",
+  "tag": "section",
+  "class": "cc-nav-slideshow-simple",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Background image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_desktop",
+      "label": "Desktop image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "Mobile image (optional)"
+    },
+    {
+      "type": "range",
+      "id": "fixed_height_desktop",
+      "min": 400,
+      "max": 1200,
+      "step": 10,
+      "unit": "px",
+      "label": "Minimum height on desktop",
+      "default": 700
+    },
+    {
+      "type": "range",
+      "id": "fixed_height_mobile",
+      "min": 250,
+      "max": 600,
+      "step": 10,
+      "unit": "px",
+      "label": "Minimum height on mobile",
+      "default": 350
+    },
+    {
+      "type": "range",
+      "id": "tint_opacity",
+      "min": 0,
+      "max": 60,
+      "step": 5,
+      "unit": "%",
+      "label": "Image tint opacity",
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Make section background full width",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Navigation panel"
+    },
+    {
+      "type": "link_list",
+      "id": "quick_nav_menu",
+      "label": "Menu",
+      "default": "main-menu"
+    },
+    {
+      "type": "text",
+      "id": "quick_nav_title",
+      "label": "Heading",
+      "default": "Navigation options"
+    },
+    {
+      "type": "select",
+      "id": "quick_nav_image_ratio",
+      "label": "Image aspect ratio",
+      "options": [
+        { "value": "1.77", "label": "Landscape" },
+        { "value": "1", "label": "Square" },
+        { "value": "0.75", "label": "Portrait" }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "select",
+      "id": "quick_nav_image_fit",
+      "label": "Image fit",
+      "info": "Choose \"Natural\" to avoid cropping the image or \"Cover\" to fill available space (image may be cropped).",
+      "options": [
+        { "value": "contain", "label": "Natural" },
+        { "value": "cover", "label": "Cover" }
+      ],
+      "default": "contain"
+    },
+    {
+      "type": "checkbox",
+      "id": "quick_nav_use_product_image",
+      "label": "Use the first product image for collection images",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "quick_nav_color_scheme",
+      "label": "Color scheme",
+      "info": "\"Content panels\" colors can be changed in \"Theme Settings > Colors > Content panels\".",
+      "options": [
+        { "value": "none", "label": "Default" },
+        { "value": "default", "label": "Content panel" },
+        { "value": "1", "label": "Scheme 1" },
+        { "value": "2", "label": "Scheme 2" },
+        { "value": "3", "label": "Scheme 3" }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "checkbox",
+      "id": "quick_nav_show_price",
+      "label": "Show price slider when available",
+      "default": false,
+      "info": "This will show when a collection is selected, and if the store is in the default currency."
+    },
+    {
+      "type": "header",
+      "content": "Card customization"
+    },
+    {
+      "type": "range",
+      "id": "card_title_font_size",
+      "label": "Card title font size",
+      "min": 16,
+      "max": 36,
+      "step": 1,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "card_label_font_size",
+      "label": "Label font size",
+      "min": 11,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "card_select_font_size",
+      "label": "Dropdown font size",
+      "min": 13,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "card_button_font_size",
+      "label": "Button font size",
+      "min": 13,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "card_primary_color",
+      "label": "Primary color (accents & button)",
+      "default": "#2ecc71"
+    },
+    {
+      "type": "color",
+      "id": "card_primary_dark",
+      "label": "Primary dark color (gradients)",
+      "default": "#27ae60"
+    },
+    {
+      "type": "color",
+      "id": "card_bg_color",
+      "label": "Card background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "card_text_color",
+      "label": "Card text color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "card_border_color",
+      "label": "Card border color",
+      "default": "#e5e7eb"
+    },
+    {
+      "type": "header",
+      "content": "Menu 1"
+    },
+    {
+      "type": "text",
+      "id": "menu_1_text",
+      "label": "Placeholder text",
+      "default": "Level 1 Navigation"
+    },
+    {
+      "type": "select",
+      "id": "menu_1_display",
+      "label": "Display style",
+      "default": "large_text",
+      "options": [
+        { "value": "small_text", "label": "Small - Text" },
+        { "value": "small_image_text", "label": "Small - Image and text" },
+        { "value": "large_text", "label": "Large - Text" },
+        { "value": "large_image", "label": "Large - Image" },
+        { "value": "large_image_text", "label": "Large - Image and text" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Menu 2"
+    },
+    {
+      "type": "text",
+      "id": "menu_2_text",
+      "label": "Level 2 Navigation",
+      "default": "Navigation options"
+    },
+    {
+      "type": "select",
+      "id": "menu_2_display",
+      "label": "Display style",
+      "default": "large_text",
+      "options": [
+        { "value": "small_text", "label": "Small - Text" },
+        { "value": "small_image_text", "label": "Small - Image and text" },
+        { "value": "large_text", "label": "Large - Text" },
+        { "value": "large_image", "label": "Large - Image" },
+        { "value": "large_image_text", "label": "Large - Image and text" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Menu 3"
+    },
+    {
+      "type": "text",
+      "id": "menu_3_text",
+      "label": "Level 3 Navigation",
+      "default": "Choose an option"
+    },
+    {
+      "type": "select",
+      "id": "menu_3_display",
+      "label": "Display style",
+      "default": "large_text",
+      "options": [
+        { "value": "small_text", "label": "Small - Text" },
+        { "value": "small_image_text", "label": "Small - Image and text" },
+        { "value": "large_text", "label": "Large - Text" },
+        { "value": "large_image", "label": "Large - Image" },
+        { "value": "large_image_text", "label": "Large - Image and text" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Nav slideshow simple"
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "footer", "aside"]
+  }
+}
+{% endschema %}

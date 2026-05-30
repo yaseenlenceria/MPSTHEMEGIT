@@ -1,0 +1,381 @@
+{% comment %}
+  SC Project Price Check
+  Checks if product is from SC Project vendor and displays "Ask for Price" button instead of price
+
+  Usage:
+  {% render 'sc-project-price-check', product: product, context: 'product' %}
+
+  Parameters:
+  - product: The product object
+  - context: 'product' for product pages, 'card' for product cards
+{% endcomment %}
+
+{% assign hide_price = false %}
+{% assign sc_project_vendor = 'SC Project' %}
+
+{% comment %} Check if product vendor is SC Project {% endcomment %}
+{% if product.vendor == sc_project_vendor or product.vendor contains 'SC Project' or product.vendor contains 'SC-Project' or product.vendor contains 'SCProject' %}
+  {% assign hide_price = true %}
+{% endif %}
+
+{% if hide_price %}
+  <div class="sc-project-price-wrapper">
+    {% if context == 'product' %}
+      {%comment %} Product Page Display {% endcomment %}
+      <div class="sc-project-price-notice">
+        <div class="sc-project-price-notice__icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="sc-project-price-notice__content">
+          <h3>Price Available on Request</h3>
+          <p>For the best pricing and availability on this {{ product.vendor }} product, please contact us.</p>
+        </div>
+      </div>
+      <button type="button" class="sc-project-ask-price-btn sc-project-ask-price-btn--large" onclick="openSCPriceInquiry()">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M3 8L10 13L17 8M3 12L10 17L17 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Ask for Price & Availability</span>
+      </button>
+    {% else %}
+      {%comment %} Product Card Display {% endcomment %}
+      <div class="price sc-project-card-price">
+        <div class="sc-project-card-price__badge">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 2L10 6L14 6.5L11 9.5L11.5 14L8 12L4.5 14L5 9.5L2 6.5L6 6L8 2Z" fill="currentColor"/>
+          </svg>
+          <span>Premium Product</span>
+        </div>
+        <p class="sc-project-card-price__text">Price on Request</p>
+        <button type="button" class="sc-project-ask-price-btn sc-project-ask-price-btn--small" onclick="event.preventDefault(); event.stopPropagation(); window.location.href='{{ product.url }}';">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 2V14M8 14L4 10M8 14L12 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="sc-btn-text-full">View Details & Enquire</span>
+          <span class="sc-btn-text-mobile">Enquire Now</span>
+        </button>
+      </div>
+    {% endif %}
+  </div>
+
+  <style>
+    /* Product Page Styles */
+    .sc-project-price-wrapper {
+      margin: 0;
+      width: 100%;
+    }
+
+    .sc-project-price-notice {
+      display: block;
+      padding: 0;
+      background: transparent;
+      border: none;
+      margin-bottom: 2rem;
+    }
+
+    .sc-project-price-notice__icon {
+      display: none;
+    }
+
+    .sc-project-price-notice__content h3 {
+      font-size: 2rem;
+      font-weight: 600;
+      margin: 0 0 0.5rem 0;
+      color: rgb(var(--text-color));
+    }
+
+    .sc-project-price-notice__content p {
+      font-size: 1.5rem;
+      margin: 0;
+      color: rgba(var(--text-color), 0.7);
+      line-height: 1.6;
+    }
+
+    .sc-project-ask-price-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      padding: 1.4rem 2.5rem;
+      background: #4CAF50;
+      color: #ffffff;
+      border: none;
+      border-radius: 4px;
+      font-size: 1.6rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+
+    .sc-project-ask-price-btn:hover {
+      background: #45a049;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    }
+
+    .sc-project-ask-price-btn:active {
+      transform: translateY(0);
+      background: #3d8b40;
+    }
+
+    .sc-project-ask-price-btn--large {
+      width: 100%;
+      padding: 1.4rem 2.5rem;
+      font-size: 1.6rem;
+    }
+
+    .sc-project-ask-price-btn svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    /* Product Card Styles */
+    .sc-project-card-price {
+      text-align: center;
+      padding: 0;
+      margin: 0;
+      max-width: 100%;
+      width: 100%;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .sc-project-card-price__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.8rem;
+      background: rgba(76, 175, 80, 0.1);
+      border-radius: 4px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #4CAF50;
+      margin-bottom: 0.8rem;
+      white-space: nowrap;
+    }
+
+    .sc-project-card-price__badge svg {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+    }
+
+    .sc-project-card-price__text {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: rgb(var(--text-color));
+      margin: 0 0 1rem 0;
+      letter-spacing: 0;
+      white-space: nowrap;
+      width: 100%;
+    }
+
+    .sc-project-ask-price-btn--small {
+      padding: 0.8rem 1.2rem;
+      font-size: 1.3rem;
+      width: 100%;
+      max-width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      letter-spacing: 0;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      box-sizing: border-box;
+      border-radius: 4px;
+    }
+
+    .sc-project-ask-price-btn--small span {
+      white-space: nowrap;
+    }
+
+    /* Hide mobile text by default, show full text */
+    .sc-btn-text-mobile {
+      display: none;
+    }
+
+    .sc-btn-text-full {
+      display: inline;
+    }
+
+    .sc-project-ask-price-btn--small svg {
+      width: 16px;
+      height: 16px;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-3px);
+      }
+    }
+
+    .sc-project-ask-price-btn--small:hover svg {
+      animation: none;
+      transform: translateY(2px);
+    }
+
+    /* Mobile Responsive Styles */
+    @media (max-width: 767px) {
+      /* Product Page Mobile Styles */
+      .sc-project-price-notice {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.5rem;
+      }
+
+      .sc-project-price-notice__icon {
+        margin: 0 auto;
+      }
+
+      .sc-project-ask-price-btn--large {
+        padding: 1.5rem 2rem;
+        font-size: 1.5rem;
+      }
+
+      /* Product Card Mobile Styles - Compact, Single Line */
+      .sc-project-card-price {
+        padding: 0;
+        margin: 0;
+        width: 100%;
+      }
+
+      .sc-project-card-price__badge {
+        font-size: 1rem;
+        padding: 0.3rem 0.6rem;
+        gap: 0.3rem;
+        margin-bottom: 0.6rem;
+        white-space: nowrap;
+      }
+
+      .sc-project-card-price__badge svg {
+        width: 11px;
+        height: 11px;
+      }
+
+      .sc-project-card-price__text {
+        font-size: 1.3rem;
+        margin: 0 0 0.8rem 0;
+        letter-spacing: 0;
+        white-space: nowrap;
+        width: 100%;
+      }
+
+      .sc-project-ask-price-btn--small {
+        padding: 0.75rem 1rem;
+        font-size: 1.2rem;
+        width: 100%;
+        gap: 0.4rem;
+        box-sizing: border-box;
+      }
+
+      /* Show shorter mobile text, hide full text */
+      .sc-btn-text-full {
+        display: none;
+      }
+
+      .sc-btn-text-mobile {
+        display: inline;
+        white-space: nowrap;
+      }
+
+      .sc-project-ask-price-btn--small span {
+        white-space: nowrap;
+      }
+
+      .sc-project-ask-price-btn--small svg {
+        width: 13px;
+        height: 13px;
+        flex-shrink: 0;
+      }
+    }
+
+    /* Extra small mobile devices */
+    @media (max-width: 480px) {
+      .sc-project-card-price {
+        padding: 0;
+        margin: 0;
+        width: 100%;
+      }
+
+      .sc-project-card-price__badge {
+        font-size: 0.95rem;
+        padding: 0.25rem 0.5rem;
+        margin-bottom: 0.6rem;
+      }
+
+      .sc-project-card-price__text {
+        font-size: 1.2rem;
+        margin: 0 0 0.7rem 0;
+        width: 100%;
+      }
+
+      .sc-project-ask-price-btn--small {
+        padding: 0.7rem 0.9rem;
+        font-size: 1.1rem;
+      }
+
+      .sc-project-ask-price-btn--small svg {
+        width: 12px;
+        height: 12px;
+      }
+    }
+
+    /* Very small screens */
+    @media (max-width: 360px) {
+      .sc-project-card-price {
+        padding: 0;
+        margin: 0;
+        width: 100%;
+      }
+
+      .sc-project-card-price__badge {
+        font-size: 0.9rem;
+        padding: 0.2rem 0.4rem;
+        gap: 0.2rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .sc-project-card-price__badge svg {
+        width: 10px;
+        height: 10px;
+      }
+
+      .sc-project-card-price__text {
+        font-size: 1.1rem;
+        margin: 0 0 0.6rem 0;
+        width: 100%;
+      }
+
+      .sc-project-ask-price-btn--small {
+        padding: 0.65rem 0.8rem;
+        font-size: 1rem;
+        gap: 0.3rem;
+      }
+
+      .sc-project-ask-price-btn--small svg {
+        width: 11px;
+        height: 11px;
+      }
+    }
+  </style>
+{% endif %}
+
+{% comment %} Return whether price should be hidden {% endcomment %}
+{% if hide_price %}
+  <span class="sc-hide-price" style="display: none;" data-sc-hide-price="true"></span>
+{% endif %}
