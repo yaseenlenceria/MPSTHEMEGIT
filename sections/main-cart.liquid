@@ -176,22 +176,24 @@
 
         /* Card Styling */
         .ymm-rec-card {
-          border: 1px solid #e5e5e5 !important;
-          border-radius: 8px !important;
-          padding: 14px !important;
+          border: 1px solid rgba(0, 0, 0, 0.05) !important;
+          border-radius: 12px !important;
+          padding: 12px !important;
           background: #ffffff !important;
           display: flex !important;
           flex-direction: column !important;
           height: 100% !important;
           width: 100% !important;
-          transition: box-shadow 0.25s ease, transform 0.25s ease !important;
+          transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.02) !important;
           overflow: hidden !important;
           position: relative !important;
         }
 
         .ymm-rec-card:hover {
-          box-shadow: 0 8px 20px rgba(0,0,0,0.06) !important;
-          transform: translateY(-2px) !important;
+          box-shadow: 0 12px 28px rgba(255, 88, 13, 0.08), 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+          transform: translateY(-3px) !important;
+          border-color: rgba(255, 88, 13, 0.2) !important;
         }
 
         .ymm-rec-media {
@@ -199,10 +201,10 @@
           padding-top: 100% !important; /* Square Aspect Ratio */
           position: relative !important;
           overflow: hidden !important;
-          border-radius: 6px !important;
-          background: #fdfbfb !important;
-          border: 1px solid #f0f0f0 !important;
-          margin-bottom: 12px !important;
+          border-radius: 8px !important;
+          background: #f8f9fa !important;
+          border: 1px solid #f1f3f5 !important;
+          margin-bottom: 10px !important;
         }
 
         .ymm-rec-media a {
@@ -219,11 +221,11 @@
           height: 100% !important;
           object-fit: contain !important;
           display: block !important;
-          transition: transform 0.3s ease !important;
+          transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
         }
 
         .ymm-rec-card:hover .ymm-rec-media img {
-          transform: scale(1.04) !important;
+          transform: scale(1.06) !important;
         }
 
         .ymm-rec-info {
@@ -234,21 +236,21 @@
 
         /* Premium Scaled Typography */
         .ymm-rec-title {
-          font-size: 1.1rem !important; /* Increased font-size (was 0.85rem) */
-          font-weight: 700 !important; /* Bolder font-weight */
-          line-height: 1.35 !important;
-          margin: 0 0 8px 0 !important;
+          font-size: 0.95rem !important;
+          font-weight: 700 !important;
+          line-height: 1.4 !important;
+          margin: 0 0 6px 0 !important;
           display: -webkit-box !important;
           -webkit-line-clamp: 2 !important;
           -webkit-box-orient: vertical !important;
           overflow: hidden !important;
-          height: 2.7em !important;
-          min-height: 2.7em !important;
+          height: 2.8em !important;
+          min-height: 2.8em !important;
         }
 
         @media (min-width: 768px) {
           .ymm-rec-title {
-            font-size: 1.25rem !important; /* Scaled up on desktop (was 0.95rem) */
+            font-size: 1.05rem !important;
             height: 2.8em !important;
             min-height: 2.8em !important;
           }
@@ -256,8 +258,8 @@
 
         .ymm-rec-title a {
           text-decoration: none !important;
-          color: #2a2b2a !important;
-          transition: color 0.2s ease !important;
+          color: #1a1a1a !important;
+          transition: color 0.25s ease !important;
         }
 
         .ymm-rec-title a:hover {
@@ -265,67 +267,74 @@
         }
 
         .ymm-rec-price {
-          font-size: 1.15rem !important; /* Increased price text size (was 0.95rem) */
+          font-size: 1.05rem !important;
           font-weight: 800 !important;
           color: #ff580d !important;
-          margin-bottom: 10px !important;
+          margin-bottom: 8px !important;
         }
 
         @media (min-width: 768px) {
           .ymm-rec-price {
-            font-size: 1.35rem !important; /* Scaled up on desktop (was 1.1rem) */
-            margin-bottom: 14px !important;
+            font-size: 1.15rem !important;
+            margin-bottom: 10px !important;
           }
         }
 
         /* Tag Badges */
         .ymm-rec-reason {
-          font-size: 0.9rem !important; /* Larger badge text (was 0.65rem) */
+          font-size: 0.65rem !important;
+          font-weight: 800 !important;
           color: #0da44a !important;
-          background: #e8f7ee !important;
-          padding: 4px 8px !important;
-          border-radius: 4px !important;
+          background: rgba(13, 164, 74, 0.08) !important;
+          border: 1px solid rgba(13, 164, 74, 0.15) !important;
+          padding: 3px 8px !important;
+          border-radius: 100px !important;
           align-self: flex-start !important;
-          margin-bottom: 12px !important;
-          font-weight: 700 !important;
+          margin-bottom: 8px !important;
           white-space: nowrap !important;
           overflow: hidden !important;
           text-overflow: ellipsis !important;
           max-width: 100% !important;
+          letter-spacing: 0.04em !important;
+          text-transform: uppercase !important;
         }
 
         @media (min-width: 768px) {
           .ymm-rec-reason {
-            font-size: 0.9rem !important; /* Scaled up on desktop (was 0.75rem) */
-            padding: 5px 10px !important;
-            margin-bottom: 14px !important;
+            font-size: 0.7rem !important;
+            padding: 4px 10px !important;
+            margin-bottom: 10px !important;
           }
         }
 
         .ymm-rec-btn {
           width: 100% !important;
-          background: #ff580d !important;
+          background: linear-gradient(135deg, #ff7214 0%, #ff580d 100%) !important;
           color: #ffffff !important;
           border: none !important;
-          padding: 10px !important; /* Increased padding for larger touch target */
-          border-radius: 24px !important;
-          font-size: 1.1rem !important; /* Larger button text (was 0.78rem) */
+          padding: 9px !important;
+          border-radius: 30px !important;
+          font-size: 0.8rem !important;
           font-weight: 700 !important;
           cursor: pointer !important;
           margin-top: auto !important;
-          transition: background 0.2s ease !important;
+          transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+          min-height: 38px !important;
+          box-shadow: 0 4px 12px rgba(255, 88, 13, 0.2) !important;
+          letter-spacing: 0.02em !important;
         }
 
         @media (min-width: 768px) {
           .ymm-rec-btn {
-            padding: 12px !important;
-            border-radius: 28px !important;
-            font-size: 1rem !important; /* Scaled up on desktop (was 0.85rem) */
+            padding: 10px !important;
+            font-size: 0.85rem !important;
           }
         }
 
         .ymm-rec-btn:hover {
+          transform: scale(1.03) !important;
           background: #2a2b2a !important;
+          box-shadow: 0 6px 16px rgba(42, 43, 42, 0.25) !important;
         }
 
         /* Mobile specific optimizations */

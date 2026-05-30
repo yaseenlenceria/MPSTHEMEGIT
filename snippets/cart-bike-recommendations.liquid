@@ -83,9 +83,9 @@
     scroll-behavior: smooth !important;
     -webkit-overflow-scrolling: touch !important;
     scrollbar-width: none !important;
-    gap: 12px !important;
+    gap: 14px !important;
     list-style: none !important;
-    padding: 4px 4px 16px 4px !important;
+    padding: 6px 6px 20px 6px !important;
     margin: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
@@ -96,38 +96,40 @@
   .cart-bike-recommendations__grid > li {
     flex: 0 0 65% !important;
     width: 65% !important;
-    min-width: 160px !important;
-    max-width: 220px !important;
+    min-width: 170px !important;
+    max-width: 230px !important;
     scroll-snap-align: center !important;
     margin: 0 !important;
     padding: 0 !important;
   }
   .ymm-rec-card {
-    border: 1px solid #e5e5e5 !important;
-    border-radius: 8px !important;
-    padding: 10px !important;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+    border-radius: 12px !important;
+    padding: 12px !important;
     background: #ffffff !important;
     display: flex !important;
     flex-direction: column !important;
     height: 100% !important;
     width: 100% !important;
-    transition: box-shadow 0.25s ease, transform 0.25s ease !important;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.02) !important;
     overflow: hidden !important;
     position: relative !important;
   }
   .ymm-rec-card:hover {
-    box-shadow: 0 8px 20px rgba(0,0,0,0.06) !important;
-    transform: translateY(-2px) !important;
+    box-shadow: 0 12px 28px rgba(255, 88, 13, 0.08), 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+    transform: translateY(-3px) !important;
+    border-color: rgba(255, 88, 13, 0.2) !important;
   }
   .ymm-rec-media {
     width: 100% !important;
     padding-top: 100% !important;
     position: relative !important;
     overflow: hidden !important;
-    border-radius: 6px !important;
-    background: #fdfbfb !important;
-    border: 1px solid #f0f0f0 !important;
-    margin-bottom: 8px !important;
+    border-radius: 8px !important;
+    background: #f8f9fa !important;
+    border: 1px solid #f1f3f5 !important;
+    margin-bottom: 10px !important;
   }
   .ymm-rec-media a {
     display: block !important;
@@ -142,10 +144,10 @@
     height: 100% !important;
     object-fit: contain !important;
     display: block !important;
-    transition: transform 0.3s ease !important;
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
   }
   .ymm-rec-card:hover .ymm-rec-media img {
-    transform: scale(1.04) !important;
+    transform: scale(1.06) !important;
   }
   .ymm-rec-info {
     display: flex !important;
@@ -155,59 +157,66 @@
   .ymm-rec-title {
     font-size: 0.85rem !important;
     font-weight: 700 !important;
-    line-height: 1.3 !important;
-    margin: 0 0 4px 0 !important;
+    line-height: 1.4 !important;
+    margin: 0 0 6px 0 !important;
     display: -webkit-box !important;
     -webkit-line-clamp: 2 !important;
     -webkit-box-orient: vertical !important;
     overflow: hidden !important;
-    height: 2.6em !important;
-    min-height: 2.6em !important;
+    height: 2.8em !important;
+    min-height: 2.8em !important;
   }
   .ymm-rec-title a {
     text-decoration: none !important;
-    color: #2a2b2a !important;
-    transition: color 0.2s ease !important;
+    color: #1a1a1a !important;
+    transition: color 0.25s ease !important;
   }
   .ymm-rec-title a:hover {
     color: #ff580d !important;
   }
   .ymm-rec-price {
-    font-size: 0.95rem !important;
+    font-size: 1rem !important;
     font-weight: 800 !important;
     color: #ff580d !important;
-    margin-bottom: 6px !important;
+    margin-bottom: 8px !important;
   }
   .ymm-rec-reason {
-    font-size: 0.75rem !important;
+    font-size: 0.65rem !important;
+    font-weight: 800 !important;
     color: #0da44a !important;
-    background: #e8f7ee !important;
-    padding: 2px 6px !important;
-    border-radius: 4px !important;
+    background: rgba(13, 164, 74, 0.08) !important;
+    border: 1px solid rgba(13, 164, 74, 0.15) !important;
+    padding: 3px 8px !important;
+    border-radius: 100px !important;
     align-self: flex-start !important;
-    margin-bottom: 6px !important;
-    font-weight: 700 !important;
+    margin-bottom: 8px !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     max-width: 100% !important;
+    letter-spacing: 0.04em !important;
+    text-transform: uppercase !important;
   }
   .ymm-rec-btn {
     width: 100% !important;
-    background: #ff580d !important;
+    background: linear-gradient(135deg, #ff7214 0%, #ff580d 100%) !important;
     color: #ffffff !important;
     border: none !important;
-    padding: 8px !important;
-    border-radius: 20px !important;
+    padding: 9px !important;
+    border-radius: 30px !important;
     font-size: 0.8rem !important;
     font-weight: 700 !important;
     cursor: pointer !important;
     margin-top: auto !important;
-    transition: background 0.2s ease !important;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
     min-height: 38px !important;
+    box-shadow: 0 4px 12px rgba(255, 88, 13, 0.2) !important;
+    letter-spacing: 0.02em !important;
   }
   .ymm-rec-btn:hover {
+    transform: scale(1.03) !important;
     background: #2a2b2a !important;
+    box-shadow: 0 6px 16px rgba(42, 43, 42, 0.25) !important;
   }
   .cart-bike-recommendations__badge {
     color: #ff580d !important;
