@@ -287,18 +287,18 @@
             {%- endif -%}
             {%- if section.settings.additional_collection != blank and show_universal_products -%}
               {%- assign additional_collection = collections[section.settings.additional_collection] -%}
-              {%- if additional_collection.products.size > 0 -%}
+              {%- if additional_collection.all_products.size > 0 -%}
                 {%- liquid
                   if settings.prod_card_image_ratio == 'shortest'
                     assign additional_image_ratio = 0
-                    for product in additional_collection.products
+                    for product in additional_collection.all_products
                       if product.featured_media.preview_image.aspect_ratio > additional_image_ratio
                         assign additional_image_ratio = product.featured_media.preview_image.aspect_ratio
                       endif
                     endfor
                   elsif settings.prod_card_image_ratio == 'tallest'
                     assign additional_image_ratio = 99
-                    for product in additional_collection.products
+                    for product in additional_collection.all_products
                       if product.featured_media.preview_image.aspect_ratio < additional_image_ratio
                         assign additional_image_ratio = product.featured_media.preview_image.aspect_ratio
                       endif
@@ -307,7 +307,7 @@
                     assign additional_image_ratio = settings.prod_card_image_ratio
                   endif
                 -%}
-                {%- for product in additional_collection.products limit: section.settings.additional_collection_limit -%}
+                {%- for product in additional_collection.all_products limit: section.settings.additional_collection_limit -%}
                   {%- capture search_text -%}{{ product.title }} {{ product.vendor }} {{ product.type }} {{ product.tags | join: ' ' }}{%- endcapture -%}
                   <li data-vendor="{{ product.vendor }}" data-search-item data-search-text="{{ search_text | strip | downcase | escape }}">{% render 'product-card', product: product, collection: additional_collection, image_ratio: additional_image_ratio, show_compare: settings.enable_compare %}</li>
                 {%- endfor -%}
