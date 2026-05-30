@@ -78,6 +78,9 @@ cart-items {
   height: auto;
   max-height: 200px;
   object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+  background: #fdfdfd;
 }
 
 .cart-item__info {
