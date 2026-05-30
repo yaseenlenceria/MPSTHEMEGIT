@@ -1,10 +1,26 @@
 {%- comment -%}
   Product Fitment Checker Widget
-  Parses product tags matching "[Make]+[Model]+[Year]" to check compatibility dynamically.
+  Parses product tags matching "[Make]+[Model]+[Year]" and Shopify Product Metafield custom.compatible_bikes to check compatibility.
   Saves the user's selected vehicle in localStorage to check compatibility across all product pages automatically.
 {%- endcomment -%}
 
-<div class="product-fitment-checker" id="product-fitment-checker" data-tags="{{ product.tags | join: '|||' | escape }}">
+{%- capture compatible_bikes_json -%}
+  [
+    {%- if product.metafields.custom.compatible_bikes.value != blank -%}
+      {%- for bike in product.metafields.custom.compatible_bikes.value -%}
+        {
+          "make": {{ bike.make.value | default: bike.make | json }},
+          "model": {{ bike.model.value | default: bike.model | json }},
+          "years": {{ bike.years.value | default: bike.years | json }}
+        }{%- unless forloop.last -%},{%- endunless -%}
+      {%- endfor -%}
+    {%- endif -%}
+  ]
+{%- endcapture -%}
+
+<div class="product-fitment-checker" id="product-fitment-checker" 
+     data-tags="{{ product.tags | join: '|||' | escape }}"
+     data-compatible-bikes="{{ compatible_bikes_json | escape }}">
   <div class="fitment-card">
     <div class="fitment-header">
       <svg class="fitment-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -45,6 +61,23 @@
       </div>
       <button type="button" class="fitment-submit-btn" id="fitment-check-btn" disabled>Check Fitment</button>
     </div>
+
+    {%- if product.metafields.custom.compatible_bikes.value != blank -%}
+      <div class="fitment-list-wrapper mt-4 pt-4 border-t" style="border-top: 1px solid #e9ecef; margin-top: 1.25rem; padding-top: 1rem;">
+        <h3 class="fitment-list-title text-sm font-semibold uppercase tracking-wider mb-2" style="font-size: 0.75rem; font-weight: 800; color: #495057; margin-bottom: 0.5rem; letter-spacing: 0.05em;">Guaranteed Compatibility</h3>
+        <div class="fitment-list-items flex flex-wrap gap-2" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+          {%- for bike in product.metafields.custom.compatible_bikes.value -%}
+            {%- assign bike_years_str = bike.years.value | default: bike.years | join: ', ' -%}
+            <span class="fitment-badge text-xs" style="background: rgba(46, 204, 113, 0.1); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.2); padding: 0.35rem 0.65rem; border-radius: 6px; font-weight: 600; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 4px;">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="vertical-align: middle;">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              {{ bike.make }} {{ bike.model }} ({{ bike_years_str }})
+            </span>
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
   </div>
 </div>
 
@@ -227,6 +260,13 @@
   const tagsData = container.getAttribute('data-tags') || '';
   const productTags = tagsData.split('|||').map(t => t.trim().toLowerCase());
 
+  let metaCompat = [];
+  try {
+    metaCompat = JSON.parse(container.getAttribute('data-compatible-bikes') || '[]');
+  } catch(e) {
+    console.warn("Failed to parse compatible bikes metafield JSON", e);
+  }
+
   const makeSelect = document.getElementById('fitment-make');
   const modelSelect = document.getElementById('fitment-model');
   const yearSelect = document.getElementById('fitment-year');
@@ -342,7 +382,24 @@
 
     // Format target tag: e.g. "triumph+speed triple 1050+2005"
     const targetTag = `${make.toLowerCase()}+${model.toLowerCase()}+${year.toLowerCase()}`;
-    const fits = productTags.includes(targetTag);
+    let fits = productTags.includes(targetTag);
+
+    // If not found in tags, check metafield compatibility
+    if (!fits && metaCompat && metaCompat.length > 0) {
+      const match = metaCompat.find(item => {
+        const itemMake = (item.make || '').toLowerCase().trim();
+        const itemModel = (item.model || '').toLowerCase().trim();
+        if (itemMake === make.toLowerCase().trim() && itemModel === model.toLowerCase().trim()) {
+          if (Array.isArray(item.years)) {
+            return item.years.map(String).includes(year.toString());
+          }
+        }
+        return false;
+      });
+      if (match) {
+        fits = true;
+      }
+    }
 
     // Update banner
     banner.className = 'fitment-banner ' + (fits ? 'success' : 'error');
