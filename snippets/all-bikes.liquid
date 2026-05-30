@@ -15,15 +15,17 @@
     document.dispatchEvent(new CustomEvent('bikes:loaded', { detail: data }));
   }
 
-  const cached = localStorage.getItem(CACHE_KEY);
-  const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
+  const isDesignMode = !!(window.Shopify && window.Shopify.designMode);
+  const cached = isDesignMode ? null : localStorage.getItem(CACHE_KEY);
+  const cachedTime = isDesignMode ? null : localStorage.getItem(CACHE_TIME_KEY);
 
-  if (cached && cachedTime && (Date.now() - cachedTime < CACHE_EXPIRY)) {
+  let hasCached = false;
+  if (cached) {
     try {
       const data = JSON.parse(cached);
       if (data && data.length > 0) {
         emitLoaded(data);
-        return;
+        hasCached = true;
       }
     } catch(e) {
       console.warn("Failed to parse cached YMM data", e);
@@ -102,15 +104,32 @@
       }
 
       if (allBikes.length > 0) {
-        localStorage.setItem(CACHE_KEY, JSON.stringify(allBikes));
-        localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
-        emitLoaded(allBikes);
+        const stringifiedNew = JSON.stringify(allBikes);
+        const stringifiedOld = localStorage.getItem(CACHE_KEY);
+        
+        if (stringifiedNew !== stringifiedOld || isDesignMode) {
+          localStorage.setItem(CACHE_KEY, stringifiedNew);
+          localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+          emitLoaded(allBikes);
+        } else {
+          // Update timestamp only
+          localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+        }
       }
     } catch(e) {
       console.error("Failed to load bikes from Shopify API", e);
     }
   }
 
-  loadAllBikes();
+  if (!hasCached) {
+    loadAllBikes();
+  } else {
+    // Run update in background after load to keep page load instant
+    if (window.requestIdleCallback) {
+      window.requestIdleCallback(() => loadAllBikes());
+    } else {
+      setTimeout(loadAllBikes, 1500);
+    }
+  }
 })();
 </script>

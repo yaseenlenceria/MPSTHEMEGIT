@@ -412,6 +412,7 @@
     }
 
     const makeSelect = document.getElementById('{{ make_id }}');
+    if (!makeSelect) return;
     const modelSelect = document.getElementById('{{ model_id }}');
     const yearSelect = document.getElementById('{{ year_id }}');
     const button = document.getElementById('{{ button_id }}');
@@ -421,6 +422,31 @@
       document.getElementById('step-3-{{ component }}')
     ];
     const dividers = document.querySelectorAll('#{{ form_id }} .quick-nav__step-divider');
+
+    if (makeSelect.dataset.initialized === 'true') {
+      const currentMake = makeSelect.value;
+      const currentModel = modelSelect.value;
+      const currentYear = yearSelect.value;
+
+      populateMakes();
+      
+      if (currentMake && optionExists(makeSelect, currentMake)) {
+        makeSelect.value = currentMake;
+        populateModels(currentMake);
+        if (currentModel && optionExists(modelSelect, currentModel)) {
+          modelSelect.value = currentModel;
+          populateYears(currentMake, currentModel);
+          if (currentYear && optionExists(yearSelect, currentYear)) {
+            yearSelect.value = currentYear;
+            updateSteps(4);
+          }
+        }
+      } else {
+        applySlugSelection();
+      }
+      return;
+    }
+    makeSelect.dataset.initialized = 'true';
 
     function normalizeHandle(value) {
       if (!value) return '';
@@ -668,10 +694,12 @@
     applySlugSelection();
   }
 
+  document.addEventListener('bikes:loaded', function() {
+    initQuickNav();
+  });
+
   if (window.bikes && window.bikes.length > 0) {
     initQuickNav();
-  } else {
-    document.addEventListener('bikes:loaded', initQuickNav);
   }
 })();
 </script>
