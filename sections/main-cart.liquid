@@ -314,10 +314,14 @@
           .cart.form > #cart-errors {
             order: 1 !important;
           }
-          cart-items#cart-items {
-            order: 2 !important;
+          cart-items#cart-items,
+          cart-items#cart-items table,
+          cart-items#cart-items tbody {
             display: block !important;
             width: 100% !important;
+          }
+          cart-items#cart-items {
+            order: 2 !important;
           }
           .cart__summary-wrapper,
           .cart__summary {
