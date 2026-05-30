@@ -319,13 +319,16 @@
             display: block !important;
             width: 100% !important;
           }
+          .cart__summary-wrapper,
           .cart__summary {
             order: 3 !important;
+            border-radius: 8px !important;
+          }
+          .cart__summary {
             display: flex !important;
             flex-direction: column !important;
             padding: 16px !important; /* Less padding */
             margin: 0 !important;
-            border-radius: 8px !important;
           }
           .cart-page-recommendations {
             order: 4 !important;
@@ -1207,7 +1210,7 @@
               </div>
 
             {%- when 'summary-and-checkout' -%}
-                <div {{ block.shopify_attributes }}>
+                <div class="cart__summary-wrapper" {{ block.shopify_attributes }}>
                   {{- summary_and_checkout -}}
                 </div>
 
