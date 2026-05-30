@@ -5,6 +5,12 @@ if (!customElements.get('product-form')) {
       if (this.hasChildNodes()) this.init();
     }
 
+    connectedCallback() {
+      setTimeout(() => {
+        if (!this.form) this.init();
+      }, 0);
+    }
+
     init() {
       this.form = this.querySelector('.js-product-form');
       if (this.form) {
