@@ -301,6 +301,12 @@
           .cart.form .js-cart-title {
             margin-bottom: 12px !important;
           }
+          /* Hide empty/hidden containers to prevent browser rendering them in flex gap layout */
+          .free-shipping-notice:not(:has(.free-shipping-container)),
+          #cart-errors[hidden],
+          #cart-errors:empty {
+            display: none !important;
+          }
           .cart__items {
             display: contents !important;
           }
