@@ -82,6 +82,7 @@
     assign has_puig_screen = false
     assign has_extender_visor = false
     assign has_levers = false
+    assign has_puig_levers = false
     assign has_bar_end_mirrors = false
     assign has_universal = false
     assign has_universal_footpegs = false
@@ -169,16 +170,24 @@
         assign has_extender_visor = true
       endif
 
+      assign item_is_lever = false
       if item_type contains 'lever'
-        assign has_levers = true
+        assign item_is_lever = true
       elsif item_title contains 'lever'
-        assign has_levers = true
+        assign item_is_lever = true
       elsif item_url contains 'lever'
-        assign has_levers = true
+        assign item_is_lever = true
       elsif item_tags contains 'adjustable levers'
-        assign has_levers = true
+        assign item_is_lever = true
       elsif item_tags contains 'extendable levers'
+        assign item_is_lever = true
+      endif
+
+      if item_is_lever
         assign has_levers = true
+        if item_vendor == 'puig'
+          assign has_puig_levers = true
+        endif
       endif
 
       if item_type contains 'mirror' and item_title contains 'bar end'
@@ -238,20 +247,29 @@
       assign show_puig_visor_upsell = true
     endif
 
-    if has_levers or has_universal or has_universal_footpegs or has_universal_bar_ends
-      assign has_universal_accessory = true
+    if has_puig_levers
+      if has_universal_footpegs == false
+        assign show_universal_footpegs_upsell = true
+      endif
+      if has_universal_bar_ends == false
+        assign show_universal_bar_ends_upsell = true
+      endif
     else
-      assign has_universal_accessory = false
-    endif
+      if has_levers or has_universal or has_universal_footpegs or has_universal_bar_ends
+        assign has_universal_accessory = true
+      else
+        assign has_universal_accessory = false
+      endif
 
-    if has_universal_accessory and has_universal_footpegs == false
-      assign show_universal_footpegs_upsell = true
-    endif
-    if has_universal_accessory and has_universal_footpegs and has_universal_bar_ends == false
-      assign show_universal_bar_ends_upsell = true
-    endif
-    if has_universal_accessory and has_universal_footpegs and has_universal_bar_ends and has_universal_levers == false
-      assign show_universal_levers_upsell = true
+      if has_universal_accessory and has_universal_footpegs == false
+        assign show_universal_footpegs_upsell = true
+      endif
+      if has_universal_accessory and has_universal_footpegs and has_universal_bar_ends == false
+        assign show_universal_bar_ends_upsell = true
+      endif
+      if has_universal_accessory and has_universal_footpegs and has_universal_bar_ends and has_universal_levers == false
+        assign show_universal_levers_upsell = true
+      endif
     endif
 
     if show_dna_filter_upsell
@@ -625,13 +643,12 @@
     assign product_tags = product.tags | join: ',' | downcase
     assign product_vendor = product.vendor | downcase
 
-    if exhaust_vendors contains product_vendor
+    # Exhaust vendor check (including Termignoni, Ixil, Ixrace, Ironhead, QD, Arrow, UpMap, Red Thunder, SC-Project, etc.)
+    if exhaust_vendors contains product_vendor or product_vendor == 'red thunder' or product_vendor == 'redthunder' or product_vendor == 'sc-project' or product_vendor == 'sc project'
       assign has_exhaust = true
     elsif product_type contains 'exhaust'
       assign has_exhaust = true
-    elsif product_title contains 'exhaust'
-      assign has_exhaust = true
-    elsif product_title contains 'termignoni'
+    elsif product_title contains 'exhaust' or product_title contains 'termignoni' or product_title contains 'red thunder' or product_title contains 'redthunder' or product_title contains 'sc-project' or product_title contains 'sc project'
       assign has_exhaust = true
     else
       for exhaust_vendor in exhaust_vendors
@@ -642,6 +659,7 @@
       endfor
     endif
 
+    # Levers check
     if product_type contains 'lever'
       assign has_levers = true
     elsif product_title contains 'lever'
@@ -654,52 +672,128 @@
       assign has_levers = true
     endif
 
+    # Bar end mirrors check
     if product_type contains 'mirror' and product_title contains 'bar end'
       assign has_bar_end_mirrors = true
     elsif product_tags contains 'puig mirrors'
       assign has_bar_end_mirrors = true
     endif
 
+    # Universal check
     if product_tags contains 'universal'
       assign has_universal = true
     endif
 
+    # Footpegs check
     if product_tags contains 'puig footpegs'
       assign has_universal_footpegs = true
-    elsif product_type contains 'foot peg'
+    elsif product_type contains 'foot peg' or product_type contains 'footpeg'
+      assign has_universal_footpegs = true
+    elsif product_title contains 'foot peg' or product_title contains 'footpeg'
       assign has_universal_footpegs = true
     endif
 
+    # Bar ends check
     if product_type contains 'mirror' and product_title contains 'bar end'
       assign has_universal_bar_ends = true
     elsif product_tags contains 'puig mirrors'
       assign has_universal_bar_ends = true
+    elsif product_tags contains 'bar ends'
+      assign has_universal_bar_ends = true
+    elsif product_type contains 'bar end' or product_type contains 'bar ends'
+      assign has_universal_bar_ends = true
+    elsif product_title contains 'bar end' or product_title contains 'bar ends'
+      assign has_universal_bar_ends = true
     endif
 
+    # Universal levers check
     if product_type contains 'lever'
       assign has_universal_levers = true
     elsif product_title contains 'lever'
       assign has_universal_levers = true
     endif
 
+    # Parse bike fitment details for the current product
+    assign current_bike_make = ""
+    assign current_bike_model = ""
+    for tag in product.tags
+      if tag contains "+"
+        assign parts = tag | split: "+"
+        if parts.size >= 2
+          assign current_bike_make = parts[0] | downcase | strip
+          assign current_bike_model = parts[1] | downcase | strip
+          break
+        endif
+      endif
+    endfor
+
+    if current_bike_make == blank
+      for make in bike_make_list
+        if product_title contains make
+          assign current_bike_make = make
+          break
+        endif
+      endfor
+    endif
+
+    # Set upselling flags based on user specifications
+    # Rule 1: Exhausts -> DNA Filter
     if has_exhaust and has_dna_in_cart == false
       assign show_dna_filter_upsell = true
     endif
 
-    if has_levers and has_bar_end_mirrors == false
-      assign show_bar_end_mirrors_upsell = true
+    # Rule 2: Puig Screen -> Extender Visor
+    assign is_puig_screen = false
+    if product_vendor == 'puig'
+      if product_type contains 'screen' or product_title contains 'screen' or product_tags contains 'puig screens'
+        assign is_puig_screen = true
+      endif
+    endif
+    if is_puig_screen
+      assign show_puig_visor_upsell = true
     endif
 
-    if has_universal and has_universal_footpegs == false
+    # Rule 3: DNA Filter -> DNA Service Kit
+    assign is_dna_filter = false
+    if product_vendor == 'dna'
+      if product_type contains 'filter' or product_title contains 'filter' or product_tags contains 'dna-air-filter'
+        unless product_title contains 'service kit'
+          assign is_dna_filter = true
+        endunless
+      endif
+    endif
+    if is_dna_filter
+      assign show_dna_service_upsell = true
+    endif
+
+    # Rule 4: Puig Levers -> Racing Footpegs & Sport Bar Ends
+    assign is_puig_levers = false
+    if product_vendor == 'puig'
+      if product_type contains 'lever' or product_title contains 'lever' or product_tags contains 'adjustable levers' or product_tags contains 'extendable levers'
+        assign is_puig_levers = true
+      endif
+    endif
+
+    if is_puig_levers
       assign show_universal_footpegs_upsell = true
-    endif
-    if has_universal and has_universal_footpegs and has_universal_bar_ends == false
       assign show_universal_bar_ends_upsell = true
-    endif
-    if has_universal and has_universal_footpegs and has_universal_bar_ends and has_universal_levers == false
-      assign show_universal_levers_upsell = true
+    else
+      # Standard fallbacks if not matching specific Puig levers rules
+      if has_levers and has_bar_end_mirrors == false
+        assign show_bar_end_mirrors_upsell = true
+      endif
+      if has_universal and has_universal_footpegs == false
+        assign show_universal_footpegs_upsell = true
+      endif
+      if has_universal and has_universal_footpegs and has_universal_bar_ends == false
+        assign show_universal_bar_ends_upsell = true
+      endif
+      if has_universal and has_universal_footpegs and has_universal_bar_ends and has_universal_levers == false
+        assign show_universal_levers_upsell = true
+      endif
     endif
 
+    # Load DNA Air Filter product with bike fitment matching
     if show_dna_filter_upsell and dna_filter_product == blank
       assign dna_collection = collections['DNA Performance Air Filters']
       if dna_collection == nil or dna_collection.products == blank
@@ -707,19 +801,24 @@
       endif
 
       if dna_collection and dna_collection.products != blank
-        for product_item in dna_collection.products limit: 12
-          assign product_title = product_item.title | downcase
-          assign product_vendor = product_item.vendor | downcase
-          unless product_title contains 'service kit'
-            if product_vendor == 'dna'
-              assign dna_filter_product = product_item
-              break
+        for product_item in dna_collection.products
+          assign item_title = product_item.title | downcase
+          assign item_vendor = product_item.vendor | downcase
+          unless item_title contains 'service kit'
+            if item_vendor == 'dna'
+              if current_bike_make == blank or item_title contains current_bike_make
+                if current_bike_model == blank or item_title contains current_bike_model
+                  assign dna_filter_product = product_item
+                  break
+                endif
+              endif
             endif
           endunless
         endfor
       endif
     endif
 
+    # Fallback DNA Air Filter product lookup (general catalog scan)
     if show_dna_filter_upsell and dna_filter_product == blank
       assign catalog = collections.all
       if catalog == nil or catalog.products == blank
@@ -734,17 +833,64 @@
 
           if candidate_vendor == 'dna'
             if candidate_type contains 'air filter' or candidate_title contains 'air filter'
-              if candidate_title contains 'service kit'
-              else
+              unless candidate_title contains 'service kit'
+                if current_bike_make == blank or candidate_title contains current_bike_make
+                  if current_bike_model == blank or candidate_title contains current_bike_model
+                    assign dna_filter_product = candidate
+                    break
+                  endif
+                endif
+              endunless
+            endif
+          endif
+        endfor
+
+        # Absolute fallback to first DNA filter if fitment match failed
+        if dna_filter_product == blank
+          for candidate in catalog.products
+            assign candidate_vendor = candidate.vendor | downcase
+            assign candidate_type = candidate.type | downcase
+            assign candidate_title = candidate.title | downcase
+            if candidate_vendor == 'dna' and candidate_type contains 'air filter'
+              unless candidate_title contains 'service kit'
                 assign dna_filter_product = candidate
                 break
-              endif
+              endunless
             endif
+          endfor
+        endif
+      endif
+    endif
+
+    # Load Puig Visor Product
+    if show_puig_visor_upsell
+      assign puig_visor_product = all_products['puig_extender_visor__screwon-_3_sizes-product-15965']
+      if puig_visor_product == blank
+        assign puig_visor_product = all_products['puig_extender_visor_clampon-_3_sizes-product-15966']
+      endif
+    endif
+
+    if show_puig_visor_upsell and puig_visor_product == blank
+      assign catalog = collections.all
+      if catalog == nil or catalog.products == blank
+        assign catalog = collections['all']
+      endif
+
+      if catalog and catalog.products != blank
+        for candidate in catalog.products
+          assign candidate_vendor = candidate.vendor | downcase
+          assign candidate_title = candidate.title | downcase
+          assign candidate_tags = candidate.tags | join: ',' | downcase
+
+          if candidate_vendor == 'puig' and candidate_title contains 'extender' and candidate_tags contains 'universal'
+            assign puig_visor_product = candidate
+            break
           endif
         endfor
       endif
     endif
 
+    # Load Bar End Mirrors Product
     if show_bar_end_mirrors_upsell
       assign bar_end_mirrors_product = all_products['puig_mirrors_ht4_bar_end_in_black_silver_various_models-product-17691']
       if bar_end_mirrors_product == blank
@@ -773,14 +919,64 @@
       endif
     endif
 
+    # Load Footpegs Product
     if show_universal_footpegs_upsell
       assign universal_footpegs_product = all_products['puig_foot_pegs__racing-product-17312']
     endif
 
+    # Load Puig Sport Bar Ends Product (preferring Sport ones specifically)
     if show_universal_bar_ends_upsell
-      assign universal_bar_ends_product = all_products['puig_mirrors_ht4_bar_end_in_black_silver_various_models-product-17691']
+      assign catalog = collections.all
+      if catalog == nil or catalog.products == blank
+        assign catalog = collections['all']
+      endif
+
+      if catalog and catalog.products != blank
+        for candidate in catalog.products
+          assign candidate_vendor = candidate.vendor | downcase
+          assign candidate_tags = candidate.tags | join: ',' | downcase
+          assign candidate_title = candidate.title | downcase
+          assign candidate_type = candidate.type | downcase
+
+          if candidate_vendor == 'puig' and candidate_title contains 'sport' and candidate_title contains 'bar end'
+            assign universal_bar_ends_product = candidate
+            break
+          elsif candidate_vendor == 'puig' and candidate_tags contains 'bar ends' and candidate_title contains 'sport'
+            assign universal_bar_ends_product = candidate
+            break
+          elsif candidate_vendor == 'puig' and candidate_type contains 'bar end' and candidate_title contains 'sport'
+            assign universal_bar_ends_product = candidate
+            break
+          endif
+        endfor
+
+        if universal_bar_ends_product == blank
+          for candidate in catalog.products
+            assign candidate_vendor = candidate.vendor | downcase
+            assign candidate_tags = candidate.tags | join: ',' | downcase
+            assign candidate_title = candidate.title | downcase
+            assign candidate_type = candidate.type | downcase
+
+            if candidate_vendor == 'puig' and candidate_title contains 'bar end'
+              assign universal_bar_ends_product = candidate
+              break
+            elsif candidate_vendor == 'puig' and candidate_tags contains 'bar ends'
+              assign universal_bar_ends_product = candidate
+              break
+            elsif candidate_vendor == 'puig' and candidate_type contains 'bar end'
+              assign universal_bar_ends_product = candidate
+              break
+            endif
+          endfor
+        endif
+      endif
+
+      if universal_bar_ends_product == blank
+        assign universal_bar_ends_product = all_products['puig_mirrors_ht4_bar_end_in_black_silver_various_models-product-17691']
+      endif
     endif
 
+    # Load Levers Product
     if show_universal_levers_upsell
       assign universal_levers_product = all_products['puig_gen_3_racing_lever_adjusters']
     endif
