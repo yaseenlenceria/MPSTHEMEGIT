@@ -25,6 +25,7 @@
       {% render 'cart-items' %}
 
       {%- if settings.show_recommendations and cart != empty -%}
+        <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
         <div class="cart-page-recommendations mt-8">
           {%- liquid
             assign cart_product = cart.items[0].product
@@ -665,7 +666,7 @@
                             <p class="ymm-rec-title"><a href="${product.url}">${safeTitle}</a></p>
                             <span class="ymm-rec-reason">${safeReason}</span>
                             <div class="ymm-rec-price">${price}</div>
-                            ${variant ? `<form method="post" action="/cart/add" class="js-product-form"><input type="hidden" name="id" value="${variant.id}"><button class="ymm-rec-btn" name="add" type="submit">Add to Cart</button></form>` : ''}
+                            ${variant ? `<product-form><form method="post" action="/cart/add" class="js-product-form"><input type="hidden" name="id" value="${variant.id}"><button class="ymm-rec-btn" name="add" type="submit">Add to Cart</button></form></product-form>` : ''}
                           </div>
                         </div>
                       </li>`;
