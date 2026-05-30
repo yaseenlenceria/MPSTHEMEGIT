@@ -194,6 +194,58 @@
         return 'unknown';
       }
 
+      parseYmmTags(product) {
+        const tagsRaw = product.tags;
+        if (!tagsRaw) return null;
+        const tagsArr = Array.isArray(tagsRaw) ? tagsRaw : String(tagsRaw).split(/\|\||,/);
+        const knownBrands = ['bmw', 'honda', 'ducati', 'kawasaki', 'yamaha', 'suzuki', 'ktm', 'triumph', 'aprilia', 'mv agusta', 'mv-agusta', 'mvagusta', 'royal enfield', 'royal-enfield', 'harley-davidson', 'harley', 'moto guzzi', 'moto-guzzi', 'husqvarna', 'benelli', 'indian', 'norton', 'buell', 'zero', 'energica', 'sherco', 'beta', 'gasgas', 'tm racing', 'tm-racing', 'cfmoto', 'cf-moto', 'cf moto'];
+        const fitments = [];
+        for (const rawTag of tagsArr) {
+          const cleanTag = String(rawTag).trim().toLowerCase();
+          const parts = cleanTag.split(/[+\-_\s]+/);
+          if (parts.length >= 3) {
+            const lastPart = parts[parts.length - 1];
+            if (/^(19|20)\d{2}$/.test(lastPart)) {
+              const year = Number(lastPart);
+              let brandIndex = -1;
+              let matchedBrand = '';
+              for (let i = 0; i < parts.length - 1; i++) {
+                const combined = parts.slice(0, i + 1).join(' ');
+                if (knownBrands.includes(combined) || knownBrands.includes(combined.replace(/\s+/g, ''))) {
+                  brandIndex = i;
+                  matchedBrand = combined;
+                }
+              }
+              if (brandIndex === -1) {
+                matchedBrand = parts[0];
+                brandIndex = 0;
+              }
+              const modelParts = parts.slice(brandIndex + 1, parts.length - 1);
+              const model = modelParts.join(' ').trim();
+              if (model) {
+                fitments.push({ brand: matchedBrand, model: model, year: year });
+              }
+            }
+          }
+        }
+        if (fitments.length === 0) return null;
+        const brand = fitments[0].brand;
+        const model = fitments[0].model;
+        const years = fitments.map(f => f.year).sort((a, b) => a - b);
+        const minYear = years[0];
+        const maxYear = years[years.length - 1];
+        return {
+          brand,
+          brandCompact: brand.replace(/[^a-z0-9]/g, ''),
+          model,
+          modelCompact: model.replace(/[^a-z0-9]/g, ''),
+          modelTokens: model.split(/[^\w]+/).filter(Boolean),
+          years: { start: minYear, end: maxYear },
+          allYears: years,
+          category: this.bikeCategory(model)
+        };
+      }
+
       parseBike(product) {
         const title = this.normalize(product.title);
         const tags = this.normalize(String(product.tags || '').replace(/\|\|/g, ' ')).replace(/\+/g, ' ');
@@ -258,32 +310,47 @@
         };
       }
 
-      associationOrder(sourcePart, sourceCategory) {
-        const categoryRules = {
-          adventure: ['touring_screen', 'screen', 'touring', 'luggage', 'filter', 'protection', 'lighting'],
-          sport: ['exhaust', 'tail_tidy', 'tank_grip', 'racing_screen', 'screen', 'rearsets', 'db_killer'],
-          naked: ['exhaust', 'tail_tidy', 'protection', 'filter', 'bar_ends'],
-          touring: ['touring_screen', 'screen', 'luggage', 'mounts', 'lighting']
-        };
-        const productRules = {
-          exhaust: ['filter', 'decat', 'db_killer', 'tail_tidy', 'stand', 'protection', 'exhaust_support'],
-          filter: ['exhaust', 'decat', 'engine_parts', 'airbox', 'service_intake', 'tuning'],
-          racing_screen: ['tail_tidy', 'rearsets', 'protection', 'tank_grip'],
-          screen: ['tail_tidy', 'rearsets', 'protection', 'tank_grip', 'touring', 'mounts', 'luggage'],
-          touring_screen: ['touring', 'mounts', 'luggage'],
-          tail_tidy: ['protection', 'exhaust', 'lighting', 'bar_ends'],
-          protection: ['rearsets', 'tail_tidy', 'protection', 'levers'],
-          hugger: ['rearsets', 'tail_tidy', 'protection', 'levers'],
-          rearsets: ['exhaust', 'racing_screen', 'screen', 'tank_grip', 'protection'],
-          service_intake: ['exhaust', 'decat', 'engine_parts', 'airbox', 'tuning']
-        };
-        return productRules[sourcePart] || categoryRules[sourceCategory] || ['filter', 'exhaust', 'tail_tidy', 'screen', 'protection'];
+      getFitment(product) {
+        return this.parseYmmTags(product) || this.parseBike(product);
       }
 
-      associationRank(sourcePart, candidatePart, sourceCategory) {
-        const order = this.associationOrder(sourcePart, sourceCategory);
+      associationOrder(sourcePart, sourceCategory, sourceBrand) {
+        if (sourcePart === 'exhaust') {
+          return ['filter', 'decat', 'db_killer', 'exhaust_support', 'tuning'];
+        }
+        if (sourcePart === 'filter') {
+          return ['service_intake', 'tuning', 'exhaust'];
+        }
+        if (sourcePart === 'screen' || sourcePart === 'racing_screen' || sourcePart === 'touring_screen') {
+          return ['screen', 'protection', 'mounts'];
+        }
+        if (sourcePart === 'levers') {
+          return ['footpegs', 'bar_ends', 'protection'];
+        }
+        if (sourcePart === 'footpegs') {
+          return ['levers', 'bar_ends', 'protection'];
+        }
+        if (sourcePart === 'bar_ends') {
+          return ['levers', 'footpegs', 'protection'];
+        }
+        const categoryRules = {
+          adventure: ['touring_screen', 'screen', 'touring', 'luggage', 'filter', 'protection', 'lighting'],
+          sport: ['exhaust', 'filter', 'tail_tidy', 'tank_grip', 'racing_screen', 'screen', 'rearsets', 'db_killer'],
+          naked: ['exhaust', 'filter', 'tail_tidy', 'protection', 'bar_ends'],
+          touring: ['touring_screen', 'screen', 'luggage', 'mounts', 'lighting']
+        };
+        return categoryRules[sourceCategory] || ['filter', 'exhaust', 'tail_tidy', 'screen', 'protection'];
+      }
+
+      associationRank(sourcePart, candidatePart, sourceCategory, sourceBrand, candidateBrand) {
+        const order = this.associationOrder(sourcePart, sourceCategory, sourceBrand);
         const index = order.indexOf(candidatePart);
-        return index === -1 ? null : index;
+        if (index === -1) return null;
+        let score = 100 - index * 10;
+        if (sourceBrand && candidateBrand && sourceBrand.toLowerCase() === candidateBrand.toLowerCase()) {
+          score += 15;
+        }
+        return score;
       }
 
       searchTerms(fitment, sourcePart) {
@@ -306,7 +373,24 @@
 
         const modelCombos = getCombinations(segments);
         const terms = [];
+        const targets = [];
+        if (sourcePart === 'exhaust') {
+          targets.push('filter', 'decat', 'db killer');
+        } else if (sourcePart === 'filter') {
+          targets.push('service kit', 'exhaust');
+        } else if (sourcePart === 'screen' || sourcePart === 'racing_screen' || sourcePart === 'touring_screen') {
+          targets.push('visor', 'screen');
+        } else if (sourcePart === 'levers') {
+          targets.push('pegs', 'footpegs', 'bar ends');
+        } else if (sourcePart === 'footpegs' || sourcePart === 'bar_ends') {
+          targets.push('levers');
+        }
+
         for (const combo of modelCombos) {
+          for (const target of targets) {
+            terms.push(`${brand} ${combo} ${target}`);
+            terms.push(`${combo} ${target}`);
+          }
           terms.push(`${brand} ${combo}`);
           terms.push(combo);
         }
@@ -387,8 +471,12 @@
         if (!candidateFitment || candidateFitment.brand !== sourceFitment.brand) return null;
         if (sourceCategory !== 'unknown' && candidateFitment.category !== 'unknown' && candidateFitment.category !== sourceCategory) return null;
         const candidatePart = this.partCategory(candidate);
-        const assocRank = this.associationRank(sourcePart, candidatePart, sourceCategory);
-        if (assocRank === null) return null;
+        const sourceBrand = sourceProduct?.vendor || '';
+        const candidateBrand = candidate?.vendor || '';
+        
+        const associationScore = this.associationRank(sourcePart, candidatePart, sourceCategory, sourceBrand, candidateBrand);
+        if (associationScore === null) return null;
+        
         const candidateTitleCompact = this.compact(candidate.title);
 
         let hasTagOverlap = false;
@@ -405,14 +493,13 @@
           (candidateFitment.modelCompact && candidateFitment.modelCompact.includes(sourceFitment.modelCompact))
         )) || hasTagOverlap;
 
-        const associationScore = 100 - assocRank * 10;
         if (hasTagOverlap) {
-          return { priority: 1, score: 5000 + associationScore, reason: `Matching fitment tags found for your bike` };
+          return { priority: 1, score: 6000 + associationScore, reason: `Exact fitment match for your bike` };
         }
-        if (sameModel && this.yearsOverlap(sourceFitment.years, candidateFitment.years)) return { priority: 1, score: 4000 + associationScore, reason: `Exact model match: ${sourceFitment.brand.toUpperCase()} ${sourceFitment.model}` };
-        if (sameModel) return { priority: 2, score: 3000 + associationScore, reason: `Model match: ${sourceFitment.brand.toUpperCase()} ${sourceFitment.model}` };
+        if (sameModel && this.yearsOverlap(sourceFitment.years, candidateFitment.years)) return { priority: 1, score: 4000 + associationScore, reason: `Fits: ${sourceFitment.brand.toUpperCase()} ${sourceFitment.model}` };
+        if (sameModel) return { priority: 2, score: 3000 + associationScore, reason: `Fits: ${sourceFitment.brand.toUpperCase()} ${sourceFitment.model}` };
         if (sourceCategory !== 'unknown' && candidateFitment.category === sourceCategory) return { priority: 3, score: 2000 + associationScore, reason: `Same ${sourceCategory} platform: ${sourceFitment.brand.toUpperCase()}` };
-        return { priority: 4, score: 1000 + associationScore, reason: `Same bike brand: ${sourceFitment.brand.toUpperCase()}` };
+        return { priority: 4, score: 1000 + associationScore, reason: `Fits: ${sourceFitment.brand.toUpperCase()}` };
       }
 
       money(centsOrPrice) {
@@ -476,7 +563,7 @@
       }
 
       async run() {
-        const source = this.cartItems.map((item) => ({ item, fitment: this.parseBike(item), part: this.partCategory(item) }))
+        const source = this.cartItems.map((item) => ({ item, fitment: this.getFitment(item), part: this.partCategory(item) }))
           .find((entry) => entry.fitment?.brand && entry.fitment?.model);
         const cartProductIds = new Set(this.cartItems.map((item) => Number(item.id)));
         if (!source) {
@@ -512,7 +599,7 @@
             seen.add(handleKey);
             const product = await this.productJson(result);
             if (!product || cartProductIds.has(Number(product.id))) continue;
-            const fitment = this.parseBike(product);
+            const fitment = this.getFitment(product);
             const score = this.scoreCandidate(product, fitment, source.fitment, source.part, source.fitment.category, source.item);
             console.log(`Scored candidate "${product ? product.title : ''}":`, score, "Fitment:", fitment);
             if (!score) continue;
@@ -522,14 +609,12 @@
         recommendations.sort((a, b) => b.score - a.score);
         const chosen = [];
         const categories = new Set();
-        // First pass: Unique categories
         for (const rec of recommendations) {
           if (chosen.length >= this.limit) break;
           if (categories.has(rec.category)) continue;
           categories.add(rec.category);
           chosen.push(rec);
         }
-        // Second pass: Allow duplicate categories to fill the limit if unique categories are exhausted
         if (chosen.length < this.limit) {
           for (const rec of recommendations) {
             if (chosen.length >= this.limit) break;
