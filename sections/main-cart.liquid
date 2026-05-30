@@ -27,20 +27,754 @@
       {%- if settings.show_recommendations and cart != empty -%}
         <div class="cart-page-recommendations mt-8">
           {%- liquid
-            if settings.recommendations_layout == 'carousel'
-              assign grid_classes = 'grid grid-flow-col auto-cols-1 md:auto-cols-2 gap-x-theme'
-            else
-              assign grid_classes = 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2 gap-x-theme'
-            endif
+            assign cart_product = cart.items[0].product
+            assign tags_payload = cart_product.tags | join: '||'
+            assign current_product_id = cart_product.id
           -%}
-          {%- render 'cart-bike-recommendations',
-                  is_cart: true,
-                  products_to_show: 2,
-                  heading: settings.recommendations_heading,
-                  layout: settings.recommendations_layout,
-                  grid_classes: grid_classes,
-                  always_open_quickbuy: true
-          -%}
+
+          <div class="product-ymm-recommendations page-width" style="margin: 40px auto; padding: 0 1.5rem; max-width: 1200px; box-sizing: border-box; overflow: hidden; width: 100%;">
+            <div class="section-heading mb-6" style="margin-bottom: 2rem; border-bottom: 2px solid #f0f0f0; padding-bottom: 1.25rem; box-sizing: border-box;">
+              <h3 class="h3 font-bold" style="font-size: 1.8rem; font-weight: 700; color: #2a2b2a; margin: 0;">
+                Popular Combos For Your Bike
+              </h3>
+            </div>
+
+            <product-ymm-recommendations
+              class="product-ymm-recommendations block"
+              style="display: block; box-sizing: border-box; width: 100%; max-width: 100%; overflow: hidden;"
+              data-limit="6"
+              data-product-id="{{ current_product_id }}"
+              data-product-title="{{ cart_product.title | escape }}"
+              data-product-tags="{{ tags_payload | escape }}"
+              data-product-vendor="{{ cart_product.vendor | escape }}"
+              data-product-type="{{ cart_product.type | escape }}"
+              data-product-url="{{ cart_product.url | escape }}"
+              data-currency="{{ cart.currency.iso_code | default: shop.currency | escape }}"
+              data-locale="{{ request.locale.iso_code | default: shop.locale | escape }}">
+              
+              <ul class="product-ymm-recommendations__grid" role="list" style="box-sizing: border-box;">
+                <!-- Loading placeholder -->
+                <li class="recommendations__loading py-8 text-gray-500" style="padding: 4rem 0; color: #888; font-size: 1.2rem; text-align: center; width: 100%; box-sizing: border-box;">
+                  Finding matching parts for your bike...
+                </li>
+              </ul>
+            </product-ymm-recommendations>
+          </div>
+
+          <style>
+            /* Base Reset & Safety Layout Locks */
+            .product-ymm-recommendations,
+            .product-ymm-recommendations * {
+              box-sizing: border-box !important;
+            }
+
+            .product-ymm-recommendations {
+              display: block !important;
+              width: 100% !important;
+              max-width: 100% !important;
+              overflow: hidden !important;
+              margin: 0 auto !important;
+            }
+            
+            /* Responsive Layout System - Touch-scrollable Track on Mobile */
+            .product-ymm-recommendations__grid {
+              display: flex !important;
+              flex-wrap: nowrap !important;
+              overflow-x: auto !important;
+              scroll-snap-type: x mandatory !important;
+              scroll-behavior: smooth !important;
+              -webkit-overflow-scrolling: touch !important;
+              scrollbar-width: none !important; /* Hide scrollbar for Firefox */
+              gap: 16px !important;
+              list-style: none !important;
+              padding: 4px 4px 16px 4px !important; /* Prevents box-shadow clipping */
+              margin: 0 !important;
+              width: 100% !important;
+              max-width: 100% !important;
+            }
+
+            /* Hide scrollbar for Chrome, Safari, and Opera */
+            .product-ymm-recommendations__grid::-webkit-scrollbar {
+              display: none !important;
+            }
+
+            /* Grid item rules on Mobile (Swipe track card sizing) */
+            .product-ymm-recommendations__grid > li {
+              flex: 0 0 75% !important; /* Shows 75% of card to guarantee remaining cards peek through */
+              width: 75% !important;
+              min-width: 220px !important;
+              max-width: 280px !important;
+              scroll-snap-align: center !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+
+            /* Tablets & Desktops -> Clean Grid View */
+            @media (min-width: 768px) {
+              .product-ymm-recommendations__grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important; /* 3 Columns on Tablet */
+                gap: 20px !important;
+                overflow-x: visible !important;
+                padding: 0 !important;
+              }
+              .product-ymm-recommendations__grid > li {
+                flex: none !important;
+                width: auto !important;
+                min-width: 0 !important;
+                max-width: none !important;
+                scroll-snap-align: none !important;
+              }
+            }
+
+            @media (min-width: 990px) {
+              .product-ymm-recommendations__grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr)) !important; /* 4 Columns on Small Desktop */
+                gap: 20px !important;
+              }
+            }
+
+            @media (min-width: 1200px) {
+              .product-ymm-recommendations__grid {
+                grid-template-columns: repeat(6, minmax(0, 1fr)) !important; /* 6 Columns on Wide Desktop */
+                gap: 20px !important;
+              }
+            }
+
+            /* Card Styling */
+            .ymm-rec-card {
+              border: 1px solid #e5e5e5 !important;
+              border-radius: 8px !important;
+              padding: 14px !important;
+              background: #ffffff !important;
+              display: flex !important;
+              flex-direction: column !important;
+              height: 100% !important;
+              width: 100% !important;
+              transition: box-shadow 0.25s ease, transform 0.25s ease !important;
+              overflow: hidden !important;
+              position: relative !important;
+            }
+
+            .ymm-rec-card:hover {
+              box-shadow: 0 8px 20px rgba(0,0,0,0.06) !important;
+              transform: translateY(-2px) !important;
+            }
+
+            .ymm-rec-media {
+              width: 100% !important;
+              padding-top: 100% !important; /* Square Aspect Ratio */
+              position: relative !important;
+              overflow: hidden !important;
+              border-radius: 6px !important;
+              background: #fdfbfb !important;
+              border: 1px solid #f0f0f0 !important;
+              margin-bottom: 12px !important;
+            }
+
+            .ymm-rec-media a {
+              display: block !important;
+              position: absolute !important;
+              top: 0 !important;
+              left: 0 !important;
+              width: 100% !important;
+              height: 100% !important;
+            }
+
+            .ymm-rec-media img {
+              width: 100% !important;
+              height: 100% !important;
+              object-fit: contain !important;
+              display: block !important;
+              transition: transform 0.3s ease !important;
+            }
+
+            .ymm-rec-card:hover .ymm-rec-media img {
+              transform: scale(1.04) !important;
+            }
+
+            .ymm-rec-info {
+              display: flex !important;
+              flex-direction: column !important;
+              flex-grow: 1 !important;
+            }
+
+            /* Premium Scaled Typography */
+            .ymm-rec-title {
+              font-size: 1.1rem !important; /* Increased font-size (was 0.85rem) */
+              font-weight: 700 !important; /* Bolder font-weight */
+              line-height: 1.35 !important;
+              margin: 0 0 8px 0 !important;
+              display: -webkit-box !important;
+              -webkit-line-clamp: 2 !important;
+              -webkit-box-orient: vertical !important;
+              overflow: hidden !important;
+              height: 2.7em !important;
+              min-height: 2.7em !important;
+            }
+
+            @media (min-width: 768px) {
+              .ymm-rec-title {
+                font-size: 1.25rem !important; /* Scaled up on desktop (was 0.95rem) */
+                height: 2.8em !important;
+                min-height: 2.8em !important;
+              }
+            }
+
+            .ymm-rec-title a {
+              text-decoration: none !important;
+              color: #2a2b2a !important;
+              transition: color 0.2s ease !important;
+            }
+
+            .ymm-rec-title a:hover {
+              color: #ff580d !important;
+            }
+
+            .ymm-rec-price {
+              font-size: 1.15rem !important; /* Increased price text size (was 0.95rem) */
+              font-weight: 800 !important;
+              color: #ff580d !important;
+              margin-bottom: 10px !important;
+            }
+
+            @media (min-width: 768px) {
+              .ymm-rec-price {
+                font-size: 1.35rem !important; /* Scaled up on desktop (was 1.1rem) */
+                margin-bottom: 14px !important;
+              }
+            }
+
+            /* Tag Badges */
+            .ymm-rec-reason {
+              font-size: 0.9rem !important; /* Larger badge text (was 0.65rem) */
+              color: #0da44a !important;
+              background: #e8f7ee !important;
+              padding: 4px 8px !important;
+              border-radius: 4px !important;
+              align-self: flex-start !important;
+              margin-bottom: 12px !important;
+              font-weight: 700 !important;
+              white-space: nowrap !important;
+              overflow: hidden !important;
+              text-overflow: ellipsis !important;
+              max-width: 100% !important;
+            }
+
+            @media (min-width: 768px) {
+              .ymm-rec-reason {
+                font-size: 0.9rem !important; /* Scaled up on desktop (was 0.75rem) */
+                padding: 5px 10px !important;
+                margin-bottom: 14px !important;
+              }
+            }
+
+            .ymm-rec-btn {
+              width: 100% !important;
+              background: #ff580d !important;
+              color: #ffffff !important;
+              border: none !important;
+              padding: 10px !important; /* Increased padding for larger touch target */
+              border-radius: 24px !important;
+              font-size: 1.1rem !important; /* Larger button text (was 0.78rem) */
+              font-weight: 700 !important;
+              cursor: pointer !important;
+              margin-top: auto !important;
+              transition: background 0.2s ease !important;
+            }
+
+            @media (min-width: 768px) {
+              .ymm-rec-btn {
+                padding: 12px !important;
+                border-radius: 28px !important;
+                font-size: 1rem !important; /* Scaled up on desktop (was 0.85rem) */
+              }
+            }
+
+            .ymm-rec-btn:hover {
+              background: #2a2b2a !important;
+            }
+          </style>
+
+          <script>
+            if (!customElements.get('product-ymm-recommendations')) {
+              customElements.define('product-ymm-recommendations', class ProductYmmRecommendations extends HTMLElement {
+                connectedCallback() {
+                  if (this.dataset.loaded === 'true') return;
+                  this.dataset.loaded = 'true';
+                  this.limit = Number(this.dataset.limit || 6);
+                  this.grid = this.querySelector('.product-ymm-recommendations__grid');
+                  this.currency = this.dataset.currency || 'GBP';
+                  this.locale = this.dataset.locale || 'en-GB';
+                  
+                  this.sourceProduct = {
+                    id: this.dataset.productId,
+                    title: this.dataset.productTitle,
+                    tags: this.dataset.productTags,
+                    vendor: this.dataset.productVendor,
+                    type: this.dataset.productType,
+                    url: this.dataset.productUrl
+                  };
+
+                  this.run();
+                }
+
+                normalize(value) {
+                  return String(value || '').toLowerCase().replace(/[–—]/g, '-').replace(/[^a-z0-9+\-\s/]/g, ' ').replace(/\s+/g, ' ').trim();
+                }
+
+                compact(value) {
+                  return this.normalize(value).replace(/[^a-z0-9]/g, '');
+                }
+
+                parseYears(text) {
+                  const value = this.normalize(text);
+                  const match = value.match(/\b(19|20)\d{2}\s*[-/]\s*((?:19|20)?\d{2})\b/) || value.match(/\b(19|20)\d{2}\b/);
+                  if (!match) return null;
+                  const start = Number(match[0].slice(0, 4));
+                  let end = start;
+                  const endMatch = match[0].match(/[-/]\s*((?:19|20)?\d{2})/);
+                  if (endMatch) {
+                    const rawEnd = endMatch[1];
+                    end = Number(rawEnd.length === 2 ? `${String(start).slice(0, 2)}${rawEnd}` : rawEnd);
+                  }
+                  return { start, end };
+                }
+
+                yearsOverlap(a, b) {
+                  if (!a || !b) return false;
+                  return a.start <= b.end && b.start <= a.end;
+                }
+
+                partCategory(product) {
+                  const haystack = this.normalize(`${product.title || ''} ${product.type || ''} ${product.tags || ''}`);
+                  if (/service\s*kit|cleaning\s*kit|cleaner|filter\s*oil/.test(haystack)) return 'service_intake';
+                  if (/air\s*filter|filter/.test(haystack)) return 'filter';
+                  if (/decat|mid\s*pipe/.test(haystack)) return 'decat';
+                  if (/db\s*killer/.test(haystack)) return 'db_killer';
+                  if (/tail\s*tid/.test(haystack)) return 'tail_tidy';
+                  if (/racing\s*screen|sport\s*screen|z-?racing/.test(haystack)) return 'racing_screen';
+                  if (/touring\s*screen|city\s*touring\s*screen/.test(haystack)) return 'touring_screen';
+                  if (/screen|visor|windshield|wind\s*deflector/.test(haystack)) return 'screen';
+                  if (/frame\s*slider|crash|engine\s*guard|axle\s*protector|radiator\s*guard|protector|protection|crash\s*bar/.test(haystack)) return 'protection';
+                  if (/tank\s*grip/.test(haystack)) return 'tank_grip';
+                  if (/gasket|heat\s*shield|exhaust\s*protector/.test(haystack)) return 'exhaust_support';
+                  if (/ecu|remap|upmap|tuning/.test(haystack)) return 'tuning';
+                  if (/paddock|stand/.test(haystack)) return 'stand';
+                  if (/rearset/.test(haystack)) return 'rearsets';
+                  if (/rear\s*hugger|hugger/.test(haystack)) return 'hugger';
+                  if (/engine\s*part|piston|camshaft|kent\s*cams|wiseco/.test(haystack)) return 'engine_parts';
+                  if (/air\s*box|airbox/.test(haystack)) return 'airbox';
+                  if (/indicator|lighting|light|auxiliary/.test(haystack)) return 'lighting';
+                  if (/spark\s*plug|air\s*box|airbox|velocity|intake/.test(haystack)) return 'service_intake';
+                  if (/phone|gps|mount|usb/.test(haystack)) return 'mounts';
+                  if (/tank\s*bag|top\s*box|luggage|pannier|soft\s*luggage/.test(haystack)) return 'luggage';
+                  if (/hand\s*guard|seat/.test(haystack)) return 'touring';
+                  if (/bar\s*end|mirror/.test(haystack)) return 'bar_ends';
+                  if (/lever/.test(haystack)) return 'levers';
+                  if (/foot\s*peg|footpeg|rearset/.test(haystack)) return 'footpegs';
+                  if (/exhaust|silencer|slip\s*on|full\s*system|decat/.test(haystack)) return 'exhaust';
+                  return 'other';
+                }
+
+                bikeCategory(modelText) {
+                  const model = this.normalize(modelText);
+                  const compact = model.replace(/\s+/g, '');
+                  if (/(s1000rr|cbr\d*rr|r1\b|r6\b|zx-?6|zx-?10|gsx-?r|panigale|rc8|ninja|daytona)/.test(compact)) return 'sport';
+                  if (/(gs\b|r1250gs|r1200gs|africatwin|africa\s*twin|tiger|multistrada|tracer|v-?strom|norden|adventure|himalayan)/.test(model) || /(gs\b|r1250gs|r1200gs|africatwin|tiger|multistrada|tracer|v-?strom|norden|adventure|himalayan)/.test(compact)) return 'adventure';
+                  if (/(mt-?\d|cb\d*r|z\d|duke|monster|streetfighter|streettriple|street\s*triple|speed\s*triple|speedtriple|brutale|tuono|shiver)/.test(model) || /(mt-?\d|cb\d*r|z\d|duke|monster|streetfighter|streettriple|speedtriple|brutale|tuono|shiver)/.test(compact)) return 'naked';
+                  if (/(goldwing|gold\s*wing|fjr|rt\b|k1600|concours|panamerica|pan\s*america|flh|flt)/.test(model) || /(goldwing|fjr|rt\b|k1600|concours|panamerica|flh|flt)/.test(compact)) return 'touring';
+                  if (/(sh\d|forza|pcx|tmax|burgman|integra|x-?adv|medley)/.test(compact)) return 'scooter';
+                  return 'unknown';
+                }
+
+                parseYmmTags(product) {
+                  const tagsRaw = product.tags;
+                  if (!tagsRaw) return null;
+                  const tagsArr = Array.isArray(tagsRaw) ? tagsRaw : String(tagsRaw).split(/\|\|/);
+                  const knownBrands = ['bmw', 'honda', 'ducati', 'kawasaki', 'yamaha', 'suzuki', 'ktm', 'triumph', 'aprilia', 'mv agusta', 'mv-agusta', 'mvagusta', 'royal enfield', 'royal-enfield', 'harley-davidson', 'harley', 'moto guzzi', 'moto-guzzi', 'husqvarna', 'benelli', 'indian', 'norton', 'buell', 'zero', 'energica', 'sherco', 'beta', 'gasgas', 'tm racing', 'tm-racing', 'cfmoto', 'cf-moto', 'cf moto'];
+                  const fitments = [];
+                  for (const rawTag of tagsArr) {
+                    const cleanTag = String(rawTag).trim().toLowerCase();
+                    const parts = cleanTag.split(/[+\-_\s]+/);
+                    if (parts.length >= 3) {
+                      const lastPart = parts[parts.length - 1];
+                      if (/^(19|20)\d{2}$/.test(lastPart)) {
+                        const year = Number(lastPart);
+                        let brandIndex = -1;
+                        let matchedBrand = '';
+                        for (let i = 0; i < parts.length - 1; i++) {
+                          const combined = parts.slice(0, i + 1).join(' ');
+                          if (knownBrands.includes(combined) || knownBrands.includes(combined.replace(/\s+/g, ''))) {
+                            brandIndex = i;
+                            matchedBrand = combined;
+                          }
+                        }
+                        if (brandIndex === -1) {
+                          matchedBrand = parts[0];
+                          brandIndex = 0;
+                        }
+                        const modelParts = parts.slice(brandIndex + 1, parts.length - 1);
+                        const model = modelParts.join(' ').trim();
+                        if (model) {
+                          fitments.push({ brand: matchedBrand, model: model, year: year });
+                        }
+                      }
+                    }
+                  }
+                  if (fitments.length === 0) return null;
+                  const brand = fitments[0].brand;
+                  const model = fitments[0].model;
+                  const years = fitments.map(f => f.year).sort((a, b) => a - b);
+                  const minYear = years[0];
+                  const maxYear = years[years.length - 1];
+                  return {
+                    brand,
+                    brandCompact: brand.replace(/[^a-z0-9]/g, ''),
+                    model,
+                    modelCompact: model.replace(/[^a-z0-9]/g, ''),
+                    modelTokens: model.split(/[^\w]+/).filter(Boolean),
+                    years: { start: minYear, end: maxYear },
+                    allYears: years,
+                    category: this.bikeCategory(model)
+                  };
+                }
+
+                parseBike(product) {
+                  const title = this.normalize(product.title);
+                  const tags = this.normalize(String(product.tags || '').replace(/\|\|/g, ' ')).replace(/\+/g, ' ');
+                  const source = `${title} ${tags}`;
+                  const brands = [
+                    ['cf moto', /(?:cf\s*moto|cfmoto)/], ['mv agusta', /mv\s*agusta/], ['royal enfield', /royal\s*enfield/],
+                    ['harley-davidson', /(?:harley[-\s]*davidson|harley)/], ['moto guzzi', /moto\s*guzzi/], ['bmw', /\bbmw\b/],
+                    ['honda', /\bhonda\b/], ['ducati', /\bducati\b/], ['kawasaki', /\bkawasaki\b/], ['yamaha', /\byamaha\b/],
+                    ['suzuki', /\bsuzuki\b/], ['ktm', /\bktm\b/], ['triumph', /\btriumph\b/], ['aprilia', /\baprilia\b/],
+                    ['husqvarna', /\bhusqvarna\b/], ['benelli', /\bbenelli\b/], ['indian', /\bindian\b/], ['norton', /\bnorton\b/],
+                    ['buell', /\bbuell\b/], ['zero', /\bzero\b/], ['energica', /\benergica\b/], ['sherco', /\bsherco\b/],
+                    ['beta', /\bbeta\b/], ['gasgas', /\bgasgas\b/], ['tm racing', /tm\s*racing/]
+                  ];
+                  const brandEntry = brands.find(([, pattern]) => pattern.test(source));
+                  if (!brandEntry) return null;
+                  const brand = brandEntry[0];
+                  const brandPattern = brandEntry[1];
+                  const titleAfterBrand = title.split(brandPattern).pop() || '';
+                  const tagAfterBrand = tags.split(brandPattern).pop() || '';
+                  const stopWords = new Set('abs air black carbon cat decat db exhaust filter filters for from full heat link pipe pipes relevance remap service shield silencer slip steel system systems termignoni titanium to with without'.split(' '));
+                  const modelTokens = [];
+                  const tokens = `${titleAfterBrand} ${tagAfterBrand}`.split(/\s+/);
+                  for (const token of tokens) {
+                    const clean = token.replace(/[^a-z0-9-]/g, '');
+                    if (!clean) continue;
+                    if (/^(19|20)\d{2}/.test(clean)) break;
+                    if (stopWords.has(clean)) continue;
+                    
+                    if (clean.length >= 2 && (/\d/.test(clean) || modelTokens.length > 0 || /^[a-z]{1,3}$/.test(clean))) {
+                      modelTokens.push(clean);
+                    }
+                    if (modelTokens.length >= 3) break;
+                  }
+                  const model = modelTokens.join(' ').trim();
+                  return {
+                    brand,
+                    brandCompact: this.compact(brand),
+                    model,
+                    modelCompact: this.compact(model),
+                    modelTokens: modelTokens.map((token) => this.compact(token)).filter(Boolean),
+                    years: this.parseYears(source),
+                    category: this.bikeCategory(model)
+                  };
+                }
+
+                getFitment(product) {
+                  return this.parseYmmTags(product) || this.parseBike(product);
+                }
+
+                associationOrder(sourcePart, sourceCategory, sourceBrand) {
+                  if (sourcePart === 'exhaust') return ['filter', 'decat', 'db_killer', 'exhaust_support', 'tuning'];
+                  if (sourcePart === 'filter') return ['service_intake', 'tuning', 'exhaust'];
+                  if (sourcePart === 'screen' || sourcePart === 'racing_screen' || sourcePart === 'touring_screen') return ['screen', 'protection', 'mounts'];
+                  if (sourcePart === 'levers') return ['footpegs', 'bar_ends', 'protection'];
+                  if (sourcePart === 'footpegs') return ['levers', 'bar_ends', 'protection'];
+                  if (sourcePart === 'bar_ends') return ['levers', 'footpegs', 'protection'];
+                  const categoryRules = {
+                    adventure: ['touring_screen', 'screen', 'touring', 'luggage', 'filter', 'protection', 'lighting'],
+                    sport: ['exhaust', 'filter', 'tail_tidy', 'tank_grip', 'racing_screen', 'screen', 'rearsets', 'db_killer'],
+                    naked: ['exhaust', 'filter', 'tail_tidy', 'protection', 'bar_ends']
+                  };
+                  return categoryRules[sourceCategory] || ['filter', 'exhaust', 'tail_tidy', 'screen'];
+                }
+
+                associationRank(sourcePart, candidatePart, sourceCategory, sourceBrand, candidateBrand) {
+                  const order = this.associationOrder(sourcePart, sourceCategory, sourceBrand);
+                  const index = order.indexOf(candidatePart);
+                  if (index === -1) return null;
+                  let score = 100 - index * 10;
+                  if (sourceBrand && candidateBrand && sourceBrand.toLowerCase() === candidateBrand.toLowerCase()) {
+                    score += 15;
+                  }
+                  return score;
+                }
+
+                searchTerms(fitment, sourcePart) {
+                  const brand = fitment.brand;
+                  const model = fitment.model;
+                  const segments = model.match(/[a-zA-Z]+|\d+/g) || [];
+                  
+                  function getCombinations(segs) {
+                    if (segs.length === 0) return [];
+                    if (segs.length === 1) return [segs[0]];
+                    const first = segs[0];
+                    const rest = getCombinations(segs.slice(1));
+                    const results = [];
+                    for (const r of rest) {
+                      results.push(first + r);
+                      results.push(first + ' ' + r);
+                    }
+                    return results;
+                  }
+
+                  const modelCombos = getCombinations(segments);
+                  const terms = [];
+                  const targets = [];
+                  if (sourcePart === 'exhaust') targets.push('filter', 'decat');
+                  else if (sourcePart === 'filter') targets.push('service kit', 'exhaust');
+                  else if (sourcePart === 'screen') targets.push('visor');
+                  else if (sourcePart === 'levers') targets.push('pegs', 'bar ends');
+
+                  for (const combo of modelCombos) {
+                    for (const target of targets) {
+                      terms.push(`${brand} ${combo} ${target}`);
+                    }
+                    terms.push(`${brand} ${combo}`);
+                  }
+                  terms.push(brand);
+                  terms.push(`${brand} ${model}`);
+                  return [...new Set(terms.map(t => t.trim()).filter(Boolean))];
+                }
+
+                getCompactedYmmTags(product) {
+                  let tagsRaw = product.tags;
+                  if (!tagsRaw) return [];
+                  let tagsArr = Array.isArray(tagsRaw) ? tagsRaw : String(tagsRaw).split(/\|\|/);
+                  return tagsArr
+                    .map(tag => String(tag).trim().toLowerCase().replace(/[^a-z0-9]/g, ''))
+                    .filter(tag => /(19|20)\d{2}/.test(tag) && tag.length >= 6);
+                }
+
+                async suggest(query) {
+                  const url = `/search/suggest.json?q=${encodeURIComponent(query)}&resources[type]=product&resources[limit]=8&resources[options][unavailable_products]=last`;
+                  const response = await fetch(url, { credentials: 'same-origin' });
+                  if (!response.ok) return [];
+                  const data = await response.json();
+                  return data?.resources?.results?.products || [];
+                }
+
+                async productJson(result) {
+                  const path = new URL(result.url || '', window.location.origin).pathname.replace(/\/$/, '');
+                  if (!path) return null;
+                  const response = await fetch(`${path}.js`, { credentials: 'same-origin' });
+                  if (!response.ok) return null;
+                  return response.json();
+                }
+
+                async productByHandle(handle) {
+                  const response = await fetch(`/products/${handle}.js`, { credentials: 'same-origin' });
+                  if (!response.ok) return null;
+                  return response.json();
+                }
+
+                fallbackHandles(sourcePart = 'other') {
+                  const universal = [
+                    'puig_extender_visor__screwon-_3_sizes-product-15965',
+                    'puig_foot_pegs__racing-product-17312',
+                    'puig_mirrors_ht4_bar_end_in_black_silver_various_models-product-17691'
+                  ];
+                  if (sourcePart === 'filter') return ['dna_performance_air_filter_service_kit-product-7361', ...universal];
+                  return universal;
+                }
+
+                async fillFallback(chosen, categories, sourcePart = 'other') {
+                  for (const handle of this.fallbackHandles(sourcePart)) {
+                    if (chosen.length >= this.limit) break;
+                    const product = await this.productByHandle(handle);
+                    if (!product || Number(product.id) === Number(this.sourceProduct.id)) continue;
+                    const category = this.partCategory(product);
+                    if (categories.has(category)) continue;
+                    categories.add(category);
+                    chosen.push({ product, category, priority: 5, score: 1, reason: 'Universal matching accessory' });
+                  }
+                }
+
+                scoreCandidate(candidate, candidateFitment, sourceFitment, sourcePart, sourceCategory, sourceProduct) {
+                  if (!candidateFitment || candidateFitment.brand !== sourceFitment.brand) return null;
+                  if (sourceCategory !== 'unknown' && candidateFitment.category !== 'unknown' && candidateFitment.category !== sourceCategory) return null;
+                  const candidatePart = this.partCategory(candidate);
+                  const sourceBrand = sourceProduct?.vendor || '';
+                  const candidateBrand = candidate?.vendor || '';
+                  
+                  const associationScore = this.associationRank(sourcePart, candidatePart, sourceCategory, sourceBrand, candidateBrand);
+                  if (associationScore === null) return null;
+                  
+                  const candidateTitleCompact = this.compact(candidate.title);
+                  let hasTagOverlap = false;
+                  if (sourceProduct) {
+                    const sourceTags = this.getCompactedYmmTags(sourceProduct);
+                    const candidateTags = this.getCompactedYmmTags(candidate);
+                    hasTagOverlap = sourceTags.some(tag => candidateTags.includes(tag));
+                  }
+
+                  const sameModel = (sourceFitment.modelCompact && (
+                    candidateTitleCompact.includes(sourceFitment.modelCompact) ||
+                    sourceFitment.modelTokens.every((token) => candidateTitleCompact.includes(token)) ||
+                    (candidateFitment.modelCompact && sourceFitment.modelCompact.includes(candidateFitment.modelCompact)) ||
+                    (candidateFitment.modelCompact && candidateFitment.modelCompact.includes(sourceFitment.modelCompact))
+                  )) || hasTagOverlap;
+
+                  if (hasTagOverlap) return { priority: 1, score: 6000 + associationScore, reason: `Confirmed fitment for your bike` };
+                  if (sameModel && this.yearsOverlap(sourceFitment.years, candidateFitment.years)) return { priority: 1, score: 4000 + associationScore, reason: `Fits: ${sourceFitment.brand.toUpperCase()} ${sourceFitment.model}` };
+                  if (sameModel) return { priority: 2, score: 3000 + associationScore, reason: `Fits: ${sourceFitment.brand.toUpperCase()} ${sourceFitment.model}` };
+                  return { priority: 4, score: 1000 + associationScore, reason: `Fits: ${sourceFitment.brand.toUpperCase()}` };
+                }
+
+                money(centsOrPrice) {
+                  const value = typeof centsOrPrice === 'number' && centsOrPrice > 999 ? centsOrPrice / 100 : Number(centsOrPrice || 0);
+                  return new Intl.NumberFormat(this.locale, { style: 'currency', currency: this.currency }).format(value);
+                }
+
+                escapeHTML(value) {
+                  return String(value || '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+                }
+
+                render(products) {
+                  if (!this.grid || !products.length) return;
+                  this.grid.innerHTML = products.map(({ product, reason }) => {
+                    const variant = product.variants?.find((item) => item.available) || product.variants?.[0];
+                    const image = product.featured_image || product.images?.[0] || '';
+                    const price = this.money(product.price);
+                    const safeTitle = this.escapeHTML(product.title);
+                    const safeReason = this.escapeHTML(reason);
+                    return `
+                      <li>
+                        <div class="ymm-rec-card">
+                          <div class="ymm-rec-media">
+                            <a class="media block" href="${product.url}">
+                              ${image ? `<img src="${image}" alt="${safeTitle}" loading="lazy">` : ''}
+                            </a>
+                          </div>
+                          <div class="ymm-rec-info">
+                            <p class="ymm-rec-title"><a href="${product.url}">${safeTitle}</a></p>
+                            <span class="ymm-rec-reason">${safeReason}</span>
+                            <div class="ymm-rec-price">${price}</div>
+                            ${variant ? `<form method="post" action="/cart/add" class="js-product-form"><input type="hidden" name="id" value="${variant.id}"><button class="ymm-rec-btn" name="add" type="submit">Add to Cart</button></form>` : ''}
+                          </div>
+                        </div>
+                      </li>`;
+                  }).join('');
+                }
+
+                async run() {
+                  let source = null;
+                  const sourcePart = this.partCategory(this.sourceProduct);
+
+                  // 1. Try to get fitment from localStorage saved vehicle (Find Your Parts selector)
+                  const savedVehicle = localStorage.getItem('sj_selected_vehicle');
+                  if (savedVehicle) {
+                    try {
+                      const vehicle = JSON.parse(savedVehicle);
+                      if (vehicle.make && vehicle.model && vehicle.year) {
+                        const make = vehicle.make.trim().toLowerCase();
+                        const model = vehicle.model.trim().toLowerCase();
+                        const year = Number(vehicle.year);
+                        if (make && model && !isNaN(year)) {
+                          source = {
+                            fitment: {
+                              brand: make,
+                              brandCompact: make.replace(/[^a-z0-9]/g, ''),
+                              model: model,
+                              modelCompact: model.replace(/[^a-z0-9]/g, ''),
+                              modelTokens: model.split(/[^\w]+/).filter(Boolean),
+                              years: { start: year, end: year },
+                              allYears: [year],
+                              category: this.bikeCategory(model)
+                            }
+                          };
+                        }
+                      }
+                    } catch (e) {}
+                  }
+
+                  // 2. If no saved vehicle, parse fitment of the current product page
+                  if (!source) {
+                    const fitment = this.getFitment(this.sourceProduct);
+                    if (fitment?.brand && fitment?.model) {
+                      source = { fitment };
+                    }
+                  }
+
+                  if (!source) {
+                    const chosen = [];
+                    const categories = new Set();
+                    await this.fillFallback(chosen, categories, sourcePart);
+                    if (chosen.length) this.render(chosen);
+                    return;
+                  }
+
+                  const seen = new Set();
+                  const recommendations = [];
+
+                  // Concurrently run searches
+                  const searchQueries = this.searchTerms(source.fitment, sourcePart);
+                  const suggestPromises = searchQueries.map(q => this.suggest(q).catch(() => []));
+                  const suggestionsList = await Promise.all(suggestPromises);
+
+                  const uniqueCandidates = [];
+                  for (const results of suggestionsList) {
+                    if (!results) continue;
+                    for (const result of results) {
+                      const handleKey = this.compact(result.url || result.handle || result.title);
+                      if (!handleKey || seen.has(handleKey) || Number(result.id) === Number(this.sourceProduct.id)) continue;
+                      seen.add(handleKey);
+                      uniqueCandidates.push(result);
+                    }
+                  }
+
+                  // Concurrently fetch product details
+                  const productPromises = uniqueCandidates.map(res => this.productJson(res).catch(() => null));
+                  const productsList = await Promise.all(productPromises);
+
+                  for (const product of productsList) {
+                    if (!product || Number(product.id) === Number(this.sourceProduct.id)) continue;
+                    const fitment = this.getFitment(product);
+                    const score = this.scoreCandidate(product, fitment, source.fitment, sourcePart, source.fitment.category, this.sourceProduct);
+                    if (!score) continue;
+                    recommendations.push({ product, ...score, category: this.partCategory(product) });
+                  }
+
+                  recommendations.sort((a, b) => b.score - a.score);
+
+                  const chosen = [];
+                  const categories = new Set();
+                  for (const rec of recommendations) {
+                    if (chosen.length >= this.limit) break;
+                    if (categories.has(rec.category)) continue;
+                    categories.add(rec.category);
+                    chosen.push(rec);
+                  }
+                  if (chosen.length < this.limit) {
+                    for (const rec of recommendations) {
+                      if (chosen.length >= this.limit) break;
+                      if (chosen.some(item => item.product.id === rec.product.id)) continue;
+                      chosen.push(rec);
+                    }
+                  }
+                  if (chosen.length < this.limit) {
+                    await this.fillFallback(chosen, categories, sourcePart);
+                  }
+                  if (chosen.length) this.render(chosen);
+                }
+              });
+            }
+          </script>
         </div>
       {%- endif -%}
 
