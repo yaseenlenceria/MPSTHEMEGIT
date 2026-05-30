@@ -283,6 +283,78 @@
         .ymm-rec-btn:hover {
           background: #2a2b2a !important;
         }
+
+        /* Mobile specific optimizations */
+        @media (max-width: 767px) {
+          /* Reduce spacing gaps on mobile */
+          .cart.form .mt-8,
+          .cart.form .cart__shipping-calculator.mt-8,
+          .cart.form .cart-page-recommendations.mt-8 {
+            margin-top: 16px !important;
+          }
+          .cart.form .mb-8 {
+            margin-bottom: 16px !important;
+          }
+          .cart.form .mt-6 {
+            margin-top: 12px !important;
+          }
+          .cart.form .mb-6 {
+            margin-bottom: 12px !important;
+          }
+          
+          /* Compact Panels on Mobile */
+          .cart__shipping-calculator.panel,
+          .cart__summary,
+          .cart__summary--payment {
+            padding: 16px !important;
+            border-radius: 8px !important;
+          }
+          
+          /* Cart Item Row Spacing */
+          .cart-item {
+            padding: 16px 0 !important;
+          }
+          
+          /* YMM recommendations section title mobile adjustment */
+          .product-ymm-recommendations .section-heading {
+            margin-bottom: 16px !important;
+            padding-bottom: 8px !important;
+          }
+          .product-ymm-recommendations .section-heading h3 {
+            font-size: 1.3rem !important;
+          }
+          
+          /* Grid list card adjustments */
+          .product-ymm-recommendations__grid > li {
+            flex: 0 0 200px !important;
+            width: 200px !important;
+            min-width: 200px !important;
+            max-width: 200px !important;
+          }
+          .ymm-rec-card {
+            padding: 10px !important;
+          }
+          .ymm-rec-title {
+            font-size: 0.9rem !important;
+            height: 2.6em !important;
+            min-height: 2.6em !important;
+            margin-bottom: 6px !important;
+          }
+          .ymm-rec-reason {
+            font-size: 0.75rem !important;
+            padding: 2px 6px !important;
+            margin-bottom: 8px !important;
+          }
+          .ymm-rec-price {
+            font-size: 1rem !important;
+            margin-bottom: 8px !important;
+          }
+          .ymm-rec-btn {
+            font-size: 0.85rem !important;
+            padding: 8px !important;
+            border-radius: 20px !important;
+          }
+        }
       </style>
 
       <script>
