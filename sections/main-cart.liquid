@@ -1038,7 +1038,7 @@
                         <p class="ymm-rec-title"><a href="${product.url}">${safeTitle}</a></p>
                         <span class="ymm-rec-reason">${safeReason}</span>
                         <div class="ymm-rec-price">${price}</div>
-                        ${variant ? `<product-form><form method="post" action="/cart/add" class="js-product-form"><input type="hidden" name="id" value="${variant.id}"><button class="ymm-rec-btn" name="add" type="submit">Add to Cart</button></form></product-form>` : ''}
+                        ${variant ? `<product-form><form method="post" action="/cart/add" class="js-product-form"><input type="hidden" name="form_type" value="product"><input type="hidden" name="utf8" value="✓"><input type="hidden" name="id" value="${variant.id}"><button class="ymm-rec-btn" name="add" type="submit">Add to Cart</button></form></product-form>` : ''}
                       </div>
                     </div>
                   </li>`;
