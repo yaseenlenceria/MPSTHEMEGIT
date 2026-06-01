@@ -9,6 +9,57 @@
  */
 {
   "sections": {
+    "1780328517d9127842": {
+      "type": "apps",
+      "blocks": {
+        "year_make_model_pro_ymm_finder_banner_xDmhTd": {
+          "type": "shopify://apps/year-make-model-pro/blocks/ymm-finder-banner/019e83c7-9667-73b9-882e-70589cc3582e",
+          "settings": {
+            "banner_height": 450,
+            "padding_top_bottom": 60,
+            "overlay_opacity": 40,
+            "title": "Premium Engineering For Your Ride",
+            "title_size": 42,
+            "title_color": "#ffffff",
+            "subtitle": "Select your vehicle make, model, and year to explore matching components.",
+            "subtitle_size": 18,
+            "subtitle_color": "#f1f5f9",
+            "flow_type": "make_first",
+            "style_preset": "clean_grid",
+            "border_radius": 16,
+            "button_border_radius": 8,
+            "finder_bg_color": "#ffffff",
+            "finder_text_color": "#1e293b",
+            "button_bg_color": "#8a1515",
+            "button_text_color": "#ffffff"
+          }
+        },
+        "year_make_model_pro_ymm_finder_horizontal_yqd9ej": {
+          "type": "shopify://apps/year-make-model-pro/blocks/ymm-finder-horizontal/019e83c7-9667-73b9-882e-70589cc3582e",
+          "settings": {
+            "title": "Find Parts for Your Vehicle",
+            "title_alignment": "flex-start",
+            "flow_type": "make_first",
+            "style_preset": "clean_grid",
+            "button_text": "Search Parts",
+            "border_radius": 12,
+            "button_border_radius": 6,
+            "bg_color": "#ffffff",
+            "text_color": "#1e293b",
+            "button_bg_color": "#008060",
+            "button_text_color": "#ffffff"
+          }
+        }
+      },
+      "block_order": [
+        "year_make_model_pro_ymm_finder_banner_xDmhTd",
+        "year_make_model_pro_ymm_finder_horizontal_yqd9ej"
+      ],
+      "settings": {
+        "full_width": false,
+        "show_space": true
+      }
+    },
     "navigation_slideshow_new_JJaJiV": {
       "type": "navigation-slideshow-new",
       "name": "Nav slideshow simple",
@@ -620,56 +671,6 @@
     },
     "17698750067a33d67a": {
       "type": "apps",
-      "settings": {
-        "full_width": false,
-        "show_space": true
-      }
-    },
-    "1780328517d9127842": {
-      "type": "apps",
-      "blocks": {
-        "year_make_model_pro_ymm_finder_banner_xDmhTd": {
-          "type": "shopify://apps/year-make-model-pro/blocks/ymm-finder-banner/019e83c7-9667-73b9-882e-70589cc3582e",
-          "settings": {
-            "image": "shopify://shop_images/PuigTankPad-Performance-PUIG2.webp",
-            "banner_height": 450,
-            "padding_top_bottom": 60,
-            "overlay_opacity": 40,
-            "title": "Premium Engineering For Your Ride",
-            "title_size": 42,
-            "title_color": "#ffffff",
-            "subtitle": "Select your vehicle make, model, and year to explore matching components.",
-            "subtitle_size": 18,
-            "subtitle_color": "#f1f5f9",
-            "style_preset": "clean_grid",
-            "border_radius": 16,
-            "button_border_radius": 8,
-            "finder_bg_color": "#ffffff",
-            "finder_text_color": "#1e293b",
-            "button_bg_color": "#8a1515",
-            "button_text_color": "#ffffff"
-          }
-        },
-        "year_make_model_pro_ymm_finder_horizontal_yqd9ej": {
-          "type": "shopify://apps/year-make-model-pro/blocks/ymm-finder-horizontal/019e83c7-9667-73b9-882e-70589cc3582e",
-          "settings": {
-            "title": "Find Parts for Your Vehicle",
-            "title_alignment": "flex-start",
-            "style_preset": "clean_grid",
-            "button_text": "Search Parts",
-            "border_radius": 12,
-            "button_border_radius": 6,
-            "bg_color": "#ffffff",
-            "text_color": "#1e293b",
-            "button_bg_color": "#008060",
-            "button_text_color": "#ffffff"
-          }
-        }
-      },
-      "block_order": [
-        "year_make_model_pro_ymm_finder_banner_xDmhTd",
-        "year_make_model_pro_ymm_finder_horizontal_yqd9ej"
-      ],
       "settings": {
         "full_width": false,
         "show_space": true
