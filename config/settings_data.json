@@ -141,7 +141,7 @@
     "blocks": {
       "16961287290680122564": {
         "type": "shopify://apps/year-make-model-pro/blocks/ymm-embed/019e83c7-9667-73b9-882e-70589cc3582e",
-        "disabled": true,
+        "disabled": false,
         "settings": {
           "launcher_text": "Find Parts",
           "title": "Find Your Parts",
