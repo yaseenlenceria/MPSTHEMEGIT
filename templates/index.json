@@ -15,6 +15,7 @@
         "year_make_model_pro_ymm_finder_banner_xDmhTd": {
           "type": "shopify://apps/year-make-model-pro/blocks/ymm-finder-banner/019e83c7-9667-73b9-882e-70589cc3582e",
           "settings": {
+            "image": "shopify://shop_images/PuigTankPad-Performance-PUIG4.webp",
             "banner_height": 450,
             "padding_top_bottom": 60,
             "overlay_opacity": 40,
