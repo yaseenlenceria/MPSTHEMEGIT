@@ -16,7 +16,7 @@
           "type": "shopify://apps/pandaforms/blocks/form_widget/019eab4c-b381-78ca-8523-cfdd4406b8af",
           "settings": {
             "form_id": "4dd1dfab-d45d-4615-ab24-05dd51f4d391",
-            "api_url": "",
+            "api_url": "https://your-tunnel.trycloudflare.com/api",
             "text_color": "#000000",
             "btn_bg_color": "#008060",
             "btn_text_color": "#ffffff",
