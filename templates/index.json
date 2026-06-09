@@ -15,8 +15,8 @@
         "pandaforms_form_widget_LFNwaT": {
           "type": "shopify://apps/pandaforms/blocks/form_widget/019eab4c-b381-78ca-8523-cfdd4406b8af",
           "settings": {
-            "form_id": "9bf75976-ef71-4cbc-b99a-21de892c115e",
-            "api_url": "https://programs-ntsc-departmental-nearly.trycloudflare.com",
+            "form_id": "4dd1dfab-d45d-4615-ab24-05dd51f4d391",
+            "api_url": "",
             "text_color": "#000000",
             "btn_bg_color": "#008060",
             "btn_text_color": "#ffffff",
