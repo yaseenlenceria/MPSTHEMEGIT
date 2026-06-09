@@ -15,7 +15,7 @@
         "pandaforms_form_widget_LFNwaT": {
           "type": "shopify://apps/pandaforms/blocks/form_widget/019eab4c-b381-78ca-8523-cfdd4406b8af",
           "settings": {
-            "form_id": "",
+            "form_id": "0a5399cb-e03a-4048-831d-20d87fce996e",
             "api_url": "http://localhost:3000",
             "text_color": "#000000",
             "btn_bg_color": "#008060",
