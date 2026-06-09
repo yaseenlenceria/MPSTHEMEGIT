@@ -12,15 +12,15 @@
     "17698750067a33d67a": {
       "type": "apps",
       "blocks": {
-        "pandaforms_form_widget_LFNwaT": {
+        "pandaforms_form_widget_T9jUYJ": {
           "type": "shopify://apps/pandaforms/blocks/form_widget/019eab4c-b381-78ca-8523-cfdd4406b8af",
           "settings": {
             "form_id": "4dd1dfab-d45d-4615-ab24-05dd51f4d391",
-            "api_url": "https://your-tunnel.trycloudflare.com/api",
-            "text_color": "#2a2b2a",
+            "api_url": "http://localhost:3000",
+            "text_color": "#000000",
             "bg_color": "#ffffff",
             "border_color": "#cbd5e1",
-            "border_width": 4,
+            "border_width": 1,
             "border_radius": 8,
             "card_padding": 24,
             "show_shadow": true,
@@ -37,7 +37,7 @@
         }
       },
       "block_order": [
-        "pandaforms_form_widget_LFNwaT"
+        "pandaforms_form_widget_T9jUYJ"
       ],
       "settings": {
         "full_width": false,
