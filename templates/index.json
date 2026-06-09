@@ -18,7 +18,7 @@
             "form_id": "4dd1dfab-d45d-4615-ab24-05dd51f4d391",
             "api_url": "http://localhost:3000",
             "card_spacing": "large",
-            "preset_style": "custom",
+            "preset_style": "vibrant_ocean",
             "bg_color": "#ffffff",
             "btn_bg_color": "#008060"
           }
