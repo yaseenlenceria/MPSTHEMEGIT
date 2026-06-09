@@ -18,8 +18,20 @@
             "form_id": "4dd1dfab-d45d-4615-ab24-05dd51f4d391",
             "api_url": "https://your-tunnel.trycloudflare.com/api",
             "text_color": "#000000",
+            "bg_color": "#ffffff",
+            "border_color": "#cbd5e1",
+            "border_width": 4,
+            "border_radius": 8,
+            "card_padding": 24,
+            "show_shadow": true,
+            "input_bg_color": "#ffffff",
+            "input_border_color": "#cbd5e1",
+            "input_text_color": "#0f172a",
+            "input_border_radius": 6,
             "btn_bg_color": "#008060",
             "btn_text_color": "#ffffff",
+            "btn_hover_bg_color": "#004b36",
+            "btn_border_radius": 4,
             "success_text_color": "#008060"
           }
         }
