@@ -1,1 +1,200 @@
-{"type":"aside","name":"Overlay group","sections":{"cart-drawer":{"type":"cart-drawer","settings":{"show_cart_page_link":false,"show_backorder_text":true,"show_vendor":true,"position_cart_summary":"top","stick_footer":true,"show_order_note":false,"show_shipping_text_notice":false,"show_additional_checkout_buttons":false,"show_checkout_button":false,"cart_terms_page":"shopify:\/\/pages\/terms-conditions","show_shipping_calculator":true,"shipping_calculator_default_country":"United Kingdom","promoted_products_visibility":"empty-cart","promoted_products_heading":"Hot deals on tech...","promoted_products_list":[],"promoted_products_layout":"carousel","show_media_promotion":true,"media_promotion_visibility":"non-empty-cart","link_url":"","media_promotion_min_height":160,"content":"","text_type_scale":"--h6-font-size","text_width":500,"text_alignment":"justify-start items-center","button_label":"","button_style":"btn btn--secondary","text_color":"#ffffff","tint_color":"#000000","tint_opacity":5}},"product-compare":{"type":"product-compare","blocks":{"compare-1":{"type":"image","settings":{"show_line":false}},"compare-2":{"type":"vendor","settings":{"show_line":false}},"compare-3":{"type":"title","settings":{"show_line":false}},"compare-4":{"type":"price","settings":{"show_line":false}},"compare-5":{"type":"description","settings":{"truncate_description":false,"words_to_show":20,"show_line":false}},"compare-6":{"type":"variants","settings":{"show_line":false}}},"block_order":["compare-1","compare-2","compare-3","compare-4","compare-5","compare-6"],"settings":{}},"popup":{"type":"pop-up","blocks":{"heading":{"type":"heading","settings":{"heading":"Flash Sale!","heading_size":"h0"}},"text":{"type":"text","settings":{"text":"<p>Hurry! Offers end soon.<\/p>","text_size":"enlarge-text"}},"countdown":{"type":"countdown","settings":{"end_date":"","end_time":"","end_text":"","enlarge_end_text":false,"hide_on_end":true,"countdown_size":"22","use_custom_colors":true,"count_color":"#ff580d","count_bg_color":"#ffffff","count_bg_grad":""}},"button":{"type":"button","settings":{"button_1_label":"Shop Flash Sale","button_1_style":"btn btn--primary","button_1_link":"","btn_1_bg_color":"#ff580d","btn_1_text_color":"#ffffff","button_2_label":"","button_2_style":"btn btn--secondary","button_2_link":"","btn_2_bg_color":"#555555","btn_2_text_color":"#ffffff"}}},"block_order":["heading","text","countdown","button"],"disabled":true,"settings":{"trigger":"delay","delay":5,"show_to_guests_only":false,"show_on_mobile":true,"dismiss_days":2,"position":"justify-center items-center","text_align":"text-center","padding":"large","shrink_width":false,"heading_color":"#ff580d","text_color":"#ffffff","bg_color":"#292f36","bg_grad":"linear-gradient(225deg, rgba(51, 59, 67, 0.88) 8%, rgba(41, 47, 54, 1) 56%, rgba(20, 20, 20, 1) 92%)","tint_opacity":60}}},"order":["cart-drawer","product-compare","popup"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "type": "aside",
+  "name": "Overlay group",
+  "sections": {
+    "cart-drawer": {
+      "type": "cart-drawer",
+      "settings": {
+        "show_cart_page_link": false,
+        "show_vendor": true,
+        "position_cart_summary": "top",
+        "stick_footer": true,
+        "show_order_note": false,
+        "show_shipping_text_notice": false,
+        "show_checkout_button": false,
+        "cart_terms_page": "shopify://pages/terms-conditions",
+        "show_shipping_calculator": true,
+        "shipping_calculator_default_country": "United Kingdom",
+        "promoted_products_visibility": "empty-cart",
+        "promoted_products_heading": "Hot deals on tech...",
+        "promoted_products_list": [],
+        "promoted_products_layout": "carousel",
+        "show_media_promotion": true,
+        "media_promotion_visibility": "non-empty-cart",
+        "link_url": "",
+        "media_promotion_min_height": 160,
+        "content": "",
+        "text_type_scale": "--h6-font-size",
+        "text_width": 500,
+        "text_alignment": "justify-start items-center",
+        "button_label": "",
+        "button_style": "btn btn--secondary",
+        "text_color": "#ffffff",
+        "tint_color": "#000000",
+        "tint_opacity": 5
+      }
+    },
+    "product-compare": {
+      "type": "product-compare",
+      "blocks": {
+        "compare-1": {
+          "type": "image",
+          "settings": {
+            "show_line": false
+          }
+        },
+        "compare-2": {
+          "type": "vendor",
+          "settings": {
+            "show_line": false
+          }
+        },
+        "compare-3": {
+          "type": "title",
+          "settings": {
+            "show_line": false
+          }
+        },
+        "compare-4": {
+          "type": "price",
+          "settings": {
+            "show_line": false
+          }
+        },
+        "compare-5": {
+          "type": "description",
+          "settings": {
+            "truncate_description": false,
+            "words_to_show": 20,
+            "show_line": false
+          }
+        },
+        "compare-6": {
+          "type": "variants",
+          "settings": {
+            "show_line": false
+          }
+        }
+      },
+      "block_order": [
+        "compare-1",
+        "compare-2",
+        "compare-3",
+        "compare-4",
+        "compare-5",
+        "compare-6"
+      ],
+      "settings": {}
+    },
+    "popup": {
+      "type": "pop-up",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "heading": "Flash Sale!",
+            "heading_size": "h0"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Hurry! Offers end soon.</p>",
+            "text_size": "enlarge-text"
+          }
+        },
+        "countdown": {
+          "type": "countdown",
+          "settings": {
+            "end_date": "",
+            "end_time": "",
+            "end_text": "",
+            "enlarge_end_text": false,
+            "hide_on_end": true,
+            "countdown_size": "22",
+            "use_custom_colors": true,
+            "count_color": "#ff580d",
+            "count_bg_color": "#ffffff",
+            "count_bg_grad": ""
+          }
+        },
+        "button": {
+          "type": "button",
+          "settings": {
+            "button_1_label": "Shop Flash Sale",
+            "button_1_style": "btn btn--primary",
+            "button_1_link": "",
+            "btn_1_bg_color": "#ff580d",
+            "btn_1_text_color": "#ffffff",
+            "button_2_label": "",
+            "button_2_style": "btn btn--secondary",
+            "button_2_link": "",
+            "btn_2_bg_color": "#555555",
+            "btn_2_text_color": "#ffffff"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text",
+        "countdown",
+        "button"
+      ],
+      "disabled": true,
+      "settings": {
+        "trigger": "delay",
+        "delay": 5,
+        "show_to_guests_only": false,
+        "show_on_mobile": true,
+        "dismiss_days": 2,
+        "position": "justify-center items-center",
+        "text_align": "text-center",
+        "padding": "large",
+        "shrink_width": false,
+        "heading_color": "#ff580d",
+        "text_color": "#ffffff",
+        "bg_color": "#292f36",
+        "bg_grad": "linear-gradient(225deg, rgba(51, 59, 67, 0.88) 8%, rgba(41, 47, 54, 1) 56%, rgba(20, 20, 20, 1) 92%)",
+        "tint_opacity": 60
+      }
+    },
+    "178099325314380811": {
+      "type": "apps",
+      "blocks": {
+        "pandaforms_form_widget_q7MXcm": {
+          "type": "shopify://apps/pandaforms/blocks/form_widget/019eab4c-b381-78ca-8523-cfdd4406b8af",
+          "settings": {
+            "form_id": "aafbefbb-6e6d-4db4-9e92-016230ec6895",
+            "api_url": "http://localhost:3000",
+            "text_color": "#000000",
+            "btn_bg_color": "#008060",
+            "btn_text_color": "#ffffff",
+            "success_text_color": "#008060"
+          }
+        }
+      },
+      "block_order": [
+        "pandaforms_form_widget_q7MXcm"
+      ],
+      "settings": {
+        "full_width": false,
+        "show_space": true
+      }
+    }
+  },
+  "order": [
+    "cart-drawer",
+    "product-compare",
+    "popup",
+    "178099325314380811"
+  ]
+}
