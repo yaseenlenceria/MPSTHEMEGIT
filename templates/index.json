@@ -9,35 +9,16 @@
  */
 {
   "sections": {
-    "17698750067a33d67a": {
-      "type": "apps",
-      "blocks": {
-        "pandaforms_pandaforms_section_fYnggM": {
-          "type": "shopify://apps/pandaforms/blocks/pandaforms_section/019ead7e-f128-76ab-95e8-1925b444562b",
-          "settings": {
-            "form_id": "2d4d1ca2-aea3-45d9-811d-d1458dacc298",
-            "api_url": "https://p01--pandaforms-app--77wd8gj6rv7k.code.run",
-            "form_width": 800,
-            "card_spacing": "medium"
-          }
-        }
-      },
-      "block_order": [
-        "pandaforms_pandaforms_section_fYnggM"
-      ],
-      "settings": {
-        "full_width": false,
-        "show_space": true
-      }
-    },
     "17810376541aac576e": {
       "type": "apps",
       "blocks": {
         "pandaforms_pandaforms_section_z4qT4f": {
           "type": "shopify://apps/pandaforms/blocks/pandaforms_section/019ead7e-f128-76ab-95e8-1925b444562b",
           "settings": {
-            "form_id": "e6103364-b6fe-4f74-b75f-788d2428b47e",
+            "form_id": "7515ed93-fa47-4071-97df-e057900a02ee",
             "api_url": "https://p01--pandaforms-app--77wd8gj6rv7k.code.run",
+            "use_app_styling": true,
+            "override_width": false,
             "form_width": 800,
             "card_spacing": "medium"
           }
@@ -53,7 +34,6 @@
     }
   },
   "order": [
-    "17698750067a33d67a",
     "17810376541aac576e"
   ]
 }
