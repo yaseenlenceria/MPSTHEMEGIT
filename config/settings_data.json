@@ -38,7 +38,7 @@
     "blend_product_images": true,
     "blend_collection_images": true,
     "blend_bg_color": "#fdfbfb",
-    "heading_font": "dm_sans_n7",
+    "heading_font": "abril_fatface_n4",
     "heading_uppercase": false,
     "subheading_uppercase": false,
     "button_text_uppercase": false,
@@ -137,26 +137,7 @@
     "blur_message_delay": 4,
     "vibrate_on_atc": true,
     "heading_type_scale": "1.3",
-    "content_for_index": [],
-    "blocks": {
-      "16961287290680122564": {
-        "type": "shopify://apps/year-make-model-pro/blocks/ymm-embed/019e83c7-9667-73b9-882e-70589cc3582e",
-        "disabled": false,
-        "settings": {
-          "launcher_text": "Find Parts",
-          "title": "Find Your Parts",
-          "button_text": "Find Parts",
-          "accent_color": "#8a1515",
-          "bg_color": "#ffffff",
-          "text_color": "#1e293b",
-          "header_bg_color": "#fafafa",
-          "header_text_color": "#0f172a",
-          "border_color": "#e2e8f0",
-          "button_bg_color": "#8a1515",
-          "button_text_color": "#ffffff"
-        }
-      }
-    }
+    "content_for_index": []
   },
   "installed_preset_name": "Enterprise",
   "presets": {
