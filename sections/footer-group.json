@@ -78,10 +78,10 @@
       "name": "Custom HTML/Liquid",
       "settings": {
         "custom_liquid": "",
-        "section_height": "small",
+        "section_height": "medium",
         "full_width": false,
         "dividers": "none",
-        "prevent_animation": false
+        "prevent_animation": true
       }
     },
     "footer": {
