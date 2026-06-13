@@ -22,7 +22,7 @@
         "pandaforms_pandaforms_section_z4qT4f": {
           "type": "shopify://apps/pandaforms/blocks/pandaforms_section/019ead7e-f128-76ab-95e8-1925b444562b",
           "settings": {
-            "form_id": "42904e6e-00c8-4f0b-b6de-e05cc5ddfa27",
+            "form_id": "e6103364-b6fe-4f74-b75f-788d2428b47e",
             "api_url": "https://p01--pandaforms-app--77wd8gj6rv7k.code.run",
             "card_spacing": "medium",
             "form_width": 800,
@@ -37,7 +37,7 @@
             "button_text_color": "#ffffff",
             "success_color": "#008060",
             "button_text": "Submit",
-            "button_radius": 6
+            "button_radius": 14
           }
         }
       },
